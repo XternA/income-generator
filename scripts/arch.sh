@@ -8,16 +8,16 @@ ARCH=$RAW_ARCH
 
 case $ARCH in
     "armv7l")
-        ARCH="arm32v7"
+        ARCH="arm32v7 ($RAW_ARCH)"
         ;;
     "aarch64")
-        ARCH="arm64v8"
+        ARCH="arm64v8 ($RAW_ARCH)"
         ;;
 esac
 
 echo "Hostname:         $HOST"
 echo "Platform:         $OS"
-echo "Architecture:     $ARCH ($RAW_ARCH)\n"
+echo "Architecture:     $ARCH\n"
 
 if [ "$ARCH" != "arm32v7" ] && [ "$ARCH" != "arm64v8" ]; then
     ARCH="latest"
