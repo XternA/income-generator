@@ -1,0 +1,37 @@
+services:
+    honeygain:
+        container_name: honeygain
+        image: honeygain/honeygain
+        restart: always
+        command: -tou-accept -email $HONEYGAIN_EMAIL -pass $HONEYGAIN_PASSWORD -device $DEVICE_ID
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+    pawns:
+        container_name: pawns
+        image: iproyal/pawns-cli
+        restart: always
+        command: -accept-tos -email=$PAWNS_EMAIL -password=$PAWNS_PASSWORD -device-name=$DEVICE_ID -device-id=$DEVICE_ID
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+    earnfm:
+        container_name: earnfm
+        image: earnfm/earnfm-client
+        restart: always
+        environment:
+            - EARNFM_TOKEN=$EARNFM_TOKEN
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE

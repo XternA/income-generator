@@ -1,0 +1,75 @@
+services:
+    repocket:
+        container_name: repocket
+        image: repocket/repocket
+        restart: always
+        environment:
+            - RP_EMAIL=$REPOCKET_EMAIL
+            - RP_API_KEY=$REPOCKET_API_KEY
+        platform: linux/amd64
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+    proxyrack:
+        container_name: proxyrack
+        image: proxyrack/pop
+        restart: always
+        environment:
+            - api_key=$PROXYRACK_API_KEY
+            - device_name=$DEVICE_ID
+            - UUID=$PROXYRACK_UUID
+        platform: linux/amd64
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+    proxylite:
+        container_name: proxylite
+        image: proxylite/proxyservice
+        restart: always
+        environment:
+            - USER_ID=$PROXYLITE_USER_ID
+        platform: linux/amd64
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+    spide:
+        container_name: spide
+        image: xterna/spide-network
+        restart: always
+        platform: linux/amd64
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+    bitping:
+        container_name: bitping
+        image: bitping/bitpingd
+        restart: always
+        entrypoint: /app/bitpingd
+        command: login --email "$BITPING_EMAIL" --password "$BITPING_PASSWORD"
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        volumes:
+            - bitping-data:/root/.bitpingd
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+volumes:
+    bitping-data:
