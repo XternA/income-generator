@@ -8,20 +8,22 @@ ARCH=$RAW_ARCH
 
 case $ARCH in
     "armv7l")
-        ARCH="arm32v7 ($RAW_ARCH)"
+        ARCH="arm32v7"
+        DISPLAY_ARCH="$ARCH ($RAW_ARCH)"
         ;;
     "aarch64")
-        ARCH="arm64v8 ($RAW_ARCH)"
+        ARCH="arm64v8"
+        DISPLAY_ARCH="$ARCH ($RAW_ARCH)"
+        ;;
+    *)
+        ARCH="latest"
+        DISPLAY_ARCH=$RAW_ARCH
         ;;
 esac
 
 echo "Hostname:         $HOST"
 echo "Platform:         $OS"
-echo "Architecture:     $ARCH\n"
-
-if [ "$ARCH" != "arm32v7" ] && [ "$ARCH" != "arm64v8" ]; then
-    ARCH="latest"
-fi
+echo "Architecture:     $DISPLAY_ARCH\n"
 
 if [ -f "$ENV_FILE" ]; then
     if grep -q "^DEVICE_ID=" "$ENV_FILE"; then
