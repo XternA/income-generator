@@ -20,8 +20,11 @@ if ! command -v jq > /dev/null 2>&1; then
         arch)
             sudo pacman -Syu --noconfirm jq > /dev/null 2>&1
             ;;
+        darwin)
+            brew install jq > /dev/null 2>&1
+            ;;
         *)
-            echo "Unsupported Linux distribution: $OS"
+            echo "Unsupported Unix distribution: $OS"
             exit 1
             ;;
     esac
