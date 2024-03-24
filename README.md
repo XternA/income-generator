@@ -67,7 +67,7 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 | --- | :---: | :---: | :---: | :---: |
 | **[EARNAPP](https://bit.ly/4a4XJLF)**         | :white_check_mark:  | :x:                 |15|1|
 | **[HONEYGAIN](https://bit.ly/3x6nX1S)**       | :white_check_mark:  | :x:                 |10|1|
-| **[PEER2PROFIT](https://bit.ly/3x7CquB)**     | :white_check_mark:  | :white_check_mark:	|Unlimited|Unlimited|
+| **[PEER2PROFIT](https://bit.ly/3x7CquB)**     | :white_check_mark:  | :white_check_mark:	 |Unlimited|Unlimited|
 | **[TRAFFMONETIZER](https://bit.ly/3TKmJlU)**  | :white_check_mark:  | :white_check_mark:  |Unlimited|Unlimited|
 | **[PAWNS](https://bit.ly/498zRFV)**           | :white_check_mark:  | :x:                 |Unlimited|1|
 | **[REPOCKET](https://bit.ly/3TNO6LY)**        | :white_check_mark:  | :white_check_mark:  |Unlimited|2|
@@ -90,8 +90,11 @@ The docker stack should work on anything that may have docker installed. In part
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
 
 :green_circle: - Everything supported, tested and working, including stack orchestration.
-:yellow_circle: - Almost everything supported, with only minor things aren't fully supported.
+
+:yellow_circle: - Almost everything supported, with only minor things that aren't fully supported.
+
 :orange_circle: - Orchestrating applications and docker stack should work, but not everything is intended for full support.
+
 :red_circle: - No current intended support.
 
 Note that working means within the tool when you run and interact with it.
@@ -102,7 +105,7 @@ Your efforts and interest is well appreciated if you would like to contribute an
 
 Even if you do not wish to contribute, you can still show your support by giving this project a star⭐.
 
-#### Donations 💸
+### Donations 💸
 Donations are warmly welcomed, no matter the amount, your support is gratefully appreciated. Additionally, it helps fuel future developments. Thank you. 🙏🏻
 
 - **Bitcoin (BTC)** - bc1qq993w3mxsf5aph5c362wjv3zaegk37tcvw7rl4
