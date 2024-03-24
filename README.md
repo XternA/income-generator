@@ -29,6 +29,7 @@ Assuming **Docker** and **Compose** is already pre-installed (Linux can directly
 git clone https://github.com/XternA/income-generator.git
 ```
 **2.** Register an account for each application in the **[applications table](#app-compatibility-)**.
+
 **3.** Navigate into the folder root and run the tool.
 ```sh
 cd income-generator
