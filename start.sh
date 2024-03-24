@@ -32,8 +32,8 @@ option_1() {
         options="(1-4)"
 
         echo "1. Only applications with VPS/Hosting support"
-        echo "2. All applications including residental IPs only support"
-        echo "3. All applications including residental IPs only support, excluding single instances only"
+        echo "2. All applications including residential IPs only support"
+        echo "3. All applications including residential IPs only support, excluding single instances only"
         echo "4. Applications with unlimited counts"
         echo "0. Return to Main Menu"
         echo
