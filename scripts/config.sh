@@ -41,9 +41,17 @@ input_new_value() {
 
 generate_uuid() {
     if [ "$denoter" = "#" ]; then
-        input=$(echo -n "sdk-node-" && head -c 1024 /dev/urandom | md5sum | tr -d ' -')
+        if [ $(uname) = 'Darwin' ]; then
+            input=$(echo "sdk-node-")$(head -c 1024 /dev/urandom | md5)
+        else
+            input=$(echo -n "sdk-node-")$(head -c 1024 /dev/urandom | md5sum | tr -d ' -')
+        fi
     elif [ "$denoter" = "*" ]; then
-        input=$(cat /proc/sys/kernel/random/uuid)
+        if [ $(uname) = 'Darwin' ]; then
+            input=$(uuidgen)
+        else
+            input=$(cat /proc/sys/kernel/random/uuid)
+        fi
     fi
     write_entry
 }

@@ -64,9 +64,9 @@ option_1() {
                     display_banner
                     echo $install_type
                     echo
-                    sudo docker compose --env-file $ENV_FILE $compose_files pull
-                    sudo docker container prune -f
-                    sudo docker compose --env-file $ENV_FILE $compose_files up --force-recreate --build -d
+                    docker compose --env-file $ENV_FILE $compose_files pull
+                    docker container prune -f
+                    docker compose --env-file $ENV_FILE $compose_files up --force-recreate --build -d
                     ;;
             0)
                 break  # Return to the main menu
@@ -92,7 +92,7 @@ option_3() {
     display_banner
     echo "Starting applications..."
     echo
-    sudo docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES start
+    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES start
     echo
     echo "All installed applications started."
     echo
@@ -103,7 +103,7 @@ option_4() {
     display_banner
     echo "Stopping applications..."
     echo
-    sudo docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
+    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
     echo
     echo "All running applications stopped."
     echo
@@ -114,9 +114,9 @@ option_5() {
     display_banner
     echo "Stopping and removing applications and volumes..."
     echo
-    sudo docker container prune -f
-    sudo docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
-    sudo docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES down -v
+    docker container prune -f
+    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
+    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES down -v
     echo
     echo "All installed applications and volumes removed."
     echo
@@ -127,7 +127,7 @@ option_6() {
     display_banner
     echo "Installed Containers:"
     echo
-    sudo docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES ps -a
+    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES ps -a
     echo
     printf "Press Enter to continue..."; read input
 }
@@ -164,7 +164,7 @@ option_7() {
                 echo "Invalid option. Please select a valid option $options."
                 ;;
         esac
-        printf -n "\nPress Enter to continue..."; read input
+        printf "\nPress Enter to continue..."; read input
     done
 }
 
@@ -199,6 +199,7 @@ option_8() {
                 echo
                 sh scripts/set-limit.sh "$limit_type"
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
+                sh scripts/cleanup.sh
                 ;;
             0)
                 break  # Return to the main menu
@@ -230,6 +231,7 @@ option_9() {
                 echo
                 sh scripts/set-limit.sh low
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
+                sh scripts/cleanup.sh
                 ;;
             2)
                 rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
@@ -238,6 +240,7 @@ option_9() {
                 ;;
             3)
                 echo
+                echo "Checking and attempting to get latest updates...\n"
                 git fetch; git reset --hard; git pull
                 ;;
             0)

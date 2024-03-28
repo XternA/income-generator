@@ -3,6 +3,12 @@
 ENV_FILE="$(pwd)/.env"
 DEFAULT_RESOURCE_LIMIT="min"
 
+if [ $(uname) = 'Linux' ]; then
+    SED_INPLACE="sed -i"
+elif [ $(uname) = 'Darwin' ]; then
+    SED_INPLACE="sed -i .bak"
+fi
+
 if [ ! -f "$ENV_FILE" ]; then
     echo "RESOURCE_LIMIT=$DEFAULT_RESOURCE_LIMIT" > "$ENV_FILE"
 fi
@@ -27,7 +33,7 @@ fi
 
 NEW_LIMIT=$1
 if grep -q "^RESOURCE_LIMIT=" "$ENV_FILE"; then
-    sed -i "s/^RESOURCE_LIMIT=.*/RESOURCE_LIMIT=$NEW_LIMIT/" "$ENV_FILE"
+    $SED_INPLACE "s/^RESOURCE_LIMIT=.*/RESOURCE_LIMIT=$NEW_LIMIT/" "$ENV_FILE"
 else
     echo "RESOURCE_LIMIT=$NEW_LIMIT" >> "$ENV_FILE"
 fi

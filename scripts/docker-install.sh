@@ -1,6 +1,10 @@
 #!/bin/sh
 
-OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
+if [ $(uname) = 'Linux' ]; then
+    OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
+elif [ $(uname) = 'Darwin' ]; then
+    OS='darwin'
+fi
 ARCH=$(uname -m)
 
 # CentOS/RHEL
@@ -50,29 +54,43 @@ install_arch() {
     sudo systemctl enable docker
 }
 
-# -----[ Main ]----------------------------------------------------------
-case $OS in
-    centos | rhel)
-        install_centos
-        ;;
-    debian | ubuntu | raspbian)
-        install_debian
-        ;;
-    fedora)
-        install_fedora
-        ;;
-    sles)
-        install_sles
-        ;;
-    arch)
-        install_arch
-        ;;
-    *)
-        echo "Unsupported Linux distribution: $OS"
-        exit 1
-        ;;
-esac
+install_darwin() {
+    brew install --cask docker
+    echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
+    open -a Docker
+}
 
-sudo usermod -aG docker "$(whoami)"
-echo
-echo "Docker and Docker Compose have been installed successfully."
+# -----[ Main ]----------------------------------------------------------
+if ! command -v docker > /dev/null 2>&1; then
+    case $OS in
+        centos | rhel)
+            install_centos
+            ;;
+        debian | ubuntu | raspbian)
+            install_debian
+            ;;
+        fedora)
+            install_fedora
+            ;;
+        sles)
+            install_sles
+            ;;
+        arch)
+            install_arch
+            ;;
+        darwin)
+            install_darwin
+            ;;
+        *)
+            echo "Unsupported Unix distribution: $OS"
+            exit 1
+            ;;
+    esac
+    if [ $(uname) = 'Linux' ]; then
+        sudo usermod -aG docker "$(whoami)"
+    fi
+    echo
+    echo "Docker have been installed successfully."
+else
+    echo "Docker already exist."
+fi

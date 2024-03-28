@@ -22,20 +22,38 @@ By seamlessly integrating these applications, simplifying the entire process, ma
 - For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as **[qemu-user-static (qus)](https://github.com/dbhi/qus)** to run x86 architecture on ARM. This can be easily enabled via the Docker container.
 
 ### Quick Start Guide ⚙️
-Assuming **Docker** and **Compose** is already pre-installed (Linux can directly install from the tool menu):
+Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
+
+:warning: *Newer versions of Docker integrates Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
 
 **1.** Open the terminal and clone the project.
 ```sh
-git clone https://github.com/XternA/income-generator.git
+git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-generator
 ```
-**2.** Register an account for each application in the **[applications table](#app-compatibility-)**.
-
-**3.** Navigate into the folder root and run the tool.
+**2.** Add to path then source the shell file for global access.
 ```sh
+# To find out which shell the terminal is using
+echo $SHELL
+
+# If shell is bash
+echo "alias igm='(cd $HOME/workspace/income-generator; sh start.sh)'" >> ~/.bashrc
+source ~/.bashrc
+
+# If shell is zsh
+echo "alias igm='(cd $HOME/workspace/income-generator; sh start.sh)'" >> ~/.zshrc
+source ~/.zshrc
+```
+**3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
+**4.** Run the tool via alias or within folder.
+```sh
+# Just type anywhere in the shell
+igm
+
+# If prefer to run from tool folder
 cd income-generator
 sh start.sh
 ```
-**4.** Follow the setup configuration which will have comments regarding tips for configuration.
+**5.** Follow the setup configuration which will have comments regarding tips for configuration.
 ```
 1. Install & Run Applications
 2. Setup Configuration
@@ -44,7 +62,7 @@ sh start.sh
 ...
 Select an option (1-9):
 ```
-**5.** Select choice 1 to install, then pick accordingly to install based on what IP address the device is connected as.
+**6.** Select choice 1 to install, then pick accordingly to install based on what IP address the device is connected as.
 ```
 1. Only applications with VPS/Hosting support
 2. All applications including residential IPs only support
@@ -86,12 +104,12 @@ The docker stack should work on anything that may have docker installed. In part
 
 | Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | MacOS Intel (x86_64) | MacOS Apple Silicon (arm64) |
 | :---: | :---: | :---: | :---: | :---: |
-| :red_circle: | :green_circle: | :green_circle: | :orange_circle: | :orange_circle: |
+| :red_circle: | :green_circle: | :green_circle: | :yellow_circle: | :yellow_circle: |
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
 
 :green_circle: - Everything supported, tested and working, including stack orchestration.
 
-:yellow_circle: - Almost everything supported, with only minor things that aren't fully supported.
+:yellow_circle: - Almost everything supported, with only minor things which may not be fully supported.
 
 :orange_circle: - Orchestrating applications and docker stack should work, but not everything is intended for full support.
 

@@ -7,8 +7,15 @@ LIMIT_TYPE=${1:-min}
 YELLOW='\033[1;33m'
 NC='\033[0m'  # No Color
 
-CPU_CORES=$(nproc)
-TOTAL_RAM=$(free -k | awk '/^Mem:/{print $2}')
+if [ $(uname) = 'Linux' ]; then
+    CPU_CORES=$(nproc)
+    TOTAL_RAM=$(free -k | awk '/^Mem:/{print $2}')
+    SED_INPLACE="sed -i"
+elif [ $(uname) = 'Darwin' ]; then
+    CPU_CORES=$(sysctl -n hw.physicalcpu)
+    TOTAL_RAM=$(sysctl -n hw.memsize)
+    SED_INPLACE="sed -i .bak"
+fi
 TOTAL_RAM_MB=$((TOTAL_RAM / 1024))
 
 # Calculate default and bare minimum CPU and RAM limits
@@ -64,19 +71,19 @@ RAM_RESERVE="${RAM_RESERVE}m"
 
 if [ -f "$ENV_FILE" ]; then
     if grep -q "^CPU_LIMIT=" "$ENV_FILE"; then
-        sed -i "s|^CPU_LIMIT=.*|CPU_LIMIT=$CPU_LIMIT_STR|" "$ENV_FILE"
+        $SED_INPLACE "s/^CPU_LIMIT=.*/CPU_LIMIT=$CPU_LIMIT_STR/" "$ENV_FILE"
     else
         echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_FILE"
     fi
 
     if grep -q "^RAM_LIMIT=" "$ENV_FILE"; then
-        sed -i "s|^RAM_LIMIT=.*|RAM_LIMIT=$RAM_LIMIT|" "$ENV_FILE"
+        $SED_INPLACE "s/^RAM_LIMIT=.*/RAM_LIMIT=$RAM_LIMIT/" "$ENV_FILE"
     else
         echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_FILE"
     fi
 
     if grep -q "^RAM_RESERVE=" "$ENV_FILE"; then
-        sed -i "s|^RAM_RESERVE=.*|RAM_RESERVE=$RAM_RESERVE|" "$ENV_FILE"
+        $SED_INPLACE "s/^RAM_RESERVE=.*/RAM_RESERVE=$RAM_RESERVE/" "$ENV_FILE"
     else
         echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_FILE"
     fi
