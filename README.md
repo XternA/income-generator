@@ -36,11 +36,11 @@ git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-gen
 echo $SHELL
 
 # If shell is bash
-echo "alias igm='(cd $HOME/workspace/income-generator; sh start.sh)'" >> ~/.bashrc
+echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/.bashrc
 source ~/.bashrc
 
 # If shell is zsh
-echo "alias igm='(cd $HOME/workspace/income-generator; sh start.sh)'" >> ~/.zshrc
+echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/.zshrc
 source ~/.zshrc
 ```
 **3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
