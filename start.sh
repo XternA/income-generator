@@ -199,7 +199,6 @@ option_8() {
                 echo
                 sh scripts/set-limit.sh "$limit_type"
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
-                sh scripts/cleanup.sh
                 ;;
             0)
                 break  # Return to the main menu
@@ -231,7 +230,6 @@ option_9() {
                 echo
                 sh scripts/set-limit.sh low
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
-                sh scripts/cleanup.sh
                 ;;
             2)
                 rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
@@ -259,6 +257,7 @@ option_9() {
 while true; do
     display_banner
     stats
+    sh scripts/cleanup.sh
 
     options="(1-9)"
 

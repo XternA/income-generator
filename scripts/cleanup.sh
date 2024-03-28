@@ -2,4 +2,6 @@
 
 ENV_FILE="$(pwd)/.env"
 
-rm -rf $ENV_FILE".bak"
+if [ $(uname) = 'Darwin' ]; then
+    rm -rf $ENV_FILE".bak"
+fi

@@ -18,7 +18,6 @@ if [ $# -eq 0 ]; then
         CURRENT_LIMIT=$(grep "^RESOURCE_LIMIT=" "$ENV_FILE" | cut -d '=' -f2)
         echo "Current resource limit is set to: $CURRENT_LIMIT"
     else
-        # Insert default RESOURCE_LIMIT if it doesn't exist
         echo "RESOURCE_LIMIT=$DEFAULT_RESOURCE_LIMIT" >> "$ENV_FILE"
         echo "Default resource limit '$DEFAULT_RESOURCE_LIMIT' inserted into $ENV_FILE"
     fi
