@@ -6,6 +6,12 @@ OS="$(uname -s)"
 RAW_ARCH="$(uname -m)"
 ARCH=$RAW_ARCH
 
+if [ $(uname) = 'Linux' ]; then
+    SED_INPLACE="sed -i"
+elif [ $(uname) = 'Darwin' ]; then
+    SED_INPLACE="sed -i .bak"
+fi
+
 case $ARCH in
     "armv7l")
         ARCH="arm32v7"
@@ -27,12 +33,12 @@ echo "Architecture:     $DISPLAY_ARCH\n"
 
 if [ -f "$ENV_FILE" ]; then
     if grep -q "^DEVICE_ID=" "$ENV_FILE"; then
-        sed -i "s/^DEVICE_ID=.*/DEVICE_ID=$HOST/" "$ENV_FILE"
+        $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=$HOST/" "$ENV_FILE"
     else
         echo "DEVICE_ID=$HOST" >> "$ENV_FILE"
     fi
     if grep -q "^ARCH=" "$ENV_FILE"; then
-        sed -i "s/^ARCH=.*/ARCH=$ARCH/" "$ENV_FILE"
+        $SED_INPLACE "s/^ARCH=.*/ARCH=$ARCH/" "$ENV_FILE"
     else
         echo "ARCH=$ARCH" >> "$ENV_FILE"
     fi
