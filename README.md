@@ -1,30 +1,37 @@
  # Income Generator
 
-**[ Docker Stack | Containerized | Passive Income | Auto Update ]**
+**[ Multi-Platform | Docker Stack | Containerized | Passive Income | Auto Update ]**
 
 If you like this project, don't forget to leave a star. ⭐
 
 ---
-***NOTE:** "This tool has always been developed for my own personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
+***NOTE:** "This tool has always been developed for my personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
 
-## Overview 🚀📑
+## Overview 📚
 **Income Generator** is an all-in-one tool that consolidates a variety of supported applications, enabling users to generate passive income by leveraging everyday devices and unused internet bandwidth.
 
 By seamlessly integrating these applications, simplifying the entire process, making it more efficient and accessible with applications auto-updating.
+
+Some of the key features you can expect:
+- **Easy To Use** - All-in-one solution for managing the stack. Docker installation, start/stop/remove.
+- **Multi-platform** - Deploy across different OS (Windows to come later).
+- **Global Access** - Access the tool anywhere, just type `igm`.
+- **Auto update** - Ensures applications always running up-to-date.
+- **Resource Limit** - Easily apply resource limit based on system hardware.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
 **Everything the tool configures to run will be under a containerised virtualised environment isolated from the host.**
 
-- The tool works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will will definitely come with certain performance limitations, specifically with lower memory availability.
+- The tool works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will will come with certain performance limitations, specifically with lower memory availability.
 - A minimum of 4GB would be best recommended to ensure the most resource available and for future expansions.
-- The stack requires **Docker** and **Compose** in order to operate as everything is ran in a containerised environment and easily managed.
+- The stack requires **Docker** and **Compose** to operate as everything is running in a containerised environment and easily managed.
 - For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as **[qemu-user-static (qus)](https://github.com/dbhi/qus)** to run x86 architecture on ARM. This can be easily enabled via the Docker container.
 
 ### Quick Start Guide ⚙️
 Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
 
-:warning: *Newer versions of Docker integrates Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
+:warning: *Newer versions of Docker integrate Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
 
 **1.** Open the terminal and clone the project.
 ```sh
@@ -44,16 +51,16 @@ echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/.zshrc
 source ~/.zshrc
 ```
 **3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
-**4.** Run the tool via alias or within folder.
+**4.** Run the tool via the alias or within the folder.
 ```sh
 # Just type anywhere in the shell
 igm
 
-# If prefer to run from tool folder
-cd income-generator
+# If prefer to run from within the tool folder
+cd ~/.income-generator
 sh start.sh
 ```
-**5.** Follow the setup configuration which will have comments regarding tips for configuration.
+**5.** Follow the setup configuration which will have comments regarding configuration tips.
 ```
 1. Install & Run Applications
 2. Setup Configuration
@@ -62,7 +69,7 @@ sh start.sh
 ...
 Select an option (1-9):
 ```
-**6.** Select choice 1 to install, then pick accordingly to install based on what IP address the device is connected as.
+**6.** Select choice 1 to install, then pick accordingly to install based on what IP address the device is connected to.
 ```
 1. Only applications with VPS/Hosting support
 2. All applications including residential IPs only support
@@ -74,9 +81,9 @@ Select an option (1-4):
 **6.** Start earning passively. 💸
 
 ## App Compatibility 📋
-Using the table below, each app can be identified its total install count per IP type. This indicates which stack option to run in the **'Install & Run Applications'** option of the tool.
+Using the table below, each app can identify its total install count per IP type. This indicates which stack option to run in the **'Install & Run Applications'** option of the tool.
 
-Each app has been grouped in the install option. Therefore, whether it be residential or hosting already installed in the same network, you can install on another device within the same network using the selective choice. The tool will install all the apps that meet the conditions below.
+Each app has been grouped in the install option. Therefore, whether it be residential or hosting already installed in the same network, you can install it on another device within the same network using the selective choice. The tool will install all the apps that meet the conditions below.
 
 - 📋 Register via the links below will entitle you to receive a bonus added to your account on registration. Additionally, it ensures you're registering at the correct site and showing your support for my work.
 - 🔐 If using social logins such as Google, be sure to set a password to the account as it will be required for authentication to the app later.
@@ -109,7 +116,7 @@ The docker stack should work on anything that may have docker installed. In part
 
 :green_circle: - Everything supported, tested and working, including stack orchestration.
 
-:yellow_circle: - Almost everything supported, with only minor things which may not be fully supported.
+:yellow_circle: - Almost everything is supported, with only minor things which may not be fully supported.
 
 :orange_circle: - Orchestrating applications and docker stack should work, but not everything is intended for full support.
 
@@ -119,9 +126,9 @@ Note that working means within the tool when you run and interact with it.
 
 ## Like The Project? 🫶
 
-Your efforts and interest is well appreciated if you would like to contribute and improve the tool or compatibility and enabling it widely available and easy to use.
+Your efforts and interest are well appreciated if you would like to contribute and improve the tool or compatibility and enable it widely available and easy to use.
 
-Even if you do not wish to contribute, you can still show your support by giving this project a star⭐.
+Even if you do not wish to contribute, you can still show your support by giving this project a star ⭐.
 
 ### Donations 💸
 Donations are warmly welcomed, no matter the amount, your support is gratefully appreciated. Additionally, it helps fuel future developments. Thank you. 🙏🏻
@@ -135,7 +142,7 @@ Donations are warmly welcomed, no matter the amount, your support is gratefully 
 
 ---
 ### :warning: Disclaimer
-Prior to using the applications provided in this stack, it is essential to verify that your actions comply with the laws of your jurisdiction and adhere to the terms outlined in your internet service provider's contract. The integration of these applications within this stack is purely for user convenience and does not signify an endorsement of their utilization.
+Before using the applications provided in this stack, it is essential to verify that your actions comply with the laws of your jurisdiction and adhere to the terms outlined in your internet service provider's contract. The integration of these applications within this stack is purely for user convenience and does not signify an endorsement of their utilization.
 
 The author of this stack does not accept any responsibility for the outcomes resulting from the utilization of these applications. While this stack streamlines the configuration process and facilitates automated updates for the included applications, it is distributed on an "as is" basis without any warranties.
 
