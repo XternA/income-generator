@@ -19,6 +19,8 @@ Some of the key features you can expect:
 - **Auto update** - Ensures applications always running up-to-date.
 - **Resource Limit** - Easily apply resource limit based on system hardware.
 
+📖 Visit the [Wiki](../../wiki) for more details and in-depth instructions.
+
 ## Getting Started 🚥
 ### Prerequisite 📦
 **Everything the tool configures to run will be under a containerised virtualised environment isolated from the host.**
