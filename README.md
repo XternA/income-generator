@@ -19,7 +19,7 @@ Some of the key features you can expect:
 - **Auto update** - Ensures applications always running up-to-date.
 - **Resource Limit** - Easily apply resource limit based on system hardware.
 
-📖 Visit the [Wiki](../../wiki) for more details and in-depth instructions.
+📖 Referrng to the [Wiki](../../wiki) is strongly recommended for more details and in-depth instructions.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
