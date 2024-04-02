@@ -17,6 +17,8 @@ Some of the key features you can expect:
 - **Multi-platform** - Deploy across different OS (Windows to come later).
 - **Global Access** - Access the tool anywhere, just type `igm`.
 - **Auto update** - Ensures applications always running up-to-date.
+- **On-the-fly-update** - Tool can be updated on the fly whilst preserving config settings.
+- **Local Config** - Config file is auto-generated and stored locally, including credentials.
 - **Resource Limit** - Easily apply resource limit based on system hardware.
 
 📖 Referring to the [Wiki](../../wiki) is strongly recommended for more details and in-depth instructions.
