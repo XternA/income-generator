@@ -2,57 +2,99 @@ Proprietary Software License
 
 Version 1.0
 
-This Proprietary Software License ("License") is a legal agreement between you ("Licensee") and XternA ("Licensor"). By downloading, installing, or using the software provided under this License, you agree to be bound by the terms and conditions of this License. If you do not agree to these terms and conditions, do not download, install, or use the software.
+This Proprietary Software License ("License") is a legal agreement between you ("Licensee")
+and XternA ("Licensor"). By downloading, installing, or using the software provided under
+this License, you agree to be bound by the terms and conditions of this License. If you do
+not agree to these terms and conditions, do not download, install, or use the software.
 
 1. License Grant:
 
-   Subject to the terms and conditions of this Agreement, the Licensor grants you, the Licensee a non-exclusive, non-transferable, revocable license to use the software for both non-commercial and commercial purposes, subject to the limitations and obligations outlined in this License.
+   Subject to the terms and conditions of this Agreement, the Licensor grants you, the
+   Licensee a non-exclusive, non-transferable, revocable license to use the software
+   for both non-commercial and commercial purposes, subject to the limitations and
+   obligations outlined in this License.
 
 2. Restrictions:
 
    The Licensee shall not:
-      a. Modify, adapt, translate, reverse engineer, decompile, disassemble, or create derivative works based on the software.
+      a. Modify, adapt, translate, reverse engineer, decompile, disassemble, or create
+         derivative works based on the software.
 
-      b. Sell, rent, lease, sublicense, distribute, or otherwise transfer the software or any portion thereof to any third party without prior written consent from the Licensor.
+      b. Sell, rent, lease, sublicense, distribute, or otherwise transfer the software
+         or any portion thereof to any third party without prior written consent from
+         the Licensor.
 
-      c. Remove or alter any labels, copyright, trademark, or other proprietary rights notices contained in the Software;
+      c. Remove or alter any labels, copyright, trademark, or other proprietary rights
+         notices contained in the Software;
 
-      d. Use the Software in any manner that infringes the intellectual property rights of Licensor or any third party;
+      d. Use the Software in any manner that infringes the intellectual property rights
+         of Licensor or any third party;
 
-      e. Use the Software for any unlawful purpose or in violation of any applicable laws or regulations.
+      e. Use the Software for any unlawful purpose or in violation of any applicable laws
+         or regulations.
 
 3. Contributions:
 
-   You may submit contributions or improvements to the Software to the Licensor for incorporation into the main branch via a pull request, subject to Licensor approval. By submitting contributions, you grant Licensor a perpetual, irrevocable, worldwide, royalty-free, non-exclusive license to use, reproduce, modify, distribute, and sublicense your contributions, including any intellectual property rights therein. Licensee shall not create or distribute their separate versions or forks of the software without prior written consent from Licensor.
+   You may submit contributions or improvements to the Software to the Licensor for
+   incorporation into the main branch via a pull request, subject to Licensor approval.
+   By submitting contributions, you grant Licensor a perpetual, irrevocable, worldwide,
+   royalty-free, non-exclusive license to use, reproduce, modify, distribute, and
+   sublicense your contributions, including any intellectual property rights therein.
+   Licensee shall not create or distribute their separate versions or forks of the
+   software without prior written consent from Licensor.
 
 4. Ownership:
 
-   Licensor retains all rights, title, and interest in and to the software, including any and all intellectual property rights. Licensee acknowledges that this License does not grant Licensee any ownership or rights in the software except as expressly stated herein.
+   Licensor retains all rights, title, and interest in and to the software, including any
+   and all intellectual property rights. Licensee acknowledges that this License does not
+   grant Licensee any ownership or rights in the software except as expressly stated
+   herein.
 
 5. Disclaimer of Warranty
 
-   The Software is provided "as is" without warranty of any kind, express or implied. Licensor disclaims all warranties, express or implied, including, but not limited to, the implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+   The Software is provided "as is" without warranty of any kind, express or implied.
+   Licensor disclaims all warranties, express or implied, including, but not limited to,
+   the implied warranties of merchantability, fitness for a particular purpose, and
+   non-infringement.
 
 6. Limitation of Liability:
 
-   In no event shall Licensor be liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to, procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising out of or in connection with the use or performance of the Software, even if advised of the possibility of such damages.
+   In no event shall Licensor be liable for any direct, indirect, incidental, special,
+   exemplary, or consequential damages (including, but not limited to, procurement of
+   substitute goods or services; loss of use, data, or profits; or business interruption)
+   however caused and on any theory of liability, whether in contract, strict liability,
+   or tort (including negligence or otherwise) arising out of or in connection with the
+   use or performance of the Software, even if advised of the possibility of such damages.
 
 6. Indemnification:
 
-   You, the Licensee agree to indemnify, defend and hold harmless the Licensor from and against any and all claims, damages, liabilities, any losses, costs, and expenses (including reasonable attorneys' fees) arising out of or the result of any violation from this Agreement or misuse of the Software.
+   You, the Licensee agree to indemnify, defend and hold harmless the Licensor from and
+   against any and all claims, damages, liabilities, any losses, costs, and expenses
+   (including reasonable attorneys' fees) arising out of or the result of any violation
+   from this Agreement or misuse of the Software.
 
 7. Governing Law:
 
-   This License shall be governed by and construed in accordance with the laws of the United Kingdom, without regard to its conflicts of law principles.
+   This License shall be governed by and construed in accordance with the laws of the
+   United Kingdom, without regard to its conflicts of law principles.
 
 8. Termination:
 
-   Licensor may terminate this Agreement at any time if you fail to comply with any term or condition of this Agreement. Upon termination, you must cease all use of the Software and destroy all copies of the Software in your possession or control.
+   Licensor may terminate this Agreement at any time if you fail to comply with any term
+   or condition of this Agreement. Upon termination, you must cease all use of the
+   Software and destroy all copies of the Software in your possession or control.
 
 9. Miscellaneous:
 
-   This Agreement constitutes the entire agreement between you and the Licensor concerning the subject matter hereof and supersedes all prior or contemporaneous understandings and agreements, whether written or oral.
+   This Agreement constitutes the entire agreement between you and the Licensor concerning
+   the subject matter hereof and supersedes all prior or contemporaneous understandings
+   and agreements, whether written or oral.
 
-   This Agreement may be amended or modified only in writing signed by both parties. If any provision of this Agreement is held to be unenforceable, such provision shall be amended to achieve as nearly as possible the same economic effect as the original provision, and the remainder of this Agreement shall continue in full force and effect.
+   This Agreement may be amended or modified only in writing signed by both parties.
+   If any provision of this Agreement is held to be unenforceable, such provision shall be
+   amended to achieve as nearly as possible the same economic effect as the original
+   provision, and the remainder of this Agreement shall continue in full force and effect.
 
-Please review this Agreement carefully before downloading, installing, or using the Software. By using the Software, you acknowledge that you have read, understood, and agree to be bound by the terms and conditions of this Agreement.
+Please review this Agreement carefully before downloading, installing, or using the
+Software. By using the Software, you acknowledge that you have read, understood, and
+agree to be bound by the terms and conditions of this Agreement.
