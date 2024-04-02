@@ -134,14 +134,14 @@ Your efforts and interest are well appreciated if you would like to contribute a
 Even if you do not wish to contribute, you can still show your support by giving this project a star ⭐.
 
 ### Donations 💸
-Donations are warmly welcomed, no matter the amount, your support is gratefully appreciated. Additionally, it helps fuel future developments. Thank you. 🙏🏻
-
-- **Bitcoin (BTC)** - bc1qq993w3mxsf5aph5c362wjv3zaegk37tcvw7rl4
-- **Ethereum (ETH)** - 0x2601B9940F9594810DEDC44015491f0f9D6Dd1cA
-- **Binance (BNB)** - bnb1dj3l3fp24z05vtwtjpaatjyz9sll4elu9lkjww
-- **Binance Smart Chain (BSC)** - 0x2601B9940F9594810DEDC44015491f0f9D6Dd1cA
-- **Solana (SOL)** - Ap5aiAbnsLtR2XVJB3sp37qdNP5VfqydAgUThvdEiL5i
+- **Bitcoin (BTC)** - `bc1qq993w3mxsf5aph5c362wjv3zaegk37tcvw7rl4`
+- **Ethereum (ETH)** - `0x2601B9940F9594810DEDC44015491f0f9D6Dd1cA`
+- **Binance (BNB)** - `bnb1dj3l3fp24z05vtwtjpaatjyz9sll4elu9lkjww`
+- **Binance Smart Chain (BSC)** - `0x2601B9940F9594810DEDC44015491f0f9D6Dd1cA`
+- **Solana (SOL)** - `Ap5aiAbnsLtR2XVJB3sp37qdNP5VfqydAgUThvdEiL5i`
 - **PayPal** - [@xterna](https://paypal.me/xterna)
+
+Donations are warmly welcomed, no matter the amount, your support is gratefully appreciated. Additionally, it helps fuel future developments and maintenance. Thank you. 🙏🏻
 
 ---
 ### :warning: Disclaimer
