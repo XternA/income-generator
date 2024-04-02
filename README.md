@@ -53,6 +53,7 @@ echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/.zshrc
 source ~/.zshrc
 ```
 **3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
+
 **4.** Run the tool via the alias or within the folder.
 ```sh
 # Just type anywhere in the shell
