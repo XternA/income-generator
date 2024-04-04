@@ -61,7 +61,9 @@ services:
         image: mrcolorrain/bitping
         restart: always
         hostname: $DEVICE_ID
-        command: login --email "$BITPING_EMAIL" --password "$BITPING_PASSWORD"
+        environment:
+            - BITPING_EMAIL=$BITPING_EMAIL
+            - BITPING_PASSWD=$BITPING_PASSWORD
         dns:
             - 1.1.1.1
             - 8.8.8.8
