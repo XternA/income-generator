@@ -2,7 +2,7 @@
 
 display_banner() {
     clear
-    echo "Pre-requisite Initialiser"
+    echo "Prerequisite Initialiser"
     echo "----------------------------------------"
     echo
 }

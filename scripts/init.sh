@@ -3,7 +3,7 @@
 ENV_FILE="$(pwd)/.env"
 LIMIT_TYPE="low"
 
-sh scripts/pre-requisite.sh
+sh scripts/prerequisite.sh
 
 if [ ! -f $ENV_FILE ]; then
     sh scripts/arch.sh > /dev/null 2>&1
