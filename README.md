@@ -8,7 +8,7 @@ If you like this project, don't forget to leave a star. ⭐
 ***NOTE:** "This tool has always been developed for my personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
 
 ## Overview 📚
-**Income Generator** is an all-in-one tool that consolidates a variety of supported applications, enabling users to generate passive income by leveraging everyday devices and unused internet bandwidth.
+**Income Generator** is an all-in-one tool that consolidates a variety of supported applications, enabling the ability to generate passive income by leveraging everyday devices and unused internet bandwidth.
 
 By seamlessly integrating these applications, simplifying the entire process, making it more efficient and accessible with applications auto-updating.
 
@@ -116,7 +116,7 @@ The docker stack should work on anything that may have docker installed. In part
 
 | Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | MacOS Intel (x86_64) | MacOS Apple Silicon (arm64) |
 | :---: | :---: | :---: | :---: | :---: |
-| :red_circle: | :green_circle: | :green_circle: | :yellow_circle: | :yellow_circle: |
+| :red_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
 
 :green_circle: - Everything supported, tested and working, including stack orchestration.
