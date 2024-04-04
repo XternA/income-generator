@@ -29,7 +29,9 @@ Some of the key features you can expect:
 - The tool works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will will come with certain performance limitations, specifically with lower memory availability.
 - A minimum of 4GB would be best recommended to ensure the most resource available and for future expansions.
 - The stack requires **Docker** and **Compose** to operate as everything is running in a containerised environment and easily managed.
-- For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as **[qemu-user-static (qus)](https://github.com/dbhi/qus)** to run x86 architecture on ARM. This can be easily enabled via the Docker container.
+- For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as **[qemu-user-static (qus)](https://github.com/dbhi/qus)** to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
+
+Check the [Prerequisites](../../wiki/Prerequisites) section for emulation layer setup.
 
 ### Quick Start Guide ⚙️
 Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
