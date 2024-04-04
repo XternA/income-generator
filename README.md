@@ -33,7 +33,7 @@ Some of the key features you can expect:
 
 Check the [Prerequisites](wiki/Prerequisites#arm-devices) section for emulation layer setup.
 
-For Windows users, refer to the [Windows](wiki/Windows-Host) guide as the setup is different from Unix systems. WSL can follow [quick start guide](#quick-start-guide-) provided prerequisites have been met.
+For Windows users, refer to the [Windows](wiki/Windows-Host) guide as the setup is different from Unix systems. WSL can follow [quick start guide](#quick-start-guide-%EF%B8%8F) provided prerequisites have been met.
 
 ### Quick Start Guide ⚙️
 Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
@@ -119,7 +119,7 @@ The docker stack should work on anything that may have docker installed. In part
 
 | Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | MacOS Intel (x86_64) | MacOS Apple Silicon (arm64) |
 | :---: | :---: | :---: | :---: | :---: |
-| :red_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
+| :orange_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
 
 :green_circle: - Everything supported, tested and working, including stack orchestration.
