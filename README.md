@@ -13,7 +13,7 @@ By seamlessly integrating these applications, simplifying the entire process, ma
 
 Some of the key features you can expect:
 - **Easy To Use** - All-in-one solution for managing the stack. Docker installation, start/stop/remove.
-- **Multi-platform** - Deploy across different OS (Windows to come later).
+- **Multi-platform** - Deploy across different OS.
 - **Global Access** - Access the tool anywhere, just type `igm`.
 - **Auto update** - Ensures applications always running up-to-date.
 - **On-the-fly-update** - Tool can be updated on the fly whilst preserving config settings.
@@ -31,7 +31,9 @@ Some of the key features you can expect:
 - The stack requires **Docker** and **Compose** to operate as everything is running in a containerised environment and easily managed.
 - For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as **[qemu-user-static (qus)](https://github.com/dbhi/qus)** to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
 
-Check the [Prerequisites](../../wiki/Prerequisites#arm-devices) section for emulation layer setup.
+Check the [Prerequisites](wiki/Prerequisites#arm-devices) section for emulation layer setup.
+
+For Windows users, refer to the [Windows](wiki/Windows-Host) guide as the setup is different from Unix systems. WSL can follow [quick start guide](#quick-start-guide-) provided prerequisites have been met.
 
 ### Quick Start Guide ⚙️
 Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
