@@ -4,8 +4,7 @@
 
 If you like this project, don't forget to leave a star. ⭐
 
----
-***NOTE:** "This tool has always been developed for my personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
+>**NOTE:** *"This tool has always been developed for my personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
 
 ## Overview 📚
 **Income Generator** is an all-in-one tool that consolidates a variety of supported applications, enabling the ability to generate passive income by leveraging everyday devices and unused internet bandwidth.
