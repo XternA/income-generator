@@ -58,9 +58,9 @@ services:
 
     bitping:
         container_name: bitping
-        image: bitping/bitpingd
+        image: mrcolorrain/bitping
         restart: always
-        entrypoint: /app/bitpingd
+        hostname: $DEVICE_ID
         command: login --email "$BITPING_EMAIL" --password "$BITPING_PASSWORD"
         dns:
             - 1.1.1.1
