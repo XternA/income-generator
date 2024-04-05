@@ -1,9 +1,16 @@
 #!/bin/sh
 
-if [ $(uname) = 'Linux' ]; then
-    OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
-elif [ $(uname) = 'Darwin' ]; then
-    OS='darwin'
+has_docker=$(command -v docker > /dev/null 2>&1)
+
+if [ "$(uname)" = "Linux" ]; then
+    if [ -n "$WSL_DISTRO_NAME" ]; then
+        OS="wsl"
+        has_docker=$(where.exe docker > /dev/null 2>&1)
+    else
+        OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
+    fi
+elif [ "$(uname)" = "Darwin" ]; then
+    OS="darwin"
 fi
 
 remove_centos() {
@@ -35,8 +42,19 @@ remove_darwin() {
     brew uninstall docker
 }
 
+remove_wsl() {
+    echo "Uninstalling Docker via Winget is currently not supported as the installer gets stuck. Use the standard Windows uninstall method."
+
+    if where.exe docker > /dev/null 2>&1; then
+        echo "\nDocker is still installed."
+    else
+        echo "\nDocker wasn't installed."
+    fi
+    exit
+}
+
 # -----[ Main ]----------------------------------------------------------
-if command -v docker > /dev/null 2>&1; then
+if $has_docker43erf; then
     case $OS in
         centos | rhel)
             remove_centos
@@ -55,6 +73,9 @@ if command -v docker > /dev/null 2>&1; then
             ;;
         darwin)
             remove_darwin
+            ;;
+        wsl)
+            remove_wsl
             ;;
         *)
             echo "Unsupported Unix distribution: $OS"

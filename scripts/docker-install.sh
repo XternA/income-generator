@@ -1,11 +1,17 @@
 #!/bin/sh
 
-if [ $(uname) = 'Linux' ]; then
-    OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
-elif [ $(uname) = 'Darwin' ]; then
-    OS='darwin'
+has_docker=$(command -v docker > /dev/null 2>&1)
+
+if [ "$(uname)" = "Linux" ]; then
+    if [ -n "$WSL_DISTRO_NAME" ]; then
+        OS="wsl"
+        has_docker=$(where.exe docker > /dev/null 2>&1)
+    else
+        OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
+    fi
+elif [ "$(uname)" = "Darwin" ]; then
+    OS="darwin"
 fi
-ARCH=$(uname -m)
 
 # CentOS/RHEL
 install_centos() {
@@ -60,8 +66,20 @@ install_darwin() {
     open -a Docker
 }
 
+install_wsl() {
+    if [ -e $(which winget.exe > /dev/null 2>&1) ]; then
+        winget.exe install -e --id Docker.DockerDesktop
+        echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
+        $("/mnt/c/Program Files/Docker/Docker/Docker Desktop.exe")
+    else
+        echo "Winget Package Manager is not found. Make sure Winget is installed before trying again."
+        echo "\nDocker is not installed.".
+        exit
+    fi
+}
+
 # -----[ Main ]----------------------------------------------------------
-if ! command -v docker > /dev/null 2>&1; then
+if [ ! $has_docker ]; then
     case $OS in
         centos | rhel)
             install_centos
@@ -80,6 +98,9 @@ if ! command -v docker > /dev/null 2>&1; then
             ;;
         darwin)
             install_darwin
+            ;;
+        wsl)
+            install_wsl
             ;;
         *)
             echo "Unsupported Unix distribution: $OS"
