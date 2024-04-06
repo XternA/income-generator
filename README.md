@@ -51,9 +51,8 @@ curl -o C:\Windows\igm.bat -L https://raw.githubusercontent.com/XternA/income-ge
 git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-generator
 ```
 
-**2.** Register alias for global access. (Adds to current shell e.g. `.bashrc`, `.zshrc` etc.)
+**2.** Register alias for global access. (Auto detects and to current shell e.g. `.bashrc`, `.zshrc` etc.)
 ```sh
-# Auto detect running shell type, add alias, and update shell with alias
 echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc; source ~/."${SHELL##*/}"rc
 ```
 **3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
@@ -114,18 +113,16 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 ## Tested Environments ✅
 The docker stack should work on anything that may have docker installed. In particular, it has been tested on:
 
-| Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | MacOS Intel (x86_64) | MacOS Apple Silicon (arm64) |
+| Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | Intel macOS (x86_64) | Apple Silicon (arm64) |
 | :---: | :---: | :---: | :---: | :---: |
 | :green_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
 
-:green_circle: - Everything supported, tested and working, including stack orchestration.
+:green_circle: - Everything supported, tried and tested.
 
-:yellow_circle: - Almost everything is supported, with only minor things which may not be fully supported.
+:yellow_circle: - Almost everything supported. Only minor things which may not be fully supported.
 
 :orange_circle: - Orchestrating applications and docker stack should work, but not everything is intended for full support.
-
-:red_circle: - No current intended support.
 
 Note that working means within the tool when you run and interact with it.
 
