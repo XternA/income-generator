@@ -8,13 +8,14 @@ ENV_FILE="$(pwd)/.env"
 COMPOSE="$(pwd)/compose"
 ALL_COMPOSE_FILES="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml -f $COMPOSE/compose.single.yml"
 
+GREEN='\033[1;32m'
 PINK='\033[1;35m'
 NC='\033[0m'
 
 display_banner() {
     clear
     echo "Income Generator Application Manager"
-    echo "----------------------------------------"
+    echo "${GREEN}----------------------------------------${NC}"
     echo
 }
 
@@ -22,7 +23,7 @@ stats() {
     printf "%s\n" "$ARCH"
     echo
     printf "%s\n" "$STATS"
-    echo "----------------------------------------"
+    echo "${GREEN}----------------------------------------${NC}"
     echo
 }
 
