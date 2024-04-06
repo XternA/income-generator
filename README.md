@@ -33,43 +33,39 @@ Some of the key features you can expect:
 
 Check the [Prerequisites](wiki/Prerequisites#arm-devices) section for emulation layer setup.
 
-For Windows users, refer to the [Windows](wiki/Windows-Host) guide as the setup is different from Unix systems. WSL can follow [quick start guide](#quick-start-guide-%EF%B8%8F) provided prerequisites have been met.
+For Windows users, refer to the [**Windows**](wiki/Windows-Host) guide first to ensure prerequisites are met before proceeding. If WSL is already configured then proceed to **Quick Start Guide**.
 
 ### Quick Start Guide ⚙️
 Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
 
 :warning: *Newer versions of Docker integrate Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
 
-**1.** Open the terminal and clone the project.
+**1.** Get the tool.
+
+**Windows** - Open the command line (Run as administrator) and get the initialiser script. Then go to step 3 onwards.
+```batch
+curl -o C:\Windows\igm.bat -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
+```
+**Linux & macOS** - Open the terminal and clone the project.
 ```sh
 git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-generator
 ```
+
 **2.** Add to path then source the shell file for global access.
 ```sh
-# To find out which shell the terminal is using
-echo $SHELL
-
-# If shell is bash
-echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/.bashrc
-source ~/.bashrc
-
-# If shell is zsh
-echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/.zshrc
-source ~/.zshrc
+# Auto detect running shell type, add alias, and update shell with alias
+echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc; source ~/."${SHELL##*/}"rc
 ```
 **3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
 
-**4.** Run the tool via the alias or within the folder.
+**4.** Run the tool (as it should be registered for globally recognisable).
 ```sh
-# Just type anywhere in the shell
+# Just type anywhere in the command line
 igm
-
-# If prefer to run from within the tool folder
-cd ~/.income-generator
-sh start.sh
 ```
-**5.** Follow the setup configuration which will have comments regarding configuration tips.
+**5.** Setup configurations first with the tools inbuilt menu system before installing applications to run.
 ```
+[ Menu Options ]
 1. Install & Run Applications
 2. Setup Configuration
 3. Start Applications
@@ -77,8 +73,9 @@ sh start.sh
 ...
 Select an option (1-9):
 ```
-**6.** Select choice 1 to install, then pick accordingly to install based on what IP address the device is connected to.
+**6.** Sub-menu of install applications option present choice for type of applications to install based on what IP address the device is connected.
 ```
+[ Sub-menu Options ]
 1. Only applications with VPS/Hosting support
 2. All applications including residential IPs only support
 3. All applications including residential IPs only support, excluding single instances only
@@ -119,7 +116,7 @@ The docker stack should work on anything that may have docker installed. In part
 
 | Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | MacOS Intel (x86_64) | MacOS Apple Silicon (arm64) |
 | :---: | :---: | :---: | :---: | :---: |
-| :orange_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
+| :green_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
 
 :green_circle: - Everything supported, tested and working, including stack orchestration.
