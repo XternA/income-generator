@@ -1,6 +1,6 @@
 #!/bin/sh
 
-has_docker=$(command -v docker > /dev/null 2>&1)
+has_docker=$(command -v docker 2> /dev/null 1>&1)
 
 if [ "$(uname)" = "Linux" ]; then
     if [ -n "$WSL_DISTRO_NAME" ]; then
@@ -23,12 +23,12 @@ install_centos() {
 }
 
 # Debian/Ubuntu/Raspbian
-install_debian() {
+install_debian_ubuntu() {
     sudo apt update
     sudo apt install -y ca-certificates curl lsb-release
     sudo install -m 0755 -d /etc/apt/keyrings
     sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg -o /etc/apt/keyrings/docker.asc
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$(. /etc/os-release && echo "$ID") $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     sudo apt update
     sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     sudo systemctl start docker
@@ -89,7 +89,7 @@ if [ ! "$has_docker" ]; then
             install_centos
             ;;
         debian | ubuntu | raspbian)
-            install_debian
+            install_debian_ubuntu
             ;;
         fedora)
             install_fedora

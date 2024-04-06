@@ -1,6 +1,6 @@
 #!/bin/sh
 
-has_docker=$(command -v docker > /dev/null 2>&1)
+has_docker=$(command -v docker 2> /dev/null 1>&1)
 
 if [ "$(uname)" = "Linux" ]; then
     if [ -n "$WSL_DISTRO_NAME" ]; then
