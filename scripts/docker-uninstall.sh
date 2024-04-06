@@ -5,7 +5,7 @@ has_docker=$(command -v docker > /dev/null 2>&1)
 if [ "$(uname)" = "Linux" ]; then
     if [ -n "$WSL_DISTRO_NAME" ]; then
         OS="wsl"
-        has_docker=$(where.exe docker > /dev/null 2>&1)
+        has_docker="$(where.exe docker 2> /dev/null >&1)"
     else
         OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
     fi
@@ -43,18 +43,13 @@ remove_darwin() {
 }
 
 remove_wsl() {
-    echo "Uninstalling Docker via Winget is currently not supported as the installer gets stuck. Use the standard Windows uninstall method."
-
-    if where.exe docker > /dev/null 2>&1; then
-        echo "\nDocker is still installed."
-    else
-        echo "\nDocker wasn't installed."
-    fi
+    echo "Uninstalling Docker via Winget is currently not supported as the uninstaller gets stuck. Use the standard Windows uninstall method instead."
+    echo "\nDocker is still installed."
     exit
 }
 
 # -----[ Main ]----------------------------------------------------------
-if $has_docker43erf; then
+if [ "$has_docker" ]; then
     case $OS in
         centos | rhel)
             remove_centos
@@ -83,7 +78,7 @@ if $has_docker43erf; then
             ;;
     esac
     echo
-    echo "Docker have been successfully removed."
+    echo "Docker has been uninstalled successfully."
 else
-    echo "Docker doesn't exist."
+    echo "Docker is not installed."
 fi

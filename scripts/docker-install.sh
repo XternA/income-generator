@@ -5,7 +5,7 @@ has_docker=$(command -v docker > /dev/null 2>&1)
 if [ "$(uname)" = "Linux" ]; then
     if [ -n "$WSL_DISTRO_NAME" ]; then
         OS="wsl"
-        has_docker=$(where.exe docker > /dev/null 2>&1)
+        has_docker="$(where.exe docker 2> /dev/null >&1)"
     else
         OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
     fi
@@ -60,17 +60,21 @@ install_arch() {
     sudo systemctl enable docker
 }
 
+# macOS
 install_darwin() {
     brew install --cask docker
     echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
+    echo "Make sure Docker Engine is fully running before proceeding..."
     open -a Docker
 }
 
+# Windows WSL
 install_wsl() {
-    if [ -e $(which winget.exe > /dev/null 2>&1) ]; then
+    if [ -e "$(which winget.exe 2> /dev/null)" ]; then
         winget.exe install -e --id Docker.DockerDesktop
-        echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
         $("/mnt/c/Program Files/Docker/Docker/Docker Desktop.exe")
+        echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
+        echo "Make sure Docker Engine is fully running before proceeding..."
     else
         echo "Winget Package Manager is not found. Make sure Winget is installed before trying again."
         echo "\nDocker is not installed.".
@@ -79,7 +83,7 @@ install_wsl() {
 }
 
 # -----[ Main ]----------------------------------------------------------
-if [ ! $has_docker ]; then
+if [ ! "$has_docker" ]; then
     case $OS in
         centos | rhel)
             install_centos
@@ -107,11 +111,11 @@ if [ ! $has_docker ]; then
             exit 1
             ;;
     esac
-    if [ $(uname) = 'Linux' ]; then
+    if [ "$(uname)" = 'Linux' ]; then
         sudo usermod -aG docker "$(whoami)"
     fi
     echo
-    echo "Docker have been installed successfully."
+    echo "Docker has been installed successfully."
 else
-    echo "Docker already exist."
+    echo "Docker is already installed."
 fi
