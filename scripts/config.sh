@@ -14,10 +14,10 @@ display_banner() {
     clear
     printf $YELLOW
     echo "=========================================================="
-    echo "#   Dotenv Configure Script                              #"
+    echo "#   Dotenv Configuration Script                          #"
     echo "=========================================================="
-    echo "# Script for updating and configuring the .env file with #"
-    echo "# given input values.                                    #"
+    echo "# Configure and update the configuration file setup      #"
+    echo "# stored within a config file called .env.               #"
     echo "=========================================================="
     printf $NC
 }

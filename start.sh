@@ -63,6 +63,22 @@ option_1() {
                         ;;
                     esac
                     display_banner
+
+                    # Check if the separator line exists and get its line number
+                    separator_line=$(grep -n "#--*$" $ENV_FILE | head -n 1)
+                    if [ -n "$separator_line" ]; then
+                        line_number=$(echo "$separator_line" | cut -d ":" -f 1)
+
+                        # Check if there are lines after the separator
+                        if ! tail -n "+$((line_number + 1))" $ENV_FILE | grep -v '^[[:space:]]*$' | grep -q "^"; then
+                            echo "No configrations for applications found. Make sure to complete the configuration setup."
+                            echo "Running setup configuration now..."
+                            sleep 0.6
+                            sh scripts/config.sh
+                            return
+                        fi
+                    fi
+
                     echo $install_type
                     echo
                     docker compose --env-file $ENV_FILE $compose_files pull
