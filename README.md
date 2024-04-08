@@ -62,26 +62,8 @@ echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc;
 # Just type anywhere in the command line
 igm
 ```
-**5.** Setup configurations first with the tools inbuilt menu system before installing applications to run.
-```
-[ Menu Options ]
-1. Install & Run Applications
-2. Setup Configuration
-3. Start Applications
-4. Stop Applications
-...
-Select an option (1-9):
-```
-**6.** Sub-menu of install applications option present choice for type of applications to install based on what IP address the device is connected.
-```
-[ Sub-menu Options ]
-1. Only applications with VPS/Hosting support
-2. All applications including residential IPs only support
-3. All applications including residential IPs only support, excluding single instances only
-4. Applications with unlimited counts
+**5.** Follow the tool's UI menu options to set up, configure install and run applications.
 
-Select an option (1-4):
-```
 **6.** Start earning passively. 💸
 
 ## App Compatibility 📋
