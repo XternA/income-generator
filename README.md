@@ -57,7 +57,7 @@ echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc;
 ```
 **3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
 
-**4.** Run the tool (as it should be registered for globally recognisable).
+**4.** Run the tool.
 ```sh
 # Just type anywhere in the command line
 igm
