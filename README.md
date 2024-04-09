@@ -51,7 +51,7 @@ curl -o C:\Windows\igm.bat -L https://raw.githubusercontent.com/XternA/income-ge
 git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-generator
 ```
 
-**2.** Register alias for global access. (Auto detects and to current shell e.g. `.bashrc`, `.zshrc` etc.)
+**2.** Register alias for global access. (Auto detects and adds to current shell choice e.g. `.bashrc`, `.zshrc` etc.)
 ```sh
 echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc; source ~/."${SHELL##*/}"rc
 ```
