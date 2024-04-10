@@ -42,7 +42,7 @@ Assuming **Docker** and **Compose** is already pre-installed (Can also be instal
 
 **1.** Get the tool.
 
-**Windows** - Open the command line (Run as administrator) and get the initialiser script. Then go to step 3 onwards.
+**Windows** - Open the command line (Run as administrator) and get the bootstrap script. Then continue from step 3 onwards.
 ```batch
 curl -o C:\Windows\igm.bat -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
 ```
