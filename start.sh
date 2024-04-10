@@ -98,11 +98,47 @@ option_1() {
 }
 
 option_2() {
-    display_banner
-    echo "Setting up configurations..."
-    sh scripts/config.sh
-    echo
-    printf "Press Enter to continue..."; read input
+    while true; do
+        display_banner
+        options="(1-3)"
+
+        echo "1. Set up configuration"
+        echo "2. View config file"
+        echo "3. Edit config file"
+        echo "0. Back to Main Menu"
+        echo
+        read -p "Select an option $options: " option
+
+        case $option in
+            1)
+                display_banner
+                echo "Setting up configurations..."
+                sh scripts/config.sh
+                printf "\nPress Enter to continue..."; read input
+                ;;
+            2)
+                display_banner
+                echo "---------[ START OF CONFIG ]---------\n"
+                cat .env
+                echo "\n----------[ END OF CONFIG ]----------"
+                printf "\nPress Enter to continue..."; read input
+                ;;
+            3)
+                display_banner
+                echo "Using nano editor. After making changes press 'ctrl + x' and press 'y' to save changes."
+                printf "\nPress Enter to continue..."; read input
+                nano .env
+                ;;
+            0)
+                break  # Return to the main menu
+                ;;
+            *)
+                echo
+                echo "Invalid option. Please select a valid option $options."
+                printf "\nPress Enter to continue..."; read input
+                ;;
+        esac
+    done
 }
 
 option_3() {
