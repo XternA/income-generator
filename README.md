@@ -102,7 +102,7 @@ The docker stack should work on anything that may have docker installed. In part
 
 :green_circle: - Everything supported, tried and tested.
 
-:yellow_circle: - Almost everything supported. Only minor things which may not be fully supported.
+:yellow_circle: - Almost everything is supported. Only minor things which may not be fully supported.
 
 :orange_circle: - Orchestrating applications and docker stack should work, but not everything is intended for full support.
 
