@@ -44,7 +44,7 @@ Assuming **Docker** and **Compose** is already pre-installed (Can also be instal
 
 **Windows** - Open the command line (Run as administrator) and get the bootstrap script. Then continue from step 3 onwards.
 ```batch
-curl -o C:\Windows\igm.bat -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
+curl -o %windir%\igm.bat -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
 ```
 **Linux & macOS** - Open the terminal and clone the project.
 ```sh
