@@ -1,9 +1,19 @@
 @echo off
 setlocal
 
-:: Check if WSL is installed
-wsl --version >nul 2>&1
+winget --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo No winget found on the system. Please install winget before proceeding.
+    exit /b 1
+)
 
+git2 --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Git is not installed. Attempting to install Git...
+    winget install --id Git.Git -e --source winget
+)
+
+wsl --version >nul 2>&1
 if %errorlevel% equ 0 (
     wsl [ -d ~/.income-generator ] && wsl "${SHELL##*/}" -ilc "igm" || (
         echo No Income Generator Tool found. Fetching...
@@ -21,5 +31,5 @@ if %errorlevel% equ 0 (
         wsl "${SHELL##*/}" -ilc "igm"
     )
 ) else (
-    echo No Windows Subsystem for Linux found on the system. Ensure WSL is available before proceeding.
+    echo No Windows Subsystem for Linux found on the system. Ensure WSL is enabled before proceeding.
 )
