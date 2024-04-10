@@ -286,6 +286,7 @@ option_9() {
                 ;;
             2)
                 rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
+                STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
                 echo
                 echo "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
                 ;;
