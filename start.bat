@@ -7,7 +7,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-git2 --version >nul 2>&1
+git --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo Git is not installed. Attempting to install Git...
     winget install --id Git.Git -e --source winget
