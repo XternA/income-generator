@@ -119,7 +119,7 @@ option_2() {
             2)
                 display_banner
                 echo "---------[ START OF CONFIG ]---------\n"
-                cat .env
+                tail -n +13 .env
                 echo "\n----------[ END OF CONFIG ]----------"
                 printf "\nPress Enter to continue..."; read input
                 ;;
