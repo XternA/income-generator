@@ -20,7 +20,7 @@ Some of the key features you can expect:
 - **Local Config** - Config file is auto-generated and stored locally, including credentials.
 - **Resource Limit** - Easily apply resource limit based on system hardware.
 
-📖 Referring to the [Wiki](../../wiki) is strongly recommended for more details and in-depth instructions.
+📖 Referring to the [**Wiki**](../../wiki) is strongly recommended for more details and in-depth instructions.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
@@ -31,9 +31,9 @@ Some of the key features you can expect:
 - The stack requires **Docker** and **Compose** to operate as everything is running in a containerised environment and easily managed.
 - For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as **[qemu-user-static (qus)](https://github.com/dbhi/qus)** to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
 
-Check the [Prerequisites](wiki/Prerequisites#arm-devices) section for emulation layer setup.
+Check the [**Prerequisites**](../../wiki/Prerequisites#arm-devices) section for emulation layer setup.
 
-For Windows users, refer to the [**Windows**](wiki/Windows-Host) guide first to ensure prerequisites are met before proceeding. If WSL is already configured then proceed to **Quick Start Guide**.
+For Windows users, refer to the [**Windows**](../../wiki/Windows-Host) guide first to ensure prerequisites are met before proceeding. If WSL is already configured then proceed to **Quick Start Guide**.
 
 ### Quick Start Guide ⚙️
 Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
