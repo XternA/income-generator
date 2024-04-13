@@ -85,7 +85,7 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 | **[PACKETSTREAM](https://bit.ly/4ajvcSg)**    | :white_check_mark:  | :x:                 |Unlimited|1|
 | **[PROXYRACK](https://bit.ly/497RsOj)**       | :white_check_mark:  | :white_check_mark:  |500|1|
 | **[PROXYLITE](https://bit.ly/4a3CjPe)**       | :white_check_mark:  | :white_check_mark:  |Unlimited|1|
-| **[EARNFM](https://bit.ly/3Vzenip)**          | :white_check_mark:  | :x:                 |Unlimited|1|
+| **[EARNFM](https://bit.ly/3Vzenip)**          | :white_check_mark:  | :white_check_mark:  |Unlimited|1|
 | **[SPIDE](https://bit.ly/3VpoiXH)**           | :white_check_mark:  | :x:                 |10|1|
 | **[SPEEDSHARE](https://bit.ly/4cstfEZ)**      | :white_check_mark:  | :x:                 |Unlimited|1|
 | **[GRASS](https://bit.ly/495PPAn)**           | :white_check_mark:  | :x:                 |Unlimited|1|

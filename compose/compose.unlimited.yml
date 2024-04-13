@@ -25,6 +25,19 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
 
+    earnfm:
+        container_name: earnfm
+        image: earnfm/earnfm-client
+        restart: always
+        environment:
+            - EARNFM_TOKEN=$EARNFM_TOKEN
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
     mysterium:
         container_name: myst
         image: mysteriumnetwork/myst
