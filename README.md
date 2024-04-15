@@ -24,32 +24,32 @@ Some of the key features you can expect:
 
 ## Getting Started 🚥
 ### Prerequisite 📦
-**Everything the tool configures to run will be under a containerised virtualised environment isolated from the host.**
+**The tool configures and runs everything in a containerised virtualised environment isolated from the host.**
 
-- The tool works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will will come with certain performance limitations, specifically with lower memory availability.
+- Works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will will come with certain performance limitations, specifically with lower memory availability.
 - A minimum of 4GB would be best recommended to ensure the most resource available and for future expansions.
-- The stack requires **Docker** and **Compose** to operate as everything is running in a containerised environment and easily managed.
-- For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as **[qemu-user-static (qus)](https://github.com/dbhi/qus)** to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
+- The stack requires a more recent version of **Docker**  which bundles **Compose** for orchestrating and running containers.
+- For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
+- For Windows, [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) will be required.
 
 Check the [**Prerequisites**](../../wiki/Prerequisites#arm-devices) section for emulation layer setup.
 
-For Windows users, refer to the [**Windows**](../../wiki/Windows-Host) guide first to ensure prerequisites are met before proceeding. If WSL is already configured then proceed to **Quick Start Guide**.
-
 ### Quick Start Guide ⚙️
 Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
-
-:warning: *Newer versions of Docker integrate Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
+>:warning: *Newer versions of Docker integrate Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
 
 ### Windows
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
-Open the command line (Run as administrator) and get the bootstrap script.
+Refer to the [**Windows**](../../wiki/Windows-Host) guide first to ensure prerequisites are met before proceeding. If WSL is already configured, continue.
+
+Open the command line (Run as administrator this one time) and get the bootstrap script.
 ```markdown
 curl -o %windir%\igm.bat --ssl-no-revoke -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
 ```
 Run the tool.
 ```sh
-# Just type anywhere in the command line
+# Type anywhere in the command line
 igm
 ```
 
@@ -66,7 +66,7 @@ echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc;
 ```
 Run the tool.
 ```sh
-# Just type anywhere in the command line
+# Type anywhere in the command line
 igm
 ```
 
