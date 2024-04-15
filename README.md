@@ -40,31 +40,38 @@ Assuming **Docker** and **Compose** is already pre-installed (Can also be instal
 
 :warning: *Newer versions of Docker integrate Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
 
-**1.** Get the tool.
+### Windows
+![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
-**Windows** - Open the command line (Run as administrator) and get the bootstrap script. Then continue from step 3 onwards.
+Open the command line (Run as administrator) and get the bootstrap script.
 ```markdown
 curl -o %windir%\igm.bat --ssl-no-revoke -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
 ```
-**Linux & macOS** - Open the terminal and clone the project.
-```sh
-git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-generator
-```
-
-**2.** Register alias for global access. (Auto detects and adds to current shell choice e.g. `.bashrc`, `.zshrc` etc.)
-```sh
-echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc; source ~/."${SHELL##*/}"rc
-```
-**3.** Register an account for each application in the **[applications table](#app-compatibility-)**.
-
-**4.** Run the tool.
+Run the tool.
 ```sh
 # Just type anywhere in the command line
 igm
 ```
-**5.** Follow the tool's UI menu options to set up, configure install and run applications.
 
-**6.** Start earning passively. 💸
+### Linux & macOS
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)![macOS](https://img.shields.io/badge/MacOS-444444?style=for-the-badge&logo=apple&logoColor=white)
+
+Open the terminal and clone the project.
+```sh
+git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-generator
+```
+Register alias for global access. (Auto detects and adds to current shell choice e.g. `.bashrc`, `.zshrc` etc.)
+```sh
+echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc; source ~/."${SHELL##*/}"rc
+```
+Run the tool.
+```sh
+# Just type anywhere in the command line
+igm
+```
+
+### Register Applications
+Register an account for each application in the **[applications table](#app-compatibility-)**. Can also be done from the tool.
 
 ## App Compatibility 📋
 Using the table below, each app can identify its total install count per IP type. This indicates which stack option to run in the **'Install & Run Applications'** option of the tool.
@@ -74,7 +81,7 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 - 📋 Register via the links below will entitle you to receive a bonus added to your account on registration. Additionally, it ensures you're registering at the correct site and showing your support for my work.
 - 🔐 If using social logins such as Google, be sure to set a password to the account as it will be required for authentication to the app later.
 
-| Services | Residential / Mobile IP | VPS / Hosting IP | Max Devices Per Account | Max Devices Per IP |
+| Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP |
 | --- | :---: | :---: | :---: | :---: |
 | **[EARNAPP](https://bit.ly/4a4XJLF)**         | :white_check_mark:  | :x:                 |15|1|
 | **[HONEYGAIN](https://bit.ly/3x6nX1S)**       | :white_check_mark:  | :x:                 |10|1|
@@ -124,8 +131,7 @@ Even if you do not wish to contribute, you can still show your support by giving
 
 Donations are warmly welcomed, no matter the amount, your support is gratefully appreciated. Additionally, it helps fuel future developments and maintenance. Thank you. 🙏🏻
 
----
-### :warning: Disclaimer
+## :warning: Disclaimer
 Before using the applications provided in this stack, it is essential to verify that your actions comply with the laws of your jurisdiction and adhere to the terms outlined in your internet service provider's contract. The integration of these applications within this stack is purely for user convenience and does not signify an endorsement of their utilization.
 
 The author of this stack does not accept any responsibility for the outcomes resulting from the utilization of these applications. While this stack streamlines the configuration process and facilitates automated updates for the included applications, it is distributed on an "as is" basis without any warranties.
