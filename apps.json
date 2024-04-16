@@ -137,5 +137,14 @@
             "BITPING_PASSWORD"
         ],
         "is_enabled": true
+    },
+    {
+        "name": "GAGANODE",
+        "url": "https://bit.ly/4452ram",
+        "description": null,
+        "properties": [
+            "GAGANODE_TOKEN"
+        ],
+        "is_enabled": true
     }
 ]
