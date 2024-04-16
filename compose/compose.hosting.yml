@@ -91,7 +91,7 @@ services:
         image: xterna/gaga-node
         restart: always
         environment:
-            - TOKEN=GAGANODE_TOKEN
+            - TOKEN=$GAGANODE_TOKEN
         dns:
             - 1.1.1.1
             - 8.8.8.8
