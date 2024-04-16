@@ -141,7 +141,7 @@
     {
         "name": "GAGANODE",
         "url": "https://bit.ly/4452ram",
-        "description": null,
+        "description": " - Log into Dashboard. Go to 'Mining' > 'Install & Run' to obtain token.",
         "properties": [
             "GAGANODE_TOKEN"
         ],
