@@ -73,5 +73,18 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
 
+    gaganode:
+        container_name: gaga-node
+        image: xterna/gaga-node
+        restart: always
+        environment:
+            - TOKEN=GAGANODE_TOKEN
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
 volumes:
     bitping-data:
