@@ -86,7 +86,7 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
 
-    gaganode:
+    gaga-node:
         container_name: gaga-node
         image: xterna/gaga-node
         restart: always
