@@ -97,7 +97,7 @@
     {
         "name": "SPIDE",
         "url": "https://bit.ly/3VpoiXH",
-        "description": null,
+        "description": " - After installing app, run -> docker logs spide 2>&1 | grep \"Device Key:\" <- outside the tool to obtain device key. Log into dashboard to register device.",
         "properties": null,
         "is_enabled": true
     },
