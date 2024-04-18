@@ -10,6 +10,7 @@ ALL_COMPOSE_FILES="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f 
 
 GREEN='\033[1;32m'
 PINK='\033[1;35m'
+BLUE='\033[1;36m'
 NC='\033[0m'
 
 display_banner() {
@@ -125,7 +126,7 @@ option_2() {
                 ;;
             3)
                 display_banner
-                echo "Using nano editor. After making changes press 'ctrl + x' and press 'y' to save changes."
+                echo "Using nano editor. After making changes press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
                 printf "\nPress Enter to continue..."; read input
                 nano .env
                 ;;
