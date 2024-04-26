@@ -14,7 +14,7 @@ if [ $(uname) = 'Linux' ]; then
 elif [ $(uname) = 'Darwin' ]; then
     CPU_CORES=$(sysctl -n hw.physicalcpu)
     TOTAL_RAM=$(sysctl -n hw.memsize)
-    TOTAL_RAM=$((TOTAL_RAM / 1000))
+    TOTAL_RAM=$((TOTAL_RAM / 1050))
     SED_INPLACE="sed -i .bak"
 fi
 TOTAL_RAM_MB=$((TOTAL_RAM / 1024))
