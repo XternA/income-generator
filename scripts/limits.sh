@@ -20,11 +20,12 @@ fi
 TOTAL_RAM_MB=$((TOTAL_RAM / 1024))
 
 # Calculate default and bare minimum CPU and RAM limits
-DEFAULT_CPU_LIMIT=2   # Default CPU limit
-MIN_CPU_LIMIT=0.5       # Minimum CPU limit
+DEFAULT_CPU_LIMIT=2               # Default CPU limit
+MIN_CPU_LIMIT=0.5                 # Minimum CPU limit
+ALT_MIN_CPU_LIMIT=0.6             # Min required CPU Limit for some process.
 MAX_CPU_LIMIT=$((CPU_CORES / 2))  # Maximum CPU limit set to half the available cores
 
-DEFAULT_RAM_LIMIT_MB=$((TOTAL_RAM_MB / 4))  # Use 25% of total RAM
+DEFAULT_RAM_LIMIT_MB=$((TOTAL_RAM_MB / 4))   # Use 25% of total RAM
 BARE_MIN_RAM_LIMIT_MB=$((TOTAL_RAM_MB / 8))  # Use 12.5% of total RAM
 
 # Determine which limits to use based on the command-line argument
@@ -32,22 +33,27 @@ case $LIMIT_TYPE in
     base)
         CPU_LIMIT_STR="0.2"
         RAM_LIMIT_MB="320"
+        ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT
         ;;
     min)
         CPU_LIMIT_STR=$MIN_CPU_LIMIT
         RAM_LIMIT_MB=$BARE_MIN_RAM_LIMIT_MB
+        ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT
         ;;
     low)
         CPU_LIMIT_STR="$((DEFAULT_CPU_LIMIT - 1)).0"
         RAM_LIMIT_MB=$((BARE_MIN_RAM_LIMIT_MB + (DEFAULT_RAM_LIMIT_MB - BARE_MIN_RAM_LIMIT_MB) / 2))
+        ALT_MIN_CPU_LIMIT=$CPU_LIMIT_STR
         ;;
     mid)
         CPU_LIMIT_STR="$DEFAULT_CPU_LIMIT.0"
         RAM_LIMIT_MB=$DEFAULT_RAM_LIMIT_MB
+        ALT_MIN_CPU_LIMIT=$CPU_LIMIT_STR
         ;;
     max)
         CPU_LIMIT_STR="$((MAX_CPU_LIMIT + 1)).0"
         RAM_LIMIT_MB=$((BARE_MIN_RAM_LIMIT_MB + (DEFAULT_RAM_LIMIT_MB + BARE_MIN_RAM_LIMIT_MB) / 2))
+        ALT_MIN_CPU_LIMIT=$CPU_LIMIT_STR
         ;;
     *)
         echo "Invalid argument. Use 'base', 'min', 'low', 'mid', or 'max'."
@@ -88,8 +94,15 @@ if [ -f "$ENV_FILE" ]; then
     else
         echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_FILE"
     fi
+
+    if grep -q "^ALT_MIN_CPU_LIMIT=" "$ENV_FILE"; then
+        $SED_INPLACE "s/^ALT_MIN_CPU_LIMIT=.*/ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT/" "$ENV_FILE"
+    else
+        echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_FILE"
+    fi
 else
     echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_FILE"
     echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_FILE"
     echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_FILE"
+    echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_FILE"
 fi

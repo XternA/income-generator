@@ -21,7 +21,7 @@ services:
         dns:
             - 1.1.1.1
             - 8.8.8.8
-        cpus: $CPU_LIMIT
+        cpus: $ALT_MIN_CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         depends_on:
