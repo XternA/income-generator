@@ -95,13 +95,6 @@
         "is_enabled": true
     },
     {
-        "name": "SPIDE",
-        "url": "https://bit.ly/3VpoiXH",
-        "description": " - After installing app, run -> docker logs spide 2>&1 | grep \"Device Key:\" <- outside the tool to obtain device key. Log into dashboard to register device.",
-        "properties": null,
-        "is_enabled": true
-    },
-    {
         "name": "SPEEDSHARE",
         "url": "https://bit.ly/4cstfEZ",
         "description": " - Log into the dashboard and go to 'Devices' to obtain authentication code.",
@@ -109,6 +102,13 @@
             "SPEEDSHARE_AUTH_CODE",
             "*SPEEDSHARE_UUID"
         ],
+        "is_enabled": true
+    },
+    {
+        "name": "SPIDE",
+        "url": "https://bit.ly/3VpoiXH",
+        "description": " - After installing app, run -> docker logs spide 2>&1 | grep \"Device Key:\" <- outside the tool to obtain device key. Log into dashboard to register device.",
+        "properties": null,
         "is_enabled": true
     },
     {
