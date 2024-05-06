@@ -81,24 +81,24 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 - 📋 Register via the links below will entitle you to receive a bonus added to your account on registration. Additionally, it ensures you're registering at the correct site and showing your support for my work.
 - 🔐 If using social logins such as Google, be sure to set a password to the account as it will be required for authentication to the app later.
 
-| Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP |
-| --- | :---: | :---: | :---: | :---: |
-| **[EARNAPP](https://bit.ly/4a4XJLF)**         | :white_check_mark: | :x:                |15|1|
-| **[HONEYGAIN](https://bit.ly/3x6nX1S)**       | :white_check_mark: | :x:                |10|1|
-| **[PEER2PROFIT](https://bit.ly/3x7CquB)**     | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited|
-| **[TRAFFMONETIZER](https://bit.ly/3TKmJlU)**  | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited|
-| **[PAWNS](https://bit.ly/498zRFV)**           | :white_check_mark: | :x:                |Unlimited|1|
-| **[REPOCKET](https://bit.ly/3TNO6LY)**        | :white_check_mark: | :white_check_mark: |Unlimited|2|
-| **[PACKETSTREAM](https://bit.ly/4ajvcSg)**    | :white_check_mark: | :x:                |Unlimited|1|
-| **[PROXYRACK](https://bit.ly/497RsOj)**       | :white_check_mark: | :white_check_mark: |500|1|
-| **[PROXYLITE](https://bit.ly/4a3CjPe)**       | :white_check_mark: | :white_check_mark: |Unlimited|1|
-| **[EARNFM](https://bit.ly/3Vzenip)**          | :white_check_mark: | :white_check_mark: |Unlimited|1|
-| **[SPIDE](https://bit.ly/3VpoiXH)**           | :white_check_mark: | :x:                |10|1|
-| **[SPEEDSHARE](https://bit.ly/4cstfEZ)**      | :white_check_mark: | :x:                |Unlimited|1|
-| **[GRASS](https://bit.ly/495PPAn)**           | :white_check_mark: | :x:                |Unlimited|1|
-| **[MYSTNODE](https://bit.ly/4cl0YAt)**        | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited|
-| **[BITPING](https://bit.ly/43xHKDt)**         | :white_check_mark: | :white_check_mark: |Unlimited|1|
-| **[GAGANODE](https://bit.ly/4452ram)**        | :white_check_mark: | :white_check_mark: |Unlimited|1|
+| Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| **[EARNAPP](https://bit.ly/4a4XJLF)**         | :white_check_mark: | :x:                |15|1               | PayPal, Wise |
+| **[HONEYGAIN](https://bit.ly/3x6nX1S)**       | :white_check_mark: | :x:                |10|1               | PayPal, Crypto |
+| **[PEER2PROFIT](https://bit.ly/3x7CquB)**     | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
+| **[TRAFFMONETIZER](https://bit.ly/3TKmJlU)**  | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
+| **[PAWNS](https://bit.ly/498zRFV)**           | :white_check_mark: | :x:                |Unlimited|1        | PayPal, Crypto |
+| **[REPOCKET](https://bit.ly/3TNO6LY)**        | :white_check_mark: | :white_check_mark: |Unlimited|2        | PayPal, Wise |
+| **[PACKETSTREAM](https://bit.ly/4ajvcSg)**    | :white_check_mark: | :x:                |Unlimited|1        | PayPal |
+| **[PROXYRACK](https://bit.ly/497RsOj)**       | :white_check_mark: | :white_check_mark: |500|1              | PayPal |
+| **[PROXYLITE](https://bit.ly/4a3CjPe)**       | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
+| **[EARNFM](https://bit.ly/3Vzenip)**          | :white_check_mark: | :white_check_mark: |Unlimited|1        | PayPal, Crypto |
+| **[SPIDE](https://bit.ly/3VpoiXH)**           | :white_check_mark: | :x:                |Unlimited|Unlimited| PayPal, Crpyto |
+| **[SPEEDSHARE](https://bit.ly/4cstfEZ)**      | :white_check_mark: | :x:                |Unlimited|1        | PayPal, Crypto |
+| **[GRASS](https://bit.ly/495PPAn)**           | :white_check_mark: | :x:                |Unlimited|1        | Crypto |
+| **[MYSTNODE](https://bit.ly/4cl0YAt)**        | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
+| **[BITPING](https://bit.ly/43xHKDt)**         | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
+| **[GAGANODE](https://bit.ly/4452ram)**        | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
 
 ## Tested Environments ✅
 The docker stack should work on anything that may have docker installed. In particular, it has been tested on:
