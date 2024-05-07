@@ -50,7 +50,8 @@ services:
         container_name: spide
         image: xterna/spide-network
         restart: always
-        platform: linux/amd64
+        environment:
+            - ID=${SPIDE_MACHINE_ID:-}
         dns:
             - 1.1.1.1
             - 8.8.8.8

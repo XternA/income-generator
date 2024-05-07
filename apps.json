@@ -2,7 +2,7 @@
     {
         "name": "EARNAPP",
         "url": "https://bit.ly/4a4XJLF",
-        "description": " - If previously installed. Obtain UUID from the dashboard to re-assign. Recommended, otherwise new UUID is generated. Go to dashboard to register device.",
+        "description": " If previously installed. Obtain UUID from the dashboard to re-assign. Recommended, otherwise new UUID is generated. Go to dashboard to register device.",
         "properties": [
             "#EARNAPP_DEVICE_UUID"
         ],
@@ -21,7 +21,7 @@
     {
         "name": "PEER2PROFIT",
         "url": "https://bit.ly/3x7CquB",
-        "description": " - There is no website and this uses Telegram. You will need Telegram to interact with the site directly after logging in with the bot.",
+        "description": " There is no website and this uses Telegram. You will need Telegram to interact with the site directly after logging in with the bot.",
         "properties": [
             "P2PROFIT_EMAIL",
             "P2PROFIT_ID"
@@ -31,7 +31,7 @@
     {
         "name": "TRAFFMONETIZER",
         "url": "https://bit.ly/3TKmJlU",
-        "description": " - Log into main dashboard to obtain token.",
+        "description": " Log into main dashboard to obtain token.",
         "properties": [
             "TRAFFMONETIZER_TOKEN"
         ],
@@ -50,7 +50,7 @@
     {
         "name": "REPOCKET",
         "url": "https://bit.ly/3TNO6LY",
-        "description": " - Log in and go to 'Earn Money' > 'Sell Internet' > 'Use this API key with Docker' to obtain API key.",
+        "description": " Log in and go to 'Earn Money' > 'Sell Internet' > 'Use this API key with Docker' to obtain API key.",
         "properties": [
             "REPOCKET_EMAIL",
             "REPOCKET_API_KEY"
@@ -60,7 +60,7 @@
     {
         "name": "PACKETSTREAM",
         "url": "https://bit.ly/4ajvcSg",
-        "description": " - Log in, then go to 'Download' > 'Looking for the Mac or Linux app?'. Look for Linux and docker section and find 'CID=<YOUR_CID>'. That's your CID.",
+        "description": " Log in, then go to 'Download' > 'Looking for the Mac or Linux app?'. Look for Linux and docker section and find 'CID=<YOUR_CID>'. That's your CID.",
         "properties": [
             "PACKETSTREAM_CID"
         ],
@@ -69,7 +69,7 @@
     {
         "name": "PROXYRACK",
         "url": "https://bit.ly/497RsOj",
-        "description": " - Log in, then go to 'Profile' to obtain API key. Register device with given UUID in 'Devices' section. Obtain UUID from 'Devices' to re-use device UUID for re-registering.",
+        "description": " Log in, then go to 'Profile' to obtain API key. Register device with given UUID in 'Devices' section. Obtain UUID from 'Devices' to re-use device UUID for re-registering.",
         "properties": [
             "PROXYRACK_API_KEY",
             "*PROXYRACK_UUID"
@@ -79,7 +79,7 @@
     {
         "name": "PROXYLITE",
         "url": "https://bit.ly/4a3CjPe",
-        "description": " - Log in, then click on your name at the top. On the homepage, 'Account ID' is the user ID",
+        "description": " Log in, then click on your name at the top. On the homepage, 'Account ID' is the user ID",
         "properties": [
             "PROXYLITE_USER_ID"
         ],
@@ -88,7 +88,7 @@
     {
         "name": "EARNFM",
         "url": "https://bit.ly/3Vzenip",
-        "description": " - Log in. Go to 'More' > 'Your API Key' to obtain token.",
+        "description": " Log in. Go to 'More' > 'Your API Key' to obtain token.",
         "properties": [
             "EARNFM_TOKEN"
         ],
@@ -97,7 +97,7 @@
     {
         "name": "SPEEDSHARE",
         "url": "https://bit.ly/4cstfEZ",
-        "description": " - Log into the dashboard and go to 'Devices' to obtain authentication code.",
+        "description": " Log into the dashboard and go to 'Devices' to obtain authentication code.",
         "properties": [
             "SPEEDSHARE_AUTH_CODE",
             "*SPEEDSHARE_UUID"
@@ -107,8 +107,11 @@
     {
         "name": "SPIDE",
         "url": "https://bit.ly/3VpoiXH",
-        "description": " - After installing app, run -> docker logs spide 2>&1 | grep \"Device Key:\" <- outside the tool to obtain device key. Log into dashboard to register device.",
-        "properties": null,
+        "description": " After installing app, run ' docker logs spide 2>&1 | grep \"Device Key\" ' outside the tool to obtain device key. Log into dashboard to register device.",
+        "description_ext": "Use machine ID for existing device already registered. See guide: https://github.com/XternA/income-generator/wiki/Keys-and-IDs#machine-id",
+        "properties": [
+            "&SPIDE_MACHINE_ID"
+        ],
         "is_enabled": true
     },
     {
@@ -124,7 +127,7 @@
     {
         "name": "MYSTERIUM",
         "url": "https://bit.ly/4cl0YAt",
-        "description": " - Setup requires going to 'localhost:4449' or '<ip_address_of_instance>:4449' in the browser and follow onboarding process to register node.",
+        "description": " Setup requires going to 'localhost:4449' or '<ip_address_of_instance>:4449' in the browser and follow onboarding process to register node.",
         "properties": null,
         "is_enabled": true
     },
@@ -141,7 +144,7 @@
     {
         "name": "GAGANODE",
         "url": "https://bit.ly/4452ram",
-        "description": " - Log into Dashboard. Go to 'Mining' > 'Install & Run' to obtain token.",
+        "description": " Log into Dashboard. Go to 'Mining' > 'Install & Run' to obtain token.",
         "properties": [
             "GAGANODE_TOKEN"
         ],
