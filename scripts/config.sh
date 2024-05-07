@@ -5,6 +5,7 @@ sh "$(pwd)/scripts/jq-install.sh"
 ENV_FILE="$(pwd)/.env"
 JSON_FILE="$(pwd)/apps.json"
 
+GREEN='\033[1;32m'
 RED='\033[1;31m'
 YELLOW='\033[1;33m'
 BLUE='\033[1;36m'
@@ -12,12 +13,12 @@ NC='\033[0m'
 
 display_banner() {
     clear
-    printf $YELLOW
+    printf $GREEN
     echo "=========================================================="
-    echo "#   Dotenv Configuration Script                          #"
+    echo "#    ${NC}Dotenv Configuration Script${GREEN}                         #"
     echo "=========================================================="
-    echo "# Configure and update the configuration file setup      #"
-    echo "# stored within a config file called .env.               #"
+    echo "#  ${NC}Configure and update the configuration file setup${GREEN}     #"
+    echo "#  ${NC}stored within a config file called ${RED}.env${NC}.${GREEN}              #"
     echo "=========================================================="
     printf $NC
 }
@@ -41,17 +42,19 @@ input_new_value() {
 
 generate_uuid() {
     if [ "$denoter" = "#" ]; then
-        if [ $(uname) = 'Darwin' ]; then
+        if [ "$(uname)" = 'Darwin' ]; then
             input=$(echo "sdk-node-")$(head -c 1024 /dev/urandom | md5)
         else
             input=$(echo -n "sdk-node-")$(head -c 1024 /dev/urandom | md5sum | tr -d ' -')
         fi
     elif [ "$denoter" = "*" ]; then
-        if [ $(uname) = 'Darwin' ]; then
+        if [ "$(uname)" = 'Darwin' ]; then
             input=$(uuidgen)
         else
             input=$(cat /proc/sys/kernel/random/uuid)
         fi
+    elif [ "$denoter" = "&" ]; then
+        input=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-f0-9' | dd bs=1 count=32 2>/dev/null)
     fi
     write_entry
 }
@@ -95,10 +98,12 @@ process_entries() {
         app_name=$(echo "$config_entry" | jq -r '.name')
         url=$(echo "$config_entry" | jq -r '.url')
         description=$(echo "$config_entry" | jq -r '.description' | tr -d '\n')
+        description_ext=$(echo "$config_entry" | jq -r '.description_ext' | tr -d '\n')
 
         echo "\n[ $app_name ]"
-        [ "$url" != null ] && echo "Go to $BLUE$url$NC to register account. (CTRL + Click)"
-        [ "$description" != null ] && echo "$description"
+        [ "$url" != null ] && echo "Go to $BLUE$url$NC to register an account. (CTRL + Click)"
+        [ "$description" != null ] && echo "Description: ${YELLOW}$description${NC}"
+        [ "$description_ext" != null ] && echo "${YELLOW}$description_ext${NC}"
         echo
 
         if [ -z "$(echo "$config_entry" | jq -r '.properties // empty')" ]; then
@@ -113,14 +118,14 @@ process_entries() {
             # Check if properties is an array before looping through it
             if [ "$(echo "$config_entry" | jq -r '.properties | type')" = "array" ]; then
                 for entry in $properties; do
-                    entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d '*#') # Remove surrounding quotes and denoters
+                    entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "*#&") # Remove surrounding quotes and denoters
                     denoter=$(echo "$entry" | cut -c1)
 
                     if [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ]; then
                         is_update=true
                     fi
 
-                    if [ "$denoter" = "#" ] || [ "$denoter" = "*" ]; then
+                    if [ "$denoter" = "#" ] || [ "$denoter" = "*" ] || [ "$denoter" = "&" ]; then
                         process_uuid_user_choice
                     else
                         input_new_value
