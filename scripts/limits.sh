@@ -22,7 +22,7 @@ TOTAL_RAM_MB=$((TOTAL_RAM / 1024))
 # Calculate default and bare minimum CPU and RAM limits
 DEFAULT_CPU_LIMIT=2               # Default CPU limit
 MIN_CPU_LIMIT=0.5                 # Minimum CPU limit
-ALT_MIN_CPU_LIMIT=0.6             # Min required CPU Limit for some process.
+ALT_MIN_CPU_LIMIT=0.8             # Min required CPU Limit for some process.
 MAX_CPU_LIMIT=$((CPU_CORES / 2))  # Maximum CPU limit set to half the available cores
 
 DEFAULT_RAM_LIMIT_MB=$((TOTAL_RAM_MB / 4))   # Use 25% of total RAM
