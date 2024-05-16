@@ -7,12 +7,6 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-git --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo Git is not installed. Attempting to install Git...
-    winget install --id Git.Git -e --source winget
-)
-
 wsl --version >nul 2>&1
 if %errorlevel% equ 0 (
     wsl [ -d ~/.income-generator ] && wsl "${SHELL##*/}" -ilc "igm" || (
