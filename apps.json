@@ -2,7 +2,8 @@
     {
         "name": "EARNAPP",
         "url": "https://bit.ly/4a4XJLF",
-        "description": " If previously installed. Obtain UUID from the dashboard to re-assign. Recommended, otherwise new UUID is generated. Go to dashboard to register device.",
+        "description": " If previously installed. Obtain UUID from the dashboard to re-assign. Recommended, otherwise a new UUID is generated.",
+        "registration": "Register the new device with the following link: https://earnapp.com/r/",
         "properties": [
             "#EARNAPP_DEVICE_UUID"
         ],

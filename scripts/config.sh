@@ -63,6 +63,7 @@ process_new_entry() {
     if [ "$entry" != "$entry_name" ]; then
         generate_uuid
         echo "A new UUID has been auto-generated for $RED$entry_name$NC: $YELLOW$input$NC\n"
+        [ "$registration" != null ] && echo "${YELLOW}$registration$input${NC}\n"
         echo "Press Enter to continue..."; read -r input < /dev/tty
     else
         input_new_value
@@ -99,6 +100,7 @@ process_entries() {
         url=$(echo "$config_entry" | jq -r '.url')
         description=$(echo "$config_entry" | jq -r '.description' | tr -d '\n')
         description_ext=$(echo "$config_entry" | jq -r '.description_ext' | tr -d '\n')
+        registration=$(echo "$config_entry" | jq -r '.registration' | tr -d '\n')
 
         echo "\n[ $app_name ]"
         [ "$url" != null ] && echo "Go to $BLUE$url$NC to register an account. (CTRL + Click)"
