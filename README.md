@@ -1,10 +1,13 @@
- # Income Generator
-
+ # 💻 Income Generator 💵
 **[ Multi-Platform | Docker Stack | Containerized | Passive Income | Auto Update ]**
 
 If you like this project, don't forget to leave a star. ⭐
 
 >**NOTE:** *"This tool has always been developed for my personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
+
+<p align="center">
+<img src="https://github.com/XternA/income-generator/assets/9136075/22881e8c-c3f8-4c61-a927-cccc18bd0c7e" alt="Income Generator" width=70% height=70%>
+</p>
 
 ## Overview 📚
 **Income Generator** is an all-in-one tool that consolidates a variety of supported applications, enabling the ability to generate passive income by leveraging everyday devices and unused internet bandwidth.
@@ -24,12 +27,12 @@ Some of the key features you can expect:
 
 ## Getting Started 🚥
 ### Prerequisite 📦
-**The tool configures and runs everything in a containerised virtualised environment isolated from the host.**
+**The tool configures and runs everything in a containerized virtualized environment isolated from the host.**
 
-- Works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will will come with certain performance limitations, specifically with lower memory availability.
+- Works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will come with certain performance limitations, specifically with lower memory availability.
 - A minimum of 4GB would be best recommended to ensure the most resource available and for future expansions.
 - The stack requires a more recent version of **Docker**  which bundles **Compose** for orchestrating and running containers.
-- For ARM architecture devices, such as Raspberry Pi, Apple Silicon etc, will be required to install an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
+- For ARM architecture devices, such as Raspberry Pi, Apple Silicon, etc, will be required to install an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
 - For Windows, [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) will be required.
 
 Check the [**Prerequisites**](../../wiki/Prerequisites#arm-devices) section for emulation layer setup.
@@ -43,16 +46,23 @@ Assuming **Docker** and **Compose** is already pre-installed (Can also be instal
 
 Refer to the [**Windows**](../../wiki/Windows-Host) guide first to ensure prerequisites are met before proceeding. If WSL is already configured, continue.
 
-Open the command line (Run as administrator this one time) and get the bootstrap script.
+Open the command line and get the bootstrap script.
 ```markdown
-curl -o %windir%\igm.bat --ssl-no-revoke -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
+curl -o %APPDATA%\IGM\igm.bat --create-dirs --ssl-no-revoke -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
 ```
+Register the bootstrap script by adding an entry to the environment variable path.
+```
+for /f "delims=" %i in ('powershell -Command "[Environment]::GetEnvironmentVariable('Path', 'User')"') do set USERPATH=%i && setx PATH %USERPATH%;%APPDATA%\IGM
+```
+For the registering to take effect, close and re-open a new command line process.
+
 Run the tool.
 ```sh
 # Type anywhere in the command line
 igm
 ```
 
+---
 ### Linux & macOS
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)![macOS](https://img.shields.io/badge/MacOS-444444?style=for-the-badge&logo=apple&logoColor=white)
 
@@ -101,20 +111,11 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 | **[GAGANODE](https://bit.ly/4452ram)**        | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
 
 ## Tested Environments ✅
-The docker stack should work on anything that may have docker installed. In particular, it has been tested on:
-
+The docker stack should work on anything that has docker installed. The tool has been tried and tested on the following environments:
 | Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | Intel macOS (x86_64) | Apple Silicon (arm64) |
 | :---: | :---: | :---: | :---: | :---: |
 | :green_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
-
-:green_circle: - Everything supported, tried and tested.
-
-:yellow_circle: - Almost everything is supported. Only minor things which may not be fully supported.
-
-:orange_circle: - Orchestrating applications and docker stack should work, but not everything is intended for full support.
-
-Note that working means within the tool when you run and interact with it.
 
 ## Like The Project? 🫶
 
