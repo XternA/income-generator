@@ -90,8 +90,7 @@ option_1() {
                 break  # Return to the main menu
                 ;;
             *)
-                echo
-                echo "Invalid option. Please select a valid option $options."
+                echo "\nInvalid option. Please select a valid option $options."
                 ;;
         esac
         printf "\nPress Enter to continue..."; read input
@@ -101,11 +100,12 @@ option_1() {
 option_2() {
     while true; do
         display_banner
-        options="(1-3)"
+        options="(1-4)"
 
         echo "1. Set up configuration"
         echo "2. View config file"
         echo "3. Edit config file"
+        echo "4. Back & Restore config"
         echo "0. Back to Main Menu"
         echo
         read -p "Select an option $options: " option
@@ -119,9 +119,9 @@ option_2() {
                 ;;
             2)
                 display_banner
-                echo "---------[ START OF CONFIG ]---------\n"
-                tail -n +13 .env
-                echo "\n----------[ END OF CONFIG ]----------"
+                echo "---------[ START OF CONFIG ]---------\n${BLUE}"
+                tail -n +14 .env
+                echo "${NC}\n----------[ END OF CONFIG ]----------"
                 printf "\nPress Enter to continue..."; read input
                 ;;
             3)
@@ -130,12 +130,14 @@ option_2() {
                 printf "\nPress Enter to continue..."; read input
                 nano .env
                 ;;
+            4)
+                sh scripts/backup-restore.sh
+                ;;
             0)
                 break  # Return to the main menu
                 ;;
             *)
-                echo
-                echo "Invalid option. Please select a valid option $options."
+                echo "\nInvalid option. Please select a valid option $options."
                 printf "\nPress Enter to continue..."; read input
                 ;;
         esac
@@ -144,46 +146,35 @@ option_2() {
 
 option_3() {
     display_banner
-    echo "Starting applications..."
-    echo
+    echo "Starting applications...\n"
     docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES start
-    echo
-    echo "All installed applications started."
-    echo
-    printf "Press Enter to continue..."; read input
+    echo "\nAll installed applications started."
+    printf "\nPress Enter to continue..."; read input
 }
 
 option_4() {
     display_banner
-    echo "Stopping applications..."
-    echo
+    echo "Stopping applications...\n"
     docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
-    echo
-    echo "All running applications stopped."
-    echo
-    printf "Press Enter to continue..."; read input
+    echo "\nAll running applications stopped."
+    printf "\nPress Enter to continue..."; read input
 }
 
 option_5() {
     display_banner
-    echo "Stopping and removing applications and volumes..."
-    echo
+    echo "Stopping and removing applications and volumes...\n"
     docker container prune -f
     docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
     docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES down -v
-    echo
-    echo "All installed applications and volumes removed."
-    echo
-    printf "Press Enter to continue..."; read input
+    echo "\nAll installed applications and volumes removed."
+    printf "\nPress Enter to continue..."; read input
 }
 
 option_6() {
     display_banner
-    echo "Installed Containers:"
-    echo
+    echo "Installed Containers:\n"
     docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES ps -a
-    echo
-    printf "Press Enter to continue..."; read input
+    printf "\nPress Enter to continue..."; read input
 }
 
 option_7() {
@@ -194,28 +185,24 @@ option_7() {
         echo "1. Install Docker"
         echo "2. Uninstall Docker"
         echo "0. Back to Main Menu"
-        echo
-        read -p "Select an option $options: " option
+        read -p "\nSelect an option $options: " option
 
         case $option in
             1)
                 display_banner
-                echo "Installing Docker..."
-                echo
+                echo "Installing Docker...\n"
                 sh scripts/docker-install.sh
                 ;;
             2)
                 display_banner
-                echo "Uninstalling Docker..."
-                echo
+                echo "Uninstalling Docker...\n"
                 sh scripts/docker-uninstall.sh
                 ;;
             0)
                 break  # Return to the main menu
                 ;;
             *)
-                echo
-                echo "Invalid option. Please select a valid option $options."
+                echo "\nInvalid option. Please select a valid option $options."
                 ;;
         esac
         printf "\nPress Enter to continue..."; read input
@@ -227,8 +214,7 @@ option_8() {
         display_banner
         options="(1-5)"
 
-        echo "Pick a new resource limit utilization based on current hardware limits."
-        echo
+        echo "Pick a new resource limit utilization based on current hardware limits.\n"
         printf "%s\n" "$STATS"
         echo
         echo "1. BASE   -->   320MB RAM"
@@ -258,8 +244,7 @@ option_8() {
                 break  # Return to the main menu
                 ;;
             *)
-                echo
-                echo "Invalid option. Please select a valid option $options."
+                echo "\nInvalid option. Please select a valid option $options."
                 ;;
         esac
         printf "\nPress Enter to continue..."; read input
@@ -270,11 +255,12 @@ option_9() {
     while true; do
         display_banner
 
-        options="(1-3)"
+        options="(1-4)"
 
-        echo "1. Reset resource limit only"
+        echo "1. Reset resource limit"
         echo "2. Reset all back to default"
-        echo "3. Check and get update"
+        echo "3. Backup & Restore config"
+        echo "4. Check and get update"
         echo "0. Return to Main Menu"
         echo
         read -p "Select an option $options: " option
@@ -284,27 +270,30 @@ option_9() {
                 echo
                 sh scripts/set-limit.sh low
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
+                printf "\nPress Enter to continue..."; read input
                 ;;
             2)
                 rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
-                echo
-                echo "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
+                echo "\nAll settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
+                printf "\nPress Enter to continue..."; read input
                 ;;
             3)
-                echo
-                echo "Checking and attempting to get latest updates...\n"
+                sh scripts/backup-restore.sh
+                ;;
+            4)
+                echo "\nChecking and attempting to get latest updates...\n"
                 git fetch; git reset --hard; git pull
+                printf "\nPress Enter to continue..."; read input
                 ;;
             0)
                 break  # Return to the main menu
                 ;;
             *)
-                echo
-                echo "Invalid option. Please select a valid option $options."
+                echo "\nInvalid option. Please select a valid option $options."
+                printf "\nPress Enter to continue..."; read input
                 ;;
         esac
-        printf "\nPress Enter to continue..."; read input
     done
 }
 
@@ -324,7 +313,7 @@ while true; do
     echo "6. Show Installed Applications"
     echo "7. Install/Uninstall Docker"
     echo "8. Change Resource Limits"
-    echo "9. Update/Reset Config"
+    echo "9. Manage Tool"
     echo "0. Quit"
     echo
     read -p "Select an option $options: " choice
@@ -340,6 +329,9 @@ while true; do
         7) option_7 ;;
         8) option_8 ;;
         9) option_9 ;;
-        *) echo "Invalid option. Please select a valid option $options." ;;
+        *)
+            echo "\nInvalid option. Please select a valid option $options."
+            printf "\nPress Enter to continue..."; read input
+            ;;
     esac
 done
