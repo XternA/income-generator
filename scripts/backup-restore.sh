@@ -24,8 +24,9 @@ backup_config() {
 
             echo "Backup file ${RED}$BACKUP_FILE${NC} already exists.\n"
             echo "Choose an option:\n"
-            echo "1. View current backup file content"
-            echo "2. Replace old backup with latest backup content"
+            echo "1. View current backup file configuration"
+            echo "2. View current in-use configuration"
+            echo "3. Replace old backup with the current configurations"
             echo "0. Exit"
             echo
             read -p "Select an option $options: " option
@@ -39,6 +40,13 @@ backup_config() {
                     echo "${NC}\n----------[ END OF BACKUP ]----------"
                     ;;
                 2)
+                    display_banner
+                    echo "Content of current in-use configuration.\n"
+                    echo "---------[ START OF CONFIG ]---------\n${BLUE}"
+                    tail -n +14 $ENV_FILE
+                    echo "${NC}\n----------[ END OF CONFIG ]----------"
+                    ;;
+                3)
                     display_banner
                     echo "Replacing old backup file with the current configurations."
                     break
