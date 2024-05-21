@@ -9,6 +9,7 @@ COMPOSE="$(pwd)/compose"
 ALL_COMPOSE_FILES="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml -f $COMPOSE/compose.single.yml"
 
 GREEN='\033[1;32m'
+RED='\033[1;91m'
 PINK='\033[1;35m'
 BLUE='\033[1;36m'
 NC='\033[0m'
@@ -120,7 +121,7 @@ option_2() {
             2)
                 display_banner
                 echo "---------[ START OF CONFIG ]---------\n${BLUE}"
-                tail -n +14 .env
+                tail -n +14 $ENV_FILE
                 echo "${NC}\n----------[ END OF CONFIG ]----------"
                 printf "\nPress Enter to continue..."; read input
                 ;;
@@ -257,9 +258,9 @@ option_9() {
 
         options="(1-4)"
 
-        echo "1. Reset resource limit"
-        echo "2. Reset all back to default"
-        echo "3. Backup & Restore config"
+        echo "1. Backup & Restore config"
+        echo "2. Reset resource limit"
+        echo "3. Reset all back to default"
         echo "4. Check and get update"
         echo "0. Return to Main Menu"
         echo
@@ -267,19 +268,43 @@ option_9() {
 
         case $option in
             1)
+                sh scripts/backup-restore.sh
+                ;;
+            2)
                 echo
                 sh scripts/set-limit.sh low
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
                 printf "\nPress Enter to continue..."; read input
                 ;;
-            2)
+            3)
+                while true; do
+                    display_banner
+                    echo "${RED}WARNING!${NC}\n\nAbout to reset everything back to default."
+                    echo "This will remove all configured credentials as well.\n"
+                    read -p "Do you want to backup credentials first? (Y/N): " yn
+                    case $yn in
+                        [Yy]* )
+                            sh scripts/backup-restore.sh
+                            break
+                            ;;
+                        [Nn]* )
+                            break
+                            ;;
+                        * )
+                            echo "\nPlease input yes (Y/y) or no (N/n)."
+                            ;;
+                    esac
+                    printf "\nPress Enter to continue..."; read input
+                done
+
+                display_banner
                 rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
-                echo "\nAll settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
+
+                echo "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
+                echo "Restore credentials if they have already been backed up."
+                echo "Resource limits will need re-applying if previously set."
                 printf "\nPress Enter to continue..."; read input
-                ;;
-            3)
-                sh scripts/backup-restore.sh
                 ;;
             4)
                 echo "\nChecking and attempting to get latest updates...\n"
