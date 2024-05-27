@@ -6,6 +6,7 @@ BLUE='\033[1;96m'
 NC='\033[0m'
 
 JSON_FILE="$(pwd)/apps.json"
+ENV_FILE="$(pwd)/.env.deploy"
 
 display_banner() {
     clear
@@ -15,7 +16,7 @@ display_banner() {
 }
 
 display_table() {
-    json_content=$(cat $JSON_FILE)
+    json_content=$(cat "$JSON_FILE")
     app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled)"')
 
     # Table header
@@ -39,7 +40,49 @@ display_table() {
     done
 }
 
-#  Main script
+export_selection() {
+    json_content=$(cat "$JSON_FILE")
+    app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled)"')
+
+    if [ -f $ENV_FILE ]; then
+        rm -f "$ENV_FILE"
+    fi
+
+    echo "$app_data" | while IFS=$'\n' read -r line; do
+        name=$(echo "$line" | cut -d' ' -f1)
+        is_enabled=$(echo "$line" | cut -d' ' -f2)
+
+        echo "$name=$is_enabled" >> "$ENV_FILE"
+    done
+    exit 0
+}
+
+import_selection() {
+    if [ -f $ENV_FILE ]; then
+        while IFS='=' read -r name is_enabled; do
+            updated_json_content=$(jq --indent 4 --arg name "$name" --arg is_enabled "$is_enabled" '. |= map(if .name == $name then .is_enabled = ($is_enabled | fromjson) else . end)' "$JSON_FILE")
+            echo "$updated_json_content" > "$JSON_FILE"
+        done < "$ENV_FILE"
+    fi
+    export_selection
+    exit 0
+}
+
+parse_cmd_arg() {
+    if [ "$1" = "--default" ]; then
+        updated_json_content=$(jq --indent 4 '. |= map(.is_enabled = true)' "$JSON_FILE")
+        echo "$updated_json_content" > "$JSON_FILE"
+        export_selection
+    elif [ "$1" = "--export" ]; then
+        export_selection
+    elif [ "$1" = "--import" ]; then
+        import_selection
+    fi
+}
+
+# Main script
+parse_cmd_arg "$@"
+
 while true; do
     display_banner
     echo "Disabled applications will not be deployed.\n"
@@ -77,6 +120,7 @@ while true; do
             echo "$updated_json_content" > "$JSON_FILE"
             ;;
         0)
+            export_selection
             exit 0
             ;;
         *)
