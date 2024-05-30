@@ -90,7 +90,7 @@ parse_cmd_arg "$@"
 
 while true; do
     display_banner
-    echo "Disabled applications will not be deployed.\n"
+    echo "${RED}Disabled${NC} applications will not be deployed.\n"
     display_table
 
     echo "\nOptions:"
@@ -105,7 +105,7 @@ while true; do
         [1-9]*)
             # Enable or disable specific application
             if ! [ "$choice" -ge 1 ] || ! [ "$choice" -le "$(echo "$app_data" | wc -l)" ]; then
-                echo "Invalid input! Please enter a number between 1 and $(echo "$app_data" | wc -l)."
+                echo "\nInvalid input! Please enter a number between 1 and $(echo "$app_data" | wc -l)."
                 printf "\nPress Enter to continue..."; read input
             fi
 
@@ -129,7 +129,7 @@ while true; do
             exit 0
             ;;
         *)
-            echo "Invalid option! Please select a valid option."
+            echo "\nInvalid option! Please select a valid option."
             printf "\nPress Enter to continue..."; read input
             ;;
     esac
