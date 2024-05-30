@@ -42,9 +42,9 @@ display_table() {
 
 export_selection() {
     json_content=$(cat "$JSON_FILE")
-    app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled)"')
+    app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled | if . == true then "ENABLED" else "DISABLED" end)"')
 
-    if [ -f $ENV_FILE ]; then
+    if [ -f "$ENV_FILE" ]; then
         rm -f "$ENV_FILE"
     fi
 
@@ -58,8 +58,13 @@ export_selection() {
 }
 
 import_selection() {
-    if [ -f $ENV_FILE ]; then
+    if [ -f "$ENV_FILE" ]; then
         while IFS='=' read -r name is_enabled; do
+            if [ "$is_enabled" == "ENABLED" ]; then
+                is_enabled="true"
+            elif [ "$is_enabled" == "DISABLED" ]; then
+                is_enabled="false"
+            fi
             updated_json_content=$(jq --indent 4 --arg name "$name" --arg is_enabled "$is_enabled" '. |= map(if .name == $name then .is_enabled = ($is_enabled | fromjson) else . end)' "$JSON_FILE")
             echo "$updated_json_content" > "$JSON_FILE"
         done < "$ENV_FILE"
