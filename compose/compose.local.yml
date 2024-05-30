@@ -7,6 +7,8 @@ services:
             - EARNAPP_UUID=$EARNAPP_DEVICE_UUID
             - EARNAPP_TERM=yes
         platform: linux/amd64
+        profiles:
+          - "${EARNAPP:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -22,6 +24,8 @@ services:
         restart: always
         environment:
             - CID=$PACKETSTREAM_CID
+        profiles:
+          - "${PACKETSTREAM:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -38,6 +42,8 @@ services:
             - CODE=$SPEEDSHARE_AUTH_CODE
             - SPEEDSHARE_UUID=$SPEEDSHARE_UUID
         platform: linux/amd64
+        profiles:
+          - "${SPEEDSHARE:-DISABLED}"
         network_mode: bridge
         dns:
             - 1.1.1.1
@@ -52,6 +58,8 @@ services:
         restart: always
         environment:
             - ID=${SPIDE_MACHINE_ID:-}
+        profiles:
+          - "${SPIDE:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -67,6 +75,8 @@ services:
         environment:
             - GRASS_USER=$GRASS_EMAIL
             - GRASS_PASS=$GRASS_PASSWORD
+        profiles:
+          - "${GRASS:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8

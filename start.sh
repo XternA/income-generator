@@ -5,6 +5,7 @@ sh scripts/init.sh
 ARCH="$(sh scripts/arch.sh)"
 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
 ENV_FILE="$(pwd)/.env"
+ENV_DEPLOY_FILE="$(pwd)/.env.deploy"
 COMPOSE="$(pwd)/compose"
 ALL_COMPOSE_FILES="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml -f $COMPOSE/compose.single.yml"
 
@@ -83,9 +84,9 @@ option_1() {
 
                     echo $install_type
                     echo
-                    docker compose --env-file $ENV_FILE $compose_files pull
+                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
                     docker container prune -f
-                    docker compose --env-file $ENV_FILE $compose_files up --force-recreate --build -d
+                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
                     ;;
             0)
                 break  # Return to the main menu
@@ -101,12 +102,13 @@ option_1() {
 option_2() {
     while true; do
         display_banner
-        options="(1-4)"
+        options="(1-5)"
 
         echo "1. Set up configuration"
         echo "2. View config file"
         echo "3. Edit config file"
-        echo "4. Back & Restore config"
+        echo "4. Enable or disable applications"
+        echo "5. Backup & restore config"
         echo "0. Back to Main Menu"
         echo
         read -p "Select an option $options: " option
@@ -132,6 +134,9 @@ option_2() {
                 nano .env
                 ;;
             4)
+                sh scripts/app-selection.sh
+                ;;
+            5)
                 sh scripts/backup-restore.sh
                 ;;
             0)
@@ -148,7 +153,7 @@ option_2() {
 option_3() {
     display_banner
     echo "Starting applications...\n"
-    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES start
+    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
 }
@@ -156,7 +161,7 @@ option_3() {
 option_4() {
     display_banner
     echo "Stopping applications...\n"
-    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
+    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
 }
@@ -164,9 +169,8 @@ option_4() {
 option_5() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
+    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     docker container prune -f
-    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES stop
-    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES down -v
     echo "\nAll installed applications and volumes removed."
     printf "\nPress Enter to continue..."; read input
 }
@@ -174,7 +178,7 @@ option_5() {
 option_6() {
     display_banner
     echo "Installed Containers:\n"
-    docker compose --env-file $ENV_FILE $ALL_COMPOSE_FILES ps -a
+    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE $ALL_COMPOSE_FILES ps -a
     printf "\nPress Enter to continue..."; read input
 }
 
@@ -186,7 +190,8 @@ option_7() {
         echo "1. Install Docker"
         echo "2. Uninstall Docker"
         echo "0. Back to Main Menu"
-        read -p "\nSelect an option $options: " option
+        echo
+        read -p "Select an option $options: " option
 
         case $option in
             1)
@@ -256,12 +261,13 @@ option_9() {
     while true; do
         display_banner
 
-        options="(1-4)"
+        options="(1-5)"
 
-        echo "1. Backup & Restore config"
+        echo "1. Backup & restore config"
         echo "2. Reset resource limit"
-        echo "3. Reset all back to default"
-        echo "4. Check and get update"
+        echo "3. Re-enable all applications"
+        echo "4. Reset all back to default"
+        echo "5. Check and get update"
         echo "0. Return to Main Menu"
         echo
         read -p "Select an option $options: " option
@@ -277,14 +283,22 @@ option_9() {
                 printf "\nPress Enter to continue..."; read input
                 ;;
             3)
+                sh scripts/app-selection.sh --default
+                echo "\nAll applications have been re-enabled."
+                printf "\nPress Enter to continue..."; read input
+                ;;
+            4)
                 while true; do
                     display_banner
                     echo "${RED}WARNING!${NC}\n\nAbout to reset everything back to default."
-                    echo "This will remove all configured credentials as well.\n"
+                    echo "This will remove all configured credentials as well."
+                    echo "Disabled apps will be re-enabled for deployment again.\n"
+
                     read -p "Do you want to backup credentials first? (Y/N): " yn
                     case $yn in
                         [Yy]* )
                             sh scripts/backup-restore.sh
+                            sh scripts/app-selection.sh --export
                             break
                             ;;
                         [Nn]* )
@@ -300,15 +314,17 @@ option_9() {
                 display_banner
                 rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
+                sh scripts/app-selection.sh --default
 
                 echo "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
                 echo "Restore credentials if they have already been backed up."
                 echo "Resource limits will need re-applying if previously set."
                 printf "\nPress Enter to continue..."; read input
                 ;;
-            4)
+            5)
                 echo "\nChecking and attempting to get latest updates...\n"
                 git fetch; git reset --hard; git pull
+                sh scripts/app-selection.sh --import
                 printf "\nPress Enter to continue..."; read input
                 ;;
             0)

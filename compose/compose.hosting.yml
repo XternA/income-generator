@@ -7,6 +7,8 @@ services:
             - RP_EMAIL=$REPOCKET_EMAIL
             - RP_API_KEY=$REPOCKET_API_KEY
         platform: linux/amd64
+        profiles:
+          - "${REPOCKET:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -23,6 +25,8 @@ services:
             - device_name=$DEVICE_ID
             - UUID=$PROXYRACK_UUID
         platform: linux/amd64
+        profiles:
+          - "${PROXYRACK:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -37,6 +41,8 @@ services:
         environment:
             - USER_ID=$PROXYLITE_USER_ID
         platform: linux/amd64
+        profiles:
+          - "${PROXYLITE:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -50,6 +56,8 @@ services:
         restart: always
         environment:
             - EARNFM_TOKEN=$EARNFM_TOKEN
+        profiles:
+          - "${EARNFM:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -65,6 +73,8 @@ services:
         environment:
             - BITPING_EMAIL=$BITPING_EMAIL
             - BITPING_PASSWD=$BITPING_PASSWORD
+        profiles:
+          - "${BITPING:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -80,6 +90,8 @@ services:
         restart: always
         environment:
             - TOKEN=$GAGANODE_TOKEN
+        profiles:
+          - "${GAGANODE:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
