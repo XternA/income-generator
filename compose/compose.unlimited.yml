@@ -6,6 +6,8 @@ services:
         environment:
             - P2P_EMAIL=$P2PROFIT_EMAIL
         platform: linux/amd64
+        profiles:
+          - "${PEER2PROFIT:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -18,6 +20,8 @@ services:
         image: traffmonetizer/cli_v2:$ARCH
         restart: always
         command: start accept --token $TRAFFMONETIZER_TOKEN --device-name $DEVICE_ID
+        profiles:
+          - "${TRAFFMONETIZER:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -32,6 +36,8 @@ services:
         cap_add:
             - NET_ADMIN
         command: service --agreed-terms-and-conditions
+        profiles:
+          - "${MYSTERIUM:-DISABLED}"
         ports:
             - 4449:4449
         dns:

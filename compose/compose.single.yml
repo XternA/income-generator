@@ -4,6 +4,8 @@ services:
         image: honeygain/honeygain
         restart: always
         command: -tou-accept -email $HONEYGAIN_EMAIL -pass $HONEYGAIN_PASSWORD -device $DEVICE_ID
+        profiles:
+          - "${HONEYGAIN:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -18,20 +20,22 @@ services:
         environment:
             - EMAIL=$HONEYGAIN_EMAIL
             - PASSWORD=$HONEYGAIN_PASSWORD
+        profiles:
+          - "${HONEYGAIN:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $ALT_MIN_CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
-        depends_on:
-            - honeygain
 
     pawns:
         container_name: pawns
         image: iproyal/pawns-cli
         restart: always
         command: -accept-tos -email=$PAWNS_EMAIL -password=$PAWNS_PASSWORD -device-name=$DEVICE_ID -device-id=$DEVICE_ID
+        profiles:
+          - "${PAWNS:-DISABLED}"
         dns:
             - 1.1.1.1
             - 8.8.8.8
