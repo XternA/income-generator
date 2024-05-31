@@ -54,23 +54,24 @@ export_selection() {
 
         echo "$name=$is_enabled" >> "$ENV_FILE"
     done
-    exit 0
 }
 
 import_selection() {
     if [ -f "$ENV_FILE" ]; then
         while IFS='=' read -r name is_enabled; do
-            if [ "$is_enabled" == "ENABLED" ]; then
+            if [ "$is_enabled" = "ENABLED" ]; then
                 is_enabled="true"
-            elif [ "$is_enabled" == "DISABLED" ]; then
+            else
                 is_enabled="false"
             fi
-            updated_json_content=$(jq --indent 4 --arg name "$name" --arg is_enabled "$is_enabled" '. |= map(if .name == $name then .is_enabled = ($is_enabled | fromjson) else . end)' "$JSON_FILE")
-            echo "$updated_json_content" > "$JSON_FILE"
+
+            json_content=$(jq --arg name "$name" '.[] | select(.name == $name)' "$JSON_FILE")
+            if [ ! -z "$json_content" ]; then
+                updated_json_content=$(jq --indent 4 --arg name "$name" --arg is_enabled "$is_enabled" '. |= map(if .name == $name then .is_enabled = ($is_enabled | fromjson) else . end)' "$JSON_FILE")
+                echo "$updated_json_content" > "$JSON_FILE"
+            fi
         done < "$ENV_FILE"
     fi
-    export_selection
-    exit 0
 }
 
 parse_cmd_arg() {
@@ -78,10 +79,32 @@ parse_cmd_arg() {
         updated_json_content=$(jq --indent 4 '. |= map(.is_enabled = true)' "$JSON_FILE")
         echo "$updated_json_content" > "$JSON_FILE"
         export_selection
+        exit 0
     elif [ "$1" = "--export" ]; then
         export_selection
+        exit 0
     elif [ "$1" = "--import" ]; then
         import_selection
+        export_selection
+        exit 0
+    elif [ "$1" = "--backup" ]; then
+        ENV_FILE="$ENV_FILE.backup"
+        export_selection
+        echo "\nBackup current app state successfully."
+        exit 0
+    elif [ "$1" = "--restore" ]; then
+        tmp=$ENV_FILE
+        ENV_FILE="$ENV_FILE.backup"
+        if [ -f "$ENV_FILE" ]; then
+            import_selection
+            rm -f "$ENV_FILE"
+            ENV_FILE=$tmp
+            export_selection
+            echo "\nSuccessfully re-applied app's enabled/disabled state from backup."
+        else
+            echo "\nNo backup found. Nothing to restore from."
+        fi
+        exit 0
     fi
 }
 
