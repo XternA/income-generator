@@ -264,8 +264,8 @@ option_9() {
         options="(1-5)"
 
         echo "1. Backup & restore config"
-        echo "2. Reset resource limit"
-        echo "3. Re-enable all applications"
+        echo "2. Manage application state"
+        echo "3. Reset resource limit"
         echo "4. Reset all back to default"
         echo "5. Check and get update"
         echo "0. Return to Main Menu"
@@ -277,14 +277,41 @@ option_9() {
                 sh scripts/backup-restore.sh
                 ;;
             2)
+                while true; do
+                    display_banner
+                    options="(1-2)"
+
+                    echo "Re-enable, restore saved application state.\n"
+                    echo "1. Re-enable all applications"
+                    echo "2. Restore from saved application state"
+                    echo "0. Return to Main Menu"
+                    echo
+                    read -p "Select an option $options: " choice
+
+                    case $choice in
+                        1)
+                            sh scripts/app-selection.sh --default
+                            echo "\nAll applications have been re-enabled."
+                            printf "\nPress Enter to continue..."; read input
+                            ;;
+                        2)
+                            sh scripts/app-selection.sh --restore
+                            printf "\nPress Enter to continue..."; read input
+                            ;;
+                        0)
+                            break
+                            ;;
+                        *)
+                            echo "\nInvalid option. Please select a valid option $options."
+                            printf "\nPress Enter to continue..."; read input
+                            ;;
+                    esac
+                done
+                ;;
+            3)
                 echo
                 sh scripts/set-limit.sh low
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
-                printf "\nPress Enter to continue..."; read input
-                ;;
-            3)
-                sh scripts/app-selection.sh --default
-                echo "\nAll applications have been re-enabled."
                 printf "\nPress Enter to continue..."; read input
                 ;;
             4)
@@ -296,15 +323,15 @@ option_9() {
 
                     read -p "Do you want to backup credentials first? (Y/N): " yn
                     case $yn in
-                        [Yy]* )
+                        [Yy]*)
                             sh scripts/backup-restore.sh
-                            sh scripts/app-selection.sh --export
+                            sh scripts/app-selection.sh --backup
                             break
                             ;;
-                        [Nn]* )
+                        [Nn]*)
                             break
                             ;;
-                        * )
+                        *)
                             echo "\nPlease input yes (Y/y) or no (N/n)."
                             ;;
                     esac
@@ -317,8 +344,10 @@ option_9() {
                 sh scripts/app-selection.sh --default
 
                 echo "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
-                echo "Restore credentials if they have already been backed up."
                 echo "Resource limits will need re-applying if previously set."
+                echo "\nWhat settings can be restored?"
+                echo "  - Application credentials if backed up."
+                echo "  - State of applications that's been enabled/disabled for use."
                 printf "\nPress Enter to continue..."; read input
                 ;;
             5)
