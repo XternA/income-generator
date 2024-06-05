@@ -1,5 +1,7 @@
 #!/bin/sh
 
+sh "$(pwd)/scripts/jq-install.sh"
+
 GREEN='\033[0;92m'
 RED='\033[0;91m'
 BLUE='\033[1;96m'
