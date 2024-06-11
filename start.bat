@@ -22,18 +22,18 @@ REM -- Sub-calls -------------
 :CheckAndRegisterAlias
 wsl -e sh -c "if [ -f $HOME/.aliases ]; then exit 0; else exit 1; fi"
 if %errorlevel% equ 0 (
-    wsl grep -q "igm='(cd $HOME/.income-generator; sh start.sh)'" "$HOME/.aliases" || call :RegisterToAliases
+    wsl grep -q "igm='(cd ~/.income-generator; sh start.sh)'" "$HOME/.aliases" || call :RegisterToAliases
 ) else (
-    wsl grep -q "igm='(cd $HOME/.income-generator; sh start.sh)'" "$HOME/.${SHELL##*/}rc" || call :RegisterToRC
+    wsl grep -q "igm='(cd ~/.income-generator; sh start.sh)'" "$HOME/.${SHELL##*/}rc" || call :RegisterToRC
 )
 exit /b 0
 
 :RegisterToAliases
-wsl -e sh -c "echo \"alias igm='(cd $HOME/.income-generator; sh start.sh)'\" >> $HOME/.aliases"
+wsl -e sh -c "echo \"alias igm='(cd ~/.income-generator; sh start.sh)'\" >> $HOME/.aliases"
 exit /b 0
 
 :RegisterToRC
-wsl -e sh -c "echo \"alias igm='(cd $HOME/.income-generator; sh start.sh)'\" >> $HOME/.${SHELL##*/}rc"
+wsl -e sh -c "echo \"alias igm='(cd ~/.income-generator; sh start.sh)'\" >> $HOME/.${SHELL##*/}rc"
 exit /b 0
 
 :GetTool
