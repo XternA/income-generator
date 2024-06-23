@@ -198,11 +198,13 @@ option_7() {
                 display_banner
                 echo "Installing Docker...\n"
                 sh scripts/docker-install.sh
+                sh scripts/emulation-layer.sh --add
                 ;;
             2)
                 display_banner
                 echo "Uninstalling Docker...\n"
                 sh scripts/docker-uninstall.sh
+                sh scripts/emulation-layer.sh --remove
                 ;;
             0)
                 break  # Return to the main menu
