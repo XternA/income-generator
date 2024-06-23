@@ -7,6 +7,7 @@ current_crontab=$(crontab -l 2>/dev/null)
 add_cron_job() {
     if ! echo "$current_crontab" | grep -Fxq "$cron"; then
         (echo "$current_crontab"; echo "$cron") | crontab -
+        ($command > /dev/null 2>&1)
         echo "\nQEMU emulation layer added."
     else
         echo "\nQEMU emulation layer already exist."
