@@ -6,15 +6,15 @@ If you like this project, don't forget to leave a star. ⭐
 >**NOTE:** *"This tool has always been developed for my personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
 
 <p align="center">
-<img src="https://github.com/XternA/income-generator/assets/9136075/22881e8c-c3f8-4c61-a927-cccc18bd0c7e" alt="Income Generator" width=70% height=70%>
+<img src="https://github.com/XternA/income-generator/assets/9136075/22881e8c-c3f8-4c61-a927-cccc18bd0c7e" alt="Income Generator" width=80% height=80%>
 </p>
 
 ## Overview 📚
-**Income Generator** is an all-in-one tool that consolidates a variety of supported applications, enabling the ability to generate passive income by leveraging everyday devices and unused internet bandwidth.
+**Income Generator** is an all-in-one tool that allows generating passive income by leveraging popular passive income generative applications, everyday devices, and unused internet bandwidth.
 
-By seamlessly integrating these applications, simplifying the entire process, making it more efficient and accessible with applications auto-updating.
+The result is a tool that fully orchestrates, manages, and deploys these applications into an isolated space from the host, simplifying the process, and allowing for fast deployment across stacks with application auto-update management.
 
-Some of the key features you can expect:
+**Some of the key features you can expect:**
 - **Easy To Use** - All-in-one solution for managing the stack. Docker installation, start/stop/remove.
 - **Multi-platform** - Deploy across different OS.
 - **Global Access** - Access the tool anywhere, just type `igm`.
@@ -22,24 +22,21 @@ Some of the key features you can expect:
 - **On-the-fly-update** - Tool can be updated on the fly whilst preserving config settings.
 - **Local Config** - Config file is auto-generated and stored locally, including credentials.
 - **Resource Limit** - Easily apply resource limit based on system hardware.
+- **Selective Apps** - Enable or disable the application of your choice to deploy.
 
-📖 Referring to the [**Wiki**](../../wiki) is strongly recommended for more details and in-depth instructions.
+📖 Refer to the [**Wiki**](../../wiki) is strongly recommended for more details and in-depth instructions.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
 **The tool configures and runs everything in a containerized virtualized environment isolated from the host.**
 
-- Works best on a 64-bit machine, though it is still possible to run it under a 32-bit operating system (OS), but will come with certain performance limitations, specifically with lower memory availability.
-- A minimum of 4GB would be best recommended to ensure the most resource available and for future expansions.
-- The stack requires a more recent version of **Docker**  which bundles **Compose** for orchestrating and running containers.
-- For ARM architecture devices, such as Raspberry Pi, Apple Silicon, etc, will be required to install an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture on ARM. This can be easily enabled via the Docker container which injects it directly.
-- For Windows, [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) will be required.
-
-Check the [**Prerequisites**](../../wiki/Prerequisites#arm-devices) section for emulation layer setup.
+- A 64-bit machine, though it's possible to run on a 32-bit machine, but with certain performance limitations, specifically with lower memory availability.
+- A minimum of 4GB is recommended to ensure the most resource available and for future expansions.
+- ARM architecture devices, such as Raspberry Pi, Apple Silicon, etc, require  an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture applications on ARM. Installing docker via the tool will enable this automatically.
+- For Windows,  [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) will be required.
 
 ### Quick Start Guide ⚙️
-Assuming **Docker** and **Compose** is already pre-installed (Can also be installed from the tool):
->:warning: *Newer versions of Docker integrate Compose directly. Accessed as `docker compose` instead of `docker-compose`.*
+If the prerequisites are met based on the platform, you can simply follow the quick start guide, otherwise, refer to the [**Wiki**](../../wiki) for the full setup procedure.
 
 ### Windows
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)

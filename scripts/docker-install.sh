@@ -116,6 +116,7 @@ if [ ! "$has_docker" ]; then
     fi
     echo
     echo "Docker has been installed successfully."
+    echo "\nRestart if docker doesn't start properly."
 else
     echo "Docker is already installed."
 fi
