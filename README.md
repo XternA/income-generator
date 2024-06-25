@@ -106,7 +106,7 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 | **[MYSTNODE](https://bit.ly/4cl0YAt)**        | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
 | **[BITPING](https://bit.ly/43xHKDt)**         | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
 | **[GAGANODE](https://bit.ly/4452ram)**        | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
-| **[NODEPAY](https://bit.ly/3zs6B0o)**         | :white_check_mark: | :white_check_mark: |250|Unlimited      | Coming Soon |
+| **[NODEPAY](https://bit.ly/3zs6B0o)**         | :white_check_mark: | :x:                |250|Unlimited      | Coming Soon |
 
 ## Tested Environments ✅
 The docker stack should work on anything that has docker installed. The tool has been tried and tested on the following environments:
