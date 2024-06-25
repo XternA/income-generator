@@ -150,5 +150,14 @@
             "GAGANODE_TOKEN"
         ],
         "is_enabled": true
+    },
+    {
+        "name": "NODEPAY",
+        "url": "https://bit.ly/3zs6B0o",
+        "description": " See the following guide for setup process: https://github.com/XternA/income-generator/wiki/NodePay",
+        "properties": [
+            "NODEPAY_COOKIE"
+        ],
+        "is_enabled": true
     }
 ]
