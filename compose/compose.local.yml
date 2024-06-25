@@ -84,5 +84,20 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
 
+    nodepay:
+        container_name: nodepay
+        image: kellphy/nodepay:legacy
+        restart: always
+        environment:
+            - NP_COOKIE=$NODEPAY_COOKIE
+        profiles:
+          - "${NODEPAY:-DISABLED}"
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
 volumes:
     earnapp-data:
