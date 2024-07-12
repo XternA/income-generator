@@ -92,6 +92,8 @@ services:
             - TOKEN=$GAGANODE_TOKEN
         profiles:
           - "${GAGANODE:-DISABLED}"
+        ports:
+            - 36060:36060
         dns:
             - 1.1.1.1
             - 8.8.8.8
