@@ -3,11 +3,13 @@
 REPO="xterna/income-generator"
 
 check_for_update() {
-    LATEST_RELEASE=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name // empty')
-    [ -z "$LATEST_RELEASE" ] && exit 0
-    CURRENT_BRANCH=$(git rev-parse HEAD)
+    RELEASE_TAG=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name // empty')
+    [ -z "$RELEASE_TAG" ] && exit 0
 
-    if git merge-base --is-ancestor "$CURRENT_BRANCH" "$LATEST_RELEASE"; then
+    RELEASE_COMMIT=$(git rev-parse "refs/tags/$RELEASE_TAG")
+    BEHIND_COUNT=$(git rev-list --count "origin/main..$RELEASE_COMMIT")
+
+    if [ "$BEHIND_COUNT" -gt 0 ]; then
         printf "\033[5m\033[91m%s\033[0m\n" "New tool update available! 🚀"
     fi
 }
