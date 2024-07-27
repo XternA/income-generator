@@ -2,7 +2,6 @@
 
 sh scripts/init.sh
 
-NEW_UPDATE="$(sh scripts/check-tool-update.sh)"
 ARCH="$(sh scripts/arch.sh)"
 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
 ENV_FILE="$(pwd)/.env"
@@ -29,7 +28,6 @@ stats() {
     printf "%s\n" "$STATS"
     echo "${GREEN}----------------------------------------${NC}"
     echo
-    [ -n "$NEW_UPDATE" ] && echo "$NEW_UPDATE\n"
 }
 
 option_1() {
@@ -356,7 +354,7 @@ option_9() {
                 ;;
             5)
                 echo "\nChecking and attempting to get latest updates...\n"
-                NEW_UPDATE=$(sh scripts/check-tool-update.sh --update)
+                git fetch; git reset --hard; git pull
                 sh scripts/app-selection.sh --import
                 printf "\nPress Enter to continue..."; read input
                 ;;
