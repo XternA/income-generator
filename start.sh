@@ -356,8 +356,9 @@ option_9() {
                 ;;
             5)
                 echo "\nChecking and attempting to get latest updates...\n"
-                NEW_UPDATE=$(sh scripts/check-tool-update.sh --update)
+                sh scripts/check-tool-update.sh --update
                 sh scripts/app-selection.sh --import
+                unset NEW_UPDATE
                 printf "\nPress Enter to continue..."; read input
                 ;;
             0)
