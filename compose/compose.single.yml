@@ -3,7 +3,11 @@ services:
         container_name: honeygain
         image: honeygain/honeygain
         restart: always
-        command: -tou-accept -email $HONEYGAIN_EMAIL -pass $HONEYGAIN_PASSWORD -device $DEVICE_ID
+        command: >
+            -tou-accept
+            -email ${HONEYGAIN_EMAIL:-}
+            -pass ${HONEYGAIN_PASSWORD:-}
+            -device ${DEVICE_ID:-}
         profiles:
           - "${HONEYGAIN:-DISABLED}"
         dns:
@@ -18,8 +22,8 @@ services:
         image: xterna/honeygain-pot
         restart: always
         environment:
-            - EMAIL=$HONEYGAIN_EMAIL
-            - PASSWORD=$HONEYGAIN_PASSWORD
+            - EMAIL=${HONEYGAIN_EMAIL:-}
+            - PASSWORD=${HONEYGAIN_PASSWORD:-}
         profiles:
           - "${HONEYGAIN:-DISABLED}"
         dns:
@@ -33,7 +37,12 @@ services:
         container_name: pawns
         image: iproyal/pawns-cli
         restart: always
-        command: -accept-tos -email=$PAWNS_EMAIL -password=$PAWNS_PASSWORD -device-name=$DEVICE_ID -device-id=$DEVICE_ID
+        command: >
+            -accept-tos
+            -email=${PAWNS_EMAIL:-}
+            -password=${PAWNS_PASSWORD:-}
+            -device-name=${DEVICE_ID:-}
+            -device-id=${DEVICE_ID:-}
         profiles:
           - "${PAWNS:-DISABLED}"
         dns:

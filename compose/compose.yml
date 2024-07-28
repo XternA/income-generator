@@ -3,7 +3,14 @@ services:
         container_name: watchtower
         image: containrrr/watchtower
         restart: always
-        command: --cleanup --no-startup-message --rolling-restart --include-stopped --include-restarting --revive-stopped --interval "9000"
+        command: >
+            --cleanup
+            --no-startup-message
+            --rolling-restart
+            --include-stopped
+            --include-restarting
+            --revive-stopped
+            --interval "9000"
         dns:
             - 1.1.1.1
             - 8.8.8.8

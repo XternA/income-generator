@@ -4,7 +4,7 @@ services:
         image: xterna/peer2profit
         restart: always
         environment:
-            - P2P_EMAIL=$P2PROFIT_EMAIL
+            - P2P_EMAIL=${P2PROFIT_EMAIL:-}
         platform: linux/amd64
         profiles:
           - "${PEER2PROFIT:-DISABLED}"
@@ -19,7 +19,10 @@ services:
         container_name: tm
         image: traffmonetizer/cli_v2:$ARCH
         restart: always
-        command: start accept --token $TRAFFMONETIZER_TOKEN --device-name $DEVICE_ID
+        command: >
+            start accept
+            --token ${TRAFFMONETIZER_TOKEN:-}
+            --device-name ${DEVICE_ID:-}
         profiles:
           - "${TRAFFMONETIZER:-DISABLED}"
         dns:

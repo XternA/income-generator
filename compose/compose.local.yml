@@ -4,7 +4,7 @@ services:
         image: madereddy/earnapp
         restart: always
         environment:
-            - EARNAPP_UUID=$EARNAPP_DEVICE_UUID
+            - EARNAPP_UUID=${EARNAPP_DEVICE_UUID:-}
             - EARNAPP_TERM=yes
         platform: linux/amd64
         profiles:
@@ -23,7 +23,7 @@ services:
         image: packetstream/psclient
         restart: always
         environment:
-            - CID=$PACKETSTREAM_CID
+            - CID=${PACKETSTREAM_CID:-}
         profiles:
           - "${PACKETSTREAM:-DISABLED}"
         dns:
@@ -39,8 +39,8 @@ services:
         restart: always
         hostname: $DEVICE_ID
         environment:
-            - CODE=$SPEEDSHARE_AUTH_CODE
-            - SPEEDSHARE_UUID=$SPEEDSHARE_UUID
+            - CODE=${SPEEDSHARE_AUTH_CODE:-}
+            - SPEEDSHARE_UUID=${SPEEDSHARE_UUID:-}
         platform: linux/amd64
         profiles:
           - "${SPEEDSHARE:-DISABLED}"
@@ -73,8 +73,8 @@ services:
         restart: always
         hostname: $DEVICE_ID
         environment:
-            - GRASS_USER=$GRASS_EMAIL
-            - GRASS_PASS=$GRASS_PASSWORD
+            - GRASS_USER=${GRASS_EMAIL:-}
+            - GRASS_PASS=${GRASS_PASSWORD:-}
         profiles:
           - "${GRASS:-DISABLED}"
         dns:
@@ -89,7 +89,7 @@ services:
         image: kellphy/nodepay:legacy
         restart: always
         environment:
-            - NP_COOKIE=$NODEPAY_COOKIE
+            - NP_COOKIE=${NODEPAY_COOKIE:-}
         profiles:
           - "${NODEPAY:-DISABLED}"
         dns:
