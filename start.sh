@@ -187,35 +187,64 @@ option_6() {
 option_7() {
     while true; do
         display_banner
-        options="(1-2)"
+        options="(1-3)"
 
-        echo "1. Install Docker"
-        echo "2. Uninstall Docker"
+        echo "1. Docker Housekeeping"
+        echo "2. Install Docker"
+        echo "3. Uninstall Docker"
         echo "0. Back to Main Menu"
         echo
         read -p "Select an option $options: " option
 
         case $option in
             1)
+                while true; do
+                    display_banner
+                    echo "[ Docker Housekeeping ]\n"
+                    echo "Performing cleanup on orphaned applications and downloaded images."
+                    echo "Orphaned applications currently running won't be cleaned up.\n"
+                    read -p "Do you want to perform clean up? (Y/N): " yn
+
+                    case $yn in
+                        [Yy]*)
+                            display_banner
+                            docker system prune -a -f
+                            echo "\nCleanup completed."
+                            printf "\nPress Enter to continue..."; read input
+                            break
+                            ;;
+                        [Nn]*)
+                            break
+                            ;;
+                        *)
+                            echo "\nPlease input yes (Y/y) or no (N/n)."
+                            printf "\nPress Enter to continue..."; read input
+                            ;;
+                    esac
+                done
+                ;;
+            2)
                 display_banner
                 echo "Installing Docker...\n"
                 sh scripts/docker-install.sh
                 sh scripts/emulation-layer.sh --add
+                printf "\nPress Enter to continue..."; read input
                 ;;
-            2)
+            3)
                 display_banner
                 echo "Uninstalling Docker...\n"
                 sh scripts/docker-uninstall.sh
                 sh scripts/emulation-layer.sh --remove
+                printf "\nPress Enter to continue..."; read input
                 ;;
             0)
                 break  # Return to the main menu
                 ;;
             *)
                 echo "\nInvalid option. Please select a valid option $options."
+                printf "\nPress Enter to continue..."; read input
                 ;;
         esac
-        printf "\nPress Enter to continue..."; read input
     done
 }
 
@@ -385,7 +414,7 @@ while true; do
     echo "4. Stop Applications"
     echo "5. Remove Applications"
     echo "6. Show Installed Applications"
-    echo "7. Install/Uninstall Docker"
+    echo "7. Manage Docker"
     echo "8. Change Resource Limits"
     echo "9. Manage Tool"
     echo "0. Quit"

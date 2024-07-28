@@ -4,11 +4,11 @@ services:
         image: repocket/repocket
         restart: always
         environment:
-            - RP_EMAIL=$REPOCKET_EMAIL
-            - RP_API_KEY=$REPOCKET_API_KEY
+            - RP_EMAIL=${REPOCKET_EMAIL:-}
+            - RP_API_KEY=${REPOCKET_API_KEY:-}
         platform: linux/amd64
         profiles:
-          - "${REPOCKET:-DISABLED}"
+          - ${REPOCKET:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -21,12 +21,12 @@ services:
         image: proxyrack/pop
         restart: always
         environment:
-            - api_key=$PROXYRACK_API_KEY
-            - device_name=$DEVICE_ID
-            - UUID=$PROXYRACK_UUID
+            - api_key=${PROXYRACK_API_KEY:-}
+            - device_name=${DEVICE_ID:-}
+            - UUID=${PROXYRACK_UUID:-}
         platform: linux/amd64
         profiles:
-          - "${PROXYRACK:-DISABLED}"
+          - ${PROXYRACK:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -39,10 +39,10 @@ services:
         image: proxylite/proxyservice
         restart: always
         environment:
-            - USER_ID=$PROXYLITE_USER_ID
+            - USER_ID=${PROXYLITE_USER_ID:-}
         platform: linux/amd64
         profiles:
-          - "${PROXYLITE:-DISABLED}"
+          - ${PROXYLITE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -55,9 +55,9 @@ services:
         image: earnfm/earnfm-client
         restart: always
         environment:
-            - EARNFM_TOKEN=$EARNFM_TOKEN
+            - EARNFM_TOKEN=${EARNFM_TOKEN:-}
         profiles:
-          - "${EARNFM:-DISABLED}"
+          - ${EARNFM:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -71,10 +71,10 @@ services:
         restart: always
         hostname: $DEVICE_ID
         environment:
-            - BITPING_EMAIL=$BITPING_EMAIL
-            - BITPING_PASSWD=$BITPING_PASSWORD
+            - BITPING_EMAIL=${BITPING_EMAIL:-}
+            - BITPING_PASSWD=${BITPING_PASSWORD:-}
         profiles:
-          - "${BITPING:-DISABLED}"
+          - ${BITPING:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -89,24 +89,9 @@ services:
         image: xterna/gaga-node
         restart: always
         environment:
-            - TOKEN=$GAGANODE_TOKEN
+            - TOKEN=${GAGANODE_TOKEN:-}
         profiles:
-          - "${GAGANODE:-DISABLED}"
-        dns:
-            - 1.1.1.1
-            - 8.8.8.8
-        cpus: $CPU_LIMIT
-        mem_limit: $RAM_LIMIT
-        mem_reservation: $RAM_RESERVE
-
-    nodepay:
-        container_name: nodepay
-        image: kellphy/nodepay:legacy
-        restart: always
-        environment:
-            - NP_COOKIE=$NODEPAY_COOKIE
-        profiles:
-          - "${NODEPAY:-DISABLED}"
+          - ${GAGANODE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
