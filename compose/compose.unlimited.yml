@@ -7,7 +7,7 @@ services:
             - P2P_EMAIL=${P2PROFIT_EMAIL:-}
         platform: linux/amd64
         profiles:
-          - "${PEER2PROFIT:-DISABLED}"
+          - ${PEER2PROFIT:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -24,7 +24,7 @@ services:
             --token ${TRAFFMONETIZER_TOKEN:-}
             --device-name ${DEVICE_ID:-}
         profiles:
-          - "${TRAFFMONETIZER:-DISABLED}"
+          - ${TRAFFMONETIZER:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -40,7 +40,7 @@ services:
             - NET_ADMIN
         command: service --agreed-terms-and-conditions
         profiles:
-          - "${MYSTERIUM:-DISABLED}"
+          - ${MYSTERIUM:-DISABLED}
         ports:
             - 4449:4449
         dns:

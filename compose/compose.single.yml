@@ -9,7 +9,7 @@ services:
             -pass ${HONEYGAIN_PASSWORD:-}
             -device ${DEVICE_ID:-}
         profiles:
-          - "${HONEYGAIN:-DISABLED}"
+          - ${HONEYGAIN:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -25,7 +25,7 @@ services:
             - EMAIL=${HONEYGAIN_EMAIL:-}
             - PASSWORD=${HONEYGAIN_PASSWORD:-}
         profiles:
-          - "${HONEYGAIN:-DISABLED}"
+          - ${HONEYGAIN:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -44,7 +44,7 @@ services:
             -device-name=${DEVICE_ID:-}
             -device-id=${DEVICE_ID:-}
         profiles:
-          - "${PAWNS:-DISABLED}"
+          - ${PAWNS:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
