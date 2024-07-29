@@ -3,13 +3,12 @@
 REPO="xterna/income-generator"
 
 check_for_update() {
-    RELEASE_TAG=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name // empty')
-    [ -z "$RELEASE_TAG" ] && exit 0
+    RELEASE_VERSION=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.tag_name // empty'); [ -z "$RELEASE_VERSION" ] && exit 0
+    TAG_COMMIT=$(curl -s "https://api.github.com/repos/$REPO/tags" | jq -r --arg tag "$RELEASE_VERSION" '.[] | select(.name == $tag) | .commit.sha'); [ -z "$TAG_COMMIT" ] && exit 0
+    LOCAL_COMMIT=$(git rev-parse HEAD)
+    COMPARE_COMMITS=$(curl -s "https://api.github.com/repos/$REPO/compare/$TAG_COMMIT...$LOCAL_COMMIT" | jq -r '.status // empty')
 
-    RELEASE_COMMIT=$(git rev-parse "refs/tags/$RELEASE_TAG")
-    BEHIND_COUNT=$(git rev-list --count "origin/main..$RELEASE_COMMIT")
-
-    if [ "$BEHIND_COUNT" -gt 0 ]; then
+    if [ "$COMPARE_COMMITS" = "behind" ]; then
         printf "\033[5m\033[91m%s\033[0m\n" "New tool update available! 🚀"
     fi
 }
