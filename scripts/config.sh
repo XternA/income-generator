@@ -14,12 +14,12 @@ NC='\033[0m'
 display_banner() {
     clear
     printf $GREEN
-    echo "=========================================================="
-    echo "#    ${NC}Dotenv Configuration Script${GREEN}                         #"
-    echo "=========================================================="
-    echo "#  ${NC}Configure and update the configuration file setup${GREEN}     #"
-    echo "#  ${NC}stored within a config file called ${RED}.env${NC}.${GREEN}              #"
-    echo "=========================================================="
+    echo "==========================================================="
+    echo "#     ${NC}Application Credential Setup Manager${GREEN}                #"
+    echo "==========================================================="
+    echo "#  ${NC}Manage, update and configure application credentials.${GREEN}  #"
+    echo "#  ${NC}Credentials are stored locally in a ${RED}.env${NC} config file.${GREEN}  #"
+    echo "==========================================================="
     printf $NC
 }
 
@@ -102,7 +102,7 @@ process_entries() {
         description_ext=$(echo "$config_entry" | jq -r '.description_ext' | tr -d '\n')
         registration=$(echo "$config_entry" | jq -r '.registration' | tr -d '\n')
 
-        echo "\n[ $app_name ]"
+        echo "\n[ ${GREEN}$app_name${NC} ]"
         [ "$url" != null ] && echo "Go to $BLUE$url$NC to register an account. (CTRL + Click)"
         [ "$description" != null ] && echo "Description: ${YELLOW}$description${NC}"
         [ "$description_ext" != null ] && echo "${YELLOW}$description_ext${NC}"
@@ -153,7 +153,8 @@ process_entries() {
 
 # Main script
 if [ -f "$ENV_FILE" ]; then
-    printf "\nDotenv file '${RED}$ENV_FILE${NC}' found. Configure it? (y/n): "; read -r input
+    echo "\nCredentials will be stored in '${RED}$ENV_FILE${NC}'"
+    printf "\nStart the application setup process? (y/n): "; read -r input
     if [ "$input" = "y" ]; then
         process_entries
     else
