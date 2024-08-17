@@ -30,6 +30,18 @@ stats() {
     echo
 }
 
+view_config() {
+    KEY='\x1b[94m'     # Blue
+    EQUALS='\x1b[91m'  # Red
+    VALUE='\x1b[92m'   # Green
+    RESET='\x1b[0m'    # Reset
+
+    echo "${RED}---------[ START OF CONFIG ]---------\n"
+    tail -n +14 "$ENV_FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/"
+    echo "${RED}\n----------[ END OF CONFIG ]----------${NC}"
+    printf "\nPress Enter to continue..."; read input
+}
+
 option_1() {
     while true; do
         display_banner
@@ -123,10 +135,7 @@ option_2() {
                 ;;
             2)
                 display_banner
-                echo "---------[ START OF CONFIG ]---------\n${BLUE}"
-                tail -n +14 $ENV_FILE
-                echo "${NC}\n----------[ END OF CONFIG ]----------"
-                printf "\nPress Enter to continue..."; read input
+                view_config
                 ;;
             3)
                 display_banner
@@ -466,6 +475,7 @@ case "$1" in
         echo "  igm view             View the application credentials file."
         echo "  igm edit             Edit the application credentials setup file."
         echo "  igm limit            Set the application resource limits."
+        echo
         ;;
     start)
         option_3
@@ -497,9 +507,7 @@ case "$1" in
         ;;
     view)
         display_banner
-        printf "${BLUE}"
-        tail -n +14 $ENV_FILE
-        printf "${NC}\nPress Enter to continue..."; read input
+        view_config
         clear
         ;;
     edit)
