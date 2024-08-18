@@ -123,7 +123,7 @@ while true; do
     echo "  ${RED}d${NC} = ${RED}disable all${NC}"
     echo "  ${BLUE}0${NC} = ${BLUE}exit${NC}"
 
-    printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} application (1-%s): " "$(echo "$app_data" | wc -l)"
+    printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} application (1-%s): " "$(echo "$app_data" | wc -l | xargs)"
     read -r choice
 
     case $choice in
