@@ -458,18 +458,18 @@ case "$1" in
         echo "Usage: igm"
         echo "Usage: igm [command]"
 
-        echo "\n[General]"
+        echo "\n[${BLUE}General${NC}]"
         echo "  igm                  Launch the Income Generator tool."
         echo "  igm help             Display this help usage guide."
 
-        echo "\n[Manage]"
+        echo "\n[${BLUE}Manage${NC}]"
         echo "  igm start            Start all currently deployed applications."
         echo "  igm stop             Stop all currently deployed running applications."
         echo "  igm remove           Stop and remove all currently deployed applications."
         echo "  igm show             Show list of installed and running applications."
         echo "  igm deploy           Launch the install manager for deploying applications."
 
-        echo "\n[Configuration]"
+        echo "\n[${BLUE}Configuration${NC}]"
         echo "  igm app              Enable or disable applications for deployment."
         echo "  igm setup            Setup credentials for applications to be deployed."
         echo "  igm view             View all configured application credentials."
