@@ -86,7 +86,7 @@ services:
 
     nodepay:
         container_name: nodepay
-        image: kellphy/nodepay:legacy
+        image: kellphy/nodepay
         restart: always
         environment:
             - NP_COOKIE=${NODEPAY_COOKIE:-}
