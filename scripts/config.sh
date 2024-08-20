@@ -89,7 +89,7 @@ process_entries() {
 
     jq -c '.[]' "$JSON_FILE" | while read -r config_entry; do
         display_banner
-        entry_count=$(expr $entry_count + 1)
+        entry_count=$((entry_count + 1))
         echo "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}"
 
         if [ $(echo "$config_entry" | jq -r '.is_enabled') = false ]; then
