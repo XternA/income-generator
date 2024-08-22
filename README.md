@@ -1,20 +1,19 @@
  # 💻 Income Generator 💵
-**[ Multi-Platform | Docker Stack | Containerized | Passive Income | Auto Update ]**
+**[ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update ]**
 
 If you like this project, don't forget to leave a star. ⭐
-
->**NOTE:** *"This tool has always been developed for my personal use in mind, therefore the focus has always been Linux first as I run them on my home and cloud servers before making it available to the general public."*
 
 <p align="center">
 <img src="https://github.com/XternA/income-generator/assets/9136075/22881e8c-c3f8-4c61-a927-cccc18bd0c7e" alt="Income Generator" width=80% height=80%>
 </p>
 
-## Overview 📚
-**Income Generator** is an all-in-one tool that allows generating passive income by leveraging popular passive income generative applications, everyday devices, and unused internet bandwidth.
+**Income Generator** is an all-in-one tool that allows generating passive income by leveraging income generating applications and unused internet bandwidth with minimal system resource.
 
-The result is a tool that fully orchestrates, manages, and deploys these applications into an isolated space from the host, simplifying the process, and allowing for fast deployment across stacks with application auto-update management.
+Designed for minimal setup and native cross-platform support, utilizing containerized runtime isolation from the host, with full orchestration allowing fast deployment across multiple hosts.
 
-**Some of the key features you can expect:**
+📖 It's' strongly recommended to refer to the [**Wiki**](../../wiki) for in-depth details and instructions.
+
+## Key Features ✨
 - **Easy To Use** - All-in-one solution for managing the stack. Docker installation, start/stop/remove.
 - **Multi-platform** - Deploy across different OS.
 - **Global Access** - Access the tool anywhere, just type `igm`.
@@ -22,18 +21,17 @@ The result is a tool that fully orchestrates, manages, and deploys these applica
 - **On-the-fly-update** - Tool can be updated on the fly whilst preserving config settings.
 - **Local Config** - Config file is auto-generated and stored locally, including credentials.
 - **Resource Limit** - Easily apply resource limit based on system hardware.
-- **Selective Apps** - Enable or disable the application of your choice to deploy.
-
-📖 Refer to the [**Wiki**](../../wiki) is strongly recommended for more details and in-depth instructions.
+- **Selective Apps** - Enable or disable the application of your choice to deploy and earn.
+- **Quick Actions** -  CLI commands for common operations without launching the tool.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
 **The tool configures and runs everything in a containerized virtualized environment isolated from the host.**
 
-- A 64-bit machine, though it's possible to run on a 32-bit machine, but with certain performance limitations, specifically with lower memory availability.
+- A 64-bit machine. It is possible to run on a 32-bit machine, but expect performance or compatibility limitations.
 - A minimum of 4GB is recommended to ensure the most resource available and for future expansions.
-- ARM architecture devices, such as Raspberry Pi, Apple Silicon, etc, require  an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture applications on ARM. Installing docker via the tool will enable this automatically.
-- For Windows,  [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) will be required.
+- ARM architecture devices, such as Raspberry Pi, Apple Silicon, etc, require  an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture applications on ARM. Automatically configured seamlessly through the tool.
+- On Windows, [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) is required.
 
 ### Quick Start Guide ⚙️
 If the prerequisites are met based on the platform, you can simply follow the quick start guide, otherwise, refer to the [**Wiki**](../../wiki) for the full setup procedure.
@@ -48,7 +46,7 @@ Open the command line and get the bootstrap script.
 curl -o %APPDATA%\IGM\igm.bat --create-dirs --ssl-no-revoke -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
 ```
 Register the bootstrap script by adding an entry to the environment variable path.
-```
+```sh
 for /f "delims=" %i in ('powershell -Command "[Environment]::GetEnvironmentVariable('Path', 'User')"') do set USERPATH=%i && setx PATH %USERPATH%;%APPDATA%\IGM
 ```
 For the registering to take effect, close and re-open a new command line process.
@@ -69,7 +67,7 @@ git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-gen
 ```
 Register alias for global access. (Auto detects and adds to current shell choice e.g. `.bashrc`, `.zshrc` etc.)
 ```sh
-echo "alias igm='(cd ~/.income-generator; sh start.sh)'" >> ~/."${SHELL##*/}"rc; source ~/."${SHELL##*/}"rc
+echo "alias igm=\"sh -c 'cd ~/.income-generator; sh start.sh \\\"\\\$@\\\"' --\"" >> ~/."${SHELL##*/}rc"; source ~/."${SHELL##*/}rc"
 ```
 Run the tool.
 ```sh
@@ -90,7 +88,7 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 
 | Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
 | --- | :---: | :---: | :---: | :---: | :---: |
-| **[EARNAPP](https://bit.ly/4a4XJLF)**         | :white_check_mark: | :x:                |15|1               | PayPal, Wise |
+| **[EARNAPP](https://bit.ly/4a4XJLF)**         | :white_check_mark: | :x:                |15|1               | PayPal |
 | **[HONEYGAIN](https://bit.ly/3x6nX1S)**       | :white_check_mark: | :x:                |10|1               | PayPal, Crypto |
 | **[PEER2PROFIT](https://bit.ly/3x7CquB)**     | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
 | **[TRAFFMONETIZER](https://bit.ly/3TKmJlU)**  | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
