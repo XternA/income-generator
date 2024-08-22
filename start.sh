@@ -129,9 +129,8 @@ option_2() {
         case $option in
             1)
                 display_banner
-                echo "Setting up application configuration..."
+                echo "Setting up application configuration...\n"
                 sh scripts/config.sh
-                printf "\nPress Enter to continue..."; read input
                 ;;
             2)
                 display_banner
@@ -502,6 +501,7 @@ case "$1" in
         clear
         ;;
     setup)
+        display_banner 
         sh scripts/config.sh
         clear
         ;;

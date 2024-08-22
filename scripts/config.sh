@@ -143,9 +143,9 @@ process_entries() {
 
     display_banner
     if [ "$change_made" -eq 1 ]; then
-        echo "\nDone updating dotenv file '${RED}$ENV_FILE${NC}'."
+        echo "\nDone updating config file '${RED}$ENV_FILE${NC}'."
     elif [ "$change_made" -eq 0 ] && [ ! -f "$ENV_FILE" ]; then
-        echo "\nDotenv file '${RED}$ENV_FILE${NC}' was created."
+        echo "\nDotenv file '${RED}$ENV_FILE${NC}' created."
     else
         echo "\nNo changes made to '${RED}$ENV_FILE${NC}'."
     fi
@@ -153,16 +153,17 @@ process_entries() {
 
 # Main script
 if [ -f "$ENV_FILE" ]; then
-    echo "\nCredentials will be stored in '${RED}$ENV_FILE${NC}'"
+    echo "Credentials will be stored in '${RED}$ENV_FILE${NC}'"
     printf "\nStart the application setup process? (y/n): "; read -r input
     if [ "$input" = "y" ]; then
         process_entries
     else
-        echo "No changes made to '${RED}$ENV_FILE${NC}'."
+        echo "\nNo changes made to '${RED}$ENV_FILE${NC}'."
     fi
 else
-    echo "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating a new one...\n"
+    echo "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating new one...\n"
     sleep 1.2
     touch "$ENV_FILE"
     process_entries
 fi
+printf "\nPress Enter to continue..."; read -r input < /dev/tty
