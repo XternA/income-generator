@@ -1,6 +1,10 @@
 @echo off
 setlocal
 
+set ARGS="%*"
+set REPO="https://github.com/XternA/income-generator.git"
+set TOOL_DIR="~/.income-generator"
+
 winget --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo No winget found on the system. Please install winget before proceeding.
@@ -8,42 +12,30 @@ if %errorlevel% neq 0 (
 )
 
 wsl --version >nul 2>&1
-if %errorlevel% equ 0 (
-    wsl ! [ -d $HOME/.income-generator ] && call :GetTool
-    call :CheckAndRegisterAlias
-    wsl ${SHELL##*/} -ilc "igm"
-) else (
+if %errorlevel% neq 0 (
     echo No Windows Subsystem for Linux found on the system. Ensure WSL is enabled before proceeding.
+    exit /b 1
 )
+
+call :CheckAndRegisterAlias
+wsl ${SHELL##*/} -ilc "echo; [ ! -d %TOOL_DIR% ] && git clone --depth=1 %REPO% %TOOL_DIR%; sleep 3; igm %ARGS%"
 exit /b 0
 
 
 REM -- Sub-calls -------------
 :CheckAndRegisterAlias
-wsl -e sh -c "if [ -f $HOME/.aliases ]; then exit 0; else exit 1; fi"
+wsl -e sh -c "[ -f $HOME/.aliases ]"
 if %errorlevel% equ 0 (
-    wsl grep -q "igm='(cd ~/.income-generator; sh start.sh)'" "$HOME/.aliases" || call :RegisterToAliases
+    wsl grep -q "alias igm=" "$HOME/.aliases" || call :RegisterToAliases
 ) else (
-    wsl grep -q "igm='(cd ~/.income-generator; sh start.sh)'" "$HOME/.${SHELL##*/}rc" || call :RegisterToRC
+    wsl grep -q "alias igm=" "$HOME/.${SHELL##*/}rc" || call :RegisterToRC
 )
 exit /b 0
 
 :RegisterToAliases
-wsl -e sh -c "echo \"alias igm='(cd ~/.income-generator; sh start.sh)'\" >> $HOME/.aliases"
+wsl -e sh -c "echo 'alias igm=\"sh -c '\''cd %TOOL_DIR%; sh start.sh \\\"\\$@\\\"'\'' --\"' >> $HOME/.aliases"
 exit /b 0
 
 :RegisterToRC
-wsl -e sh -c "echo \"alias igm='(cd ~/.income-generator; sh start.sh)'\" >> $HOME/.${SHELL##*/}rc"
-exit /b 0
-
-:GetTool
-echo:
-echo No Income Generator found. Fetching...
-echo:
-
-wsl git clone --depth=1 https://github.com/XternA/income-generator.git $HOME/.income-generator
-
-echo:
-echo Launching...
-timeout /t 2 /nobreak >nul 2>&1
+wsl -e sh -c "echo 'alias igm=\"sh -c '\''cd %TOOL_DIR%; sh start.sh \\\"\\$@\\\"'\'' --\"' >> $HOME/.${SHELL##*/}rc"
 exit /b 0

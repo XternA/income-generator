@@ -2,7 +2,6 @@
 
 sh scripts/init.sh
 
-NEW_UPDATE="$(sh scripts/check-tool-update.sh)"
 ARCH="$(sh scripts/arch.sh)"
 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
 ENV_FILE="$(pwd)/.env"
@@ -29,7 +28,18 @@ stats() {
     printf "%s\n" "$STATS"
     echo "${GREEN}----------------------------------------${NC}"
     echo
-    [ -n "$NEW_UPDATE" ] && echo "$NEW_UPDATE\n"
+}
+
+view_config() {
+    KEY='\x1b[94m'     # Blue
+    EQUALS='\x1b[91m'  # Red
+    VALUE='\x1b[92m'   # Green
+    RESET='\x1b[0m'    # Reset
+
+    echo "${RED}---------[ START OF CONFIG ]---------\n"
+    tail -n +14 "$ENV_FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/"
+    echo "${RED}\n----------[ END OF CONFIG ]----------${NC}"
+    printf "\nPress Enter to continue..."; read input
 }
 
 option_1() {
@@ -37,11 +47,12 @@ option_1() {
         display_banner
         options="(1-4)"
 
-        echo "1. Only applications with VPS/Hosting support"
-        echo "2. All applications including residential IPs only support"
-        echo "3. All applications including residential IPs only support, excluding single instances only"
-        echo "4. Applications with unlimited counts"
-        echo "0. Return to Main Menu"
+        [ "$1" = "quick_menu" ] && echo "How would you like to install?\n"
+        echo "1. All applications including residential support"
+        echo "2. Only applications with only VPS/Hosting support"
+        echo "3. All applications with residential but exclude single install count"
+        echo "4. Only applications allowing unlimited install count"
+        [ "$1" = "quick_menu" ] && echo "0. Exit" || echo "0. Return to Main Menu"
         echo
         read -p "Select an option $options: " option
 
@@ -51,12 +62,12 @@ option_1() {
                 install_type="\n"
                 case $option in
                     1)
-                        install_type="Installing only applications supporting VPS/Hosting..."
-                        compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
-                        ;;
-                    2)
                         install_type="Installing all application..."
                         compose_files=$ALL_COMPOSE_FILES
+                        ;;
+                    2)
+                        install_type="Installing only applications supporting VPS/Hosting..."
+                        compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
                         ;;
                     3)
                         install_type="Installing all applications, excluding single instances only..."
@@ -76,7 +87,7 @@ option_1() {
 
                         # Check if there are lines after the separator
                         if ! tail -n "+$((line_number + 1))" $ENV_FILE | grep -v '^[[:space:]]*$' | grep -q "^"; then
-                            echo "No configrations for applications found. Make sure to complete the configuration setup."
+                            echo "No configration for applications found. Make sure to complete the configuration setup."
                             echo "Running setup configuration now..."
                             sleep 0.6
                             sh scripts/config.sh
@@ -118,16 +129,12 @@ option_2() {
         case $option in
             1)
                 display_banner
-                echo "Setting up configurations..."
+                echo "Setting up application configuration...\n"
                 sh scripts/config.sh
-                printf "\nPress Enter to continue..."; read input
                 ;;
             2)
                 display_banner
-                echo "---------[ START OF CONFIG ]---------\n${BLUE}"
-                tail -n +14 $ENV_FILE
-                echo "${NC}\n----------[ END OF CONFIG ]----------"
-                printf "\nPress Enter to continue..."; read input
+                view_config
                 ;;
             3)
                 display_banner
@@ -261,7 +268,7 @@ option_8() {
         echo "3. LOW    -->   18.75% Total RAM"
         echo "4. MID    -->   25% Total RAM"
         echo "5. MAX    -->   50% Total RAM"
-        echo "0. Return to Main Menu"
+        [ "$1" = "quick_menu" ] && echo "0. Exit" || echo "0. Return to Main Menu"
         echo
         read -p "Select an option $options: " option
 
@@ -278,6 +285,7 @@ option_8() {
                 echo
                 sh scripts/set-limit.sh "$limit_type"
                 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
+                echo "\nRedeploy applications for new limits to take effect."
                 ;;
             0)
                 break  # Return to the main menu
@@ -401,40 +409,117 @@ option_9() {
 }
 
 # Main script
-while true; do
-    display_banner
-    stats
-    sh scripts/cleanup.sh
+main_menu() {
+    while true; do
+        display_banner
+        stats
+        sh scripts/cleanup.sh
+        [ -n "$NEW_UPDATE" ] && echo "$NEW_UPDATE\n"
 
-    options="(1-9)"
+        options="(1-9)"
 
-    echo "1. Install & Run Applications"
-    echo "2. Setup Configuration"
-    echo "3. Start Applications"
-    echo "4. Stop Applications"
-    echo "5. Remove Applications"
-    echo "6. Show Installed Applications"
-    echo "7. Manage Docker"
-    echo "8. Change Resource Limits"
-    echo "9. Manage Tool"
-    echo "0. Quit"
-    echo
-    read -p "Select an option $options: " choice
+        echo "1. Install & Run Applications"
+        echo "2. Setup Configuration"
+        echo "3. Start Applications"
+        echo "4. Stop Applications"
+        echo "5. Remove Applications"
+        echo "6. Show Installed Applications"
+        echo "7. Manage Docker"
+        echo "8. Change Resource Limits"
+        echo "9. Manage Tool"
+        echo "0. Quit"
+        echo
+        read -p "Select an option $options: " choice
 
-    case $choice in
-        0) display_banner; echo "Quitting..."; sleep 0.62; clear; exit 0 ;;
-        1) option_1 ;;
-        2) option_2 ;;
-        3) option_3 ;;
-        4) option_4 ;;
-        5) option_5 ;;
-        6) option_6 ;;
-        7) option_7 ;;
-        8) option_8 ;;
-        9) option_9 ;;
-        *)
-            echo "\nInvalid option. Please select a valid option $options."
-            printf "\nPress Enter to continue..."; read input
-            ;;
-    esac
-done
+        case $choice in
+            0) display_banner; echo "Quitting..."; sleep 0.62; clear; exit 0 ;;
+            1) option_1 ;;
+            2) option_2 ;;
+            3) option_3 ;;
+            4) option_4 ;;
+            5) option_5 ;;
+            6) option_6 ;;
+            7) option_7 ;;
+            8) option_8 ;;
+            9) option_9 ;;
+            *)
+                echo "\nInvalid option. Please select a valid option $options."
+                printf "\nPress Enter to continue..."; read input
+                ;;
+        esac
+    done
+}
+
+case "$1" in
+    --help|help)
+        display_banner
+        echo "Quick action menu of common operations.\n"
+        echo "Usage: igm"
+        echo "Usage: igm [command]"
+
+        echo "\n[${BLUE}General${NC}]"
+        echo "  igm                  Launch the Income Generator tool."
+        echo "  igm help             Display this help usage guide."
+
+        echo "\n[${BLUE}Manage${NC}]"
+        echo "  igm start            Start all currently deployed applications."
+        echo "  igm stop             Stop all currently deployed running applications."
+        echo "  igm remove           Stop and remove all currently deployed applications."
+        echo "  igm show             Show list of installed and running applications."
+        echo "  igm deploy           Launch the install manager for deploying applications."
+
+        echo "\n[${BLUE}Configuration${NC}]"
+        echo "  igm app              Enable or disable applications for deployment."
+        echo "  igm setup            Setup credentials for applications to be deployed."
+        echo "  igm view             View all configured application credentials."
+        echo "  igm edit             Edit configured credentials and config file directly."
+        echo "  igm limit            Set the application resource limits."
+        echo
+        ;;
+    start)
+        option_3
+        clear
+        ;;
+    stop)
+        option_4
+        clear
+        ;;
+    remove)
+        option_5
+        clear
+        ;;
+    show)
+        option_6
+        clear
+        ;;
+    deploy)
+        option_1 quick_menu
+        clear
+        ;;
+    app)
+        sh scripts/app-selection.sh
+        clear
+        ;;
+    setup)
+        display_banner 
+        sh scripts/config.sh
+        clear
+        ;;
+    view)
+        display_banner
+        view_config
+        clear
+        ;;
+    edit)
+        nano $ENV_FILE
+        clear
+        ;;
+    limit)
+        option_8 quick_menu
+        clear
+        ;;
+    *)
+        NEW_UPDATE="$(sh scripts/check-tool-update.sh)"
+        main_menu
+        ;;
+esac
