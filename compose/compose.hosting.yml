@@ -67,12 +67,12 @@ services:
 
     bitping:
         container_name: bitping
-        image: mrcolorrain/bitping
+        image: bitping/bitpingd
         restart: always
         hostname: $DEVICE_ID
         environment:
-            - BITPING_EMAIL=${BITPING_EMAIL:-}
-            - BITPING_PASSWD=${BITPING_PASSWORD:-}
+            BITPING_EMAIL: ${BITPING_EMAIL:-}
+            BITPING_PASSWORD: ${BITPING_PASSWORD:-}
         profiles:
           - ${BITPING:-DISABLED}
         dns:
