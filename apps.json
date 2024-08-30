@@ -159,5 +159,15 @@
             "NODEPAY_COOKIE"
         ],
         "is_enabled": true
+    },
+    {
+        "name": "BEARSHARE",
+        "url": "https://bit.ly/4g7PmCs",
+        "description": " Only 1 device per IP allowed. Use IGM tool to disable app deployment on other machines in same IP network.",
+        "properties": [
+            "BEARSHARE_EMAIL",
+            "BEARSHARE_PASSWORD"
+        ],
+        "is_enabled": true
     }
 ]

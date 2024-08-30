@@ -99,5 +99,21 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
 
+    bearshare:
+        container_name: bearshare
+        image: xterna/bearshare
+        restart: always
+        environment:
+            - EMAIL=${BEARSHARE_EMAIL:-}
+            - PASSWORD=${BEARSHARE_PASSWORD:-}
+        profiles:
+          - ${BEARSHARE:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
 volumes:
     bitping-data:

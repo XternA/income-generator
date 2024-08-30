@@ -6,6 +6,7 @@ ARCH="$(sh scripts/arch.sh)"
 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
 ENV_FILE="$(pwd)/.env"
 ENV_DEPLOY_FILE="$(pwd)/.env.deploy"
+ENV_PROXY_FILE="$(pwd)/.env.proxy"
 COMPOSE="$(pwd)/compose"
 ALL_COMPOSE_FILES="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml -f $COMPOSE/compose.single.yml"
 
@@ -95,11 +96,12 @@ option_1() {
                         fi
                     fi
 
-                    echo $install_type
+                    echo "$install_type\n"
+                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --env-file $ENV_PROXY_FILE --profile ENABLED $compose_files pull
                     echo
-                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
                     docker container prune -f
-                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
+                    echo
+                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --env-file $ENV_PROXY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
                     ;;
             0)
                 break  # Return to the main menu
@@ -179,6 +181,7 @@ option_5() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
     docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    echo
     docker container prune -f
     echo "\nAll installed applications and volumes removed."
     printf "\nPress Enter to continue..."; read input
@@ -215,7 +218,10 @@ option_7() {
                     case $yn in
                         [Yy]*)
                             display_banner
+                            echo "Removing orphaned applications..."
                             docker system prune -a -f
+                            echo "\nRemoving orphaned volumes..."
+                            docker volume prune -a -f
                             echo "\nCleanup completed."
                             printf "\nPress Enter to continue..."; read input
                             break
