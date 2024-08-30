@@ -6,7 +6,6 @@ ARCH="$(sh scripts/arch.sh)"
 STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
 ENV_FILE="$(pwd)/.env"
 ENV_DEPLOY_FILE="$(pwd)/.env.deploy"
-ENV_PROXY_FILE="$(pwd)/.env.proxy"
 COMPOSE="$(pwd)/compose"
 ALL_COMPOSE_FILES="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml -f $COMPOSE/compose.single.yml"
 
@@ -97,11 +96,11 @@ option_1() {
                     fi
 
                     echo "$install_type\n"
-                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --env-file $ENV_PROXY_FILE --profile ENABLED $compose_files pull
+                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
                     echo
                     docker container prune -f
                     echo
-                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --env-file $ENV_PROXY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
+                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
                     ;;
             0)
                 break  # Return to the main menu
