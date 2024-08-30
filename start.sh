@@ -95,10 +95,11 @@ option_1() {
                         fi
                     fi
 
-                    echo $install_type
-                    echo
+                    echo "$install_type\n"
                     docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
+                    echo
                     docker container prune -f
+                    echo
                     docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
                     ;;
             0)
@@ -179,6 +180,7 @@ option_5() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
     docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    echo
     docker container prune -f
     echo "\nAll installed applications and volumes removed."
     printf "\nPress Enter to continue..."; read input
@@ -215,7 +217,10 @@ option_7() {
                     case $yn in
                         [Yy]*)
                             display_banner
+                            echo "Removing orphaned applications..."
                             docker system prune -a -f
+                            echo "\nRemoving orphaned volumes..."
+                            docker volume prune -a -f
                             echo "\nCleanup completed."
                             printf "\nPress Enter to continue..."; read input
                             break
