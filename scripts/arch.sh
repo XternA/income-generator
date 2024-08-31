@@ -1,6 +1,5 @@
 #!/bin/sh
 
-ENV_FILE="$(pwd)/.env"
 HOST="$(hostname)"
 OS="$(uname -s)"
 RAW_ARCH="$(uname -m)"

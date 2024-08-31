@@ -1,11 +1,6 @@
 #!/bin/sh
 
-ENV_FILE="$(pwd)/.env"
 LIMIT_TYPE=${1:-min}
-
-# ANSI color codes
-YELLOW='\033[1;33m'
-NC='\033[0m'  # No Color
 
 if [ $(uname) = 'Linux' ]; then
     CPU_CORES=$(nproc)

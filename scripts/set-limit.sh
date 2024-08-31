@@ -1,6 +1,5 @@
 #!/bin/sh
 
-ENV_FILE="$(pwd)/.env"
 DEFAULT_RESOURCE_LIMIT="min"
 
 if [ $(uname) = 'Linux' ]; then

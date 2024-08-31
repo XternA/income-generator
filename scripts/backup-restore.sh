@@ -1,13 +1,7 @@
 #!/bin/sh
 
-ENV_FILE="$(pwd)/.env"
 TEMP_FILE="$ENV_FILE.tmp"
 BACKUP_FILE="$ENV_FILE.backup"
-
-GREEN='\033[1;32m'
-RED='\033[1;91m'
-BLUE='\033[1;36m'
-NC='\033[0m'
 
 display_banner() {
     clear
@@ -35,16 +29,16 @@ backup_config() {
                 1)
                     display_banner
                     echo "Content of current backup file ${RED}$BACKUP_FILE${NC}.\n"
-                    echo "---------[ START OF BACKUP ]---------\n${BLUE}"
+                    echo "${YELLOW}---------[ START OF BACKUP ]---------\n${BLUE}"
                     cat "$BACKUP_FILE"
-                    echo "${NC}\n----------[ END OF BACKUP ]----------"
+                    echo "${YELLOW}\n----------[ END OF BACKUP ]----------${NC}"
                     ;;
                 2)
                     display_banner
                     echo "Content of current in-use configuration.\n"
-                    echo "---------[ START OF CONFIG ]---------\n${BLUE}"
+                    echo "${YELLOW}---------[ START OF CONFIG ]---------\n${BLUE}"
                     tail -n +14 $ENV_FILE
-                    echo "${NC}\n----------[ END OF CONFIG ]----------"
+                    echo "${YELLOW}\n----------[ END OF CONFIG ]----------${NC}"
                     ;;
                 3)
                     display_banner

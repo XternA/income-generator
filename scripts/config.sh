@@ -1,16 +1,5 @@
 #!/bin/sh
 
-sh "$(pwd)/scripts/jq-install.sh"
-
-ENV_FILE="$(pwd)/.env"
-JSON_FILE="$(pwd)/apps.json"
-
-GREEN='\033[1;32m'
-RED='\033[1;31m'
-YELLOW='\033[1;33m'
-BLUE='\033[1;36m'
-NC='\033[0m'
-
 display_banner() {
     clear
     printf $GREEN
