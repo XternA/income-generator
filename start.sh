@@ -45,6 +45,8 @@ option_1() {
         json_content=$(cat "$JSON_FILE")
         app_data=$(echo "$json_content" | jq -r '.[] | select(.is_enabled == true) | "\(.name) \(.is_enabled)"')
 
+        echo "Total Apps: ${RED}$(jq '. | length' "$JSON_FILE")${NC}\n"
+
         # Table header
         printf "%-4s %-21s %-8s\n" "No." "App Name"
         printf "%-4s %-21s %-8s\n" "---" "--------------------"
