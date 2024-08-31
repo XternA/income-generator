@@ -1,7 +1,5 @@
 #!/bin/sh
 
-ENV_FILE="$(pwd)/.env"
-
 if [ $(uname) = 'Linux' ]; then
     DIR_STR="/data"
     DIR_ESCAPED="\/data"
