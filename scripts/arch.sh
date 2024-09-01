@@ -30,18 +30,18 @@ echo "Hostname:         $HOST"
 echo "Platform:         $OS"
 echo "Architecture:     $DISPLAY_ARCH\n"
 
-if [ -f "$ENV_FILE" ]; then
-    if grep -q "^DEVICE_ID=" "$ENV_FILE"; then
-        $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=$HOST/" "$ENV_FILE"
+if [ -f "$ENV_SYSTEM_FILE" ]; then
+    if grep -q "^DEVICE_ID=" "$ENV_SYSTEM_FILE"; then
+        $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=$HOST/" "$ENV_SYSTEM_FILE"
     else
-        echo "DEVICE_ID=$HOST" >> "$ENV_FILE"
+        echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
     fi
-    if grep -q "^ARCH=" "$ENV_FILE"; then
-        $SED_INPLACE "s/^ARCH=.*/ARCH=$ARCH/" "$ENV_FILE"
+    if grep -q "^ARCH=" "$ENV_SYSTEM_FILE"; then
+        $SED_INPLACE "s/^ARCH=.*/ARCH=$ARCH/" "$ENV_SYSTEM_FILE"
     else
-        echo "ARCH=$ARCH" >> "$ENV_FILE"
+        echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
     fi
 else
-    echo "DEVICE_ID=$HOST" >> "$ENV_FILE"
-    echo "ARCH=$ARCH" >> "$ENV_FILE"
+    echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
+    echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
 fi

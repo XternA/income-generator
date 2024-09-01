@@ -35,7 +35,7 @@ view_config() {
     RESET='\x1b[0m'    # Reset
 
     echo "${RED}---------[ START OF CONFIG ]---------\n"
-    tail -n +14 "$ENV_FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/"
+    cat "$ENV_FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/"
     echo "${RED}\n----------[ END OF CONFIG ]----------${NC}"
     printf "\nPress Enter to continue..."; read input
 }
@@ -141,24 +141,13 @@ option_1() {
         # Skip installation if no valid option was chosen
         [ -z "$compose_files" ] && continue
 
-                    display_banner
-                    display_banner
-
         display_banner
-
-        # Check if the separator line exists and get its line number
-        separator_line=$(grep -n "#--*$" "$ENV_FILE" | head -n 1)
-        if [ -n "$separator_line" ]; then
-            line_number=$(echo "$separator_line" | cut -d ":" -f 1)
-
-            # Check if there are lines after the separator
-            if ! tail -n "+$((line_number + 1))" "$ENV_FILE" | grep -v '^[[:space:]]*$' | grep -q "^"; then
-                echo "No configration for applications found. Make sure to complete the configuration setup."
-                echo "Running setup configuration now...\n"
-                sleep 0.6
-                $APP_CONFIG
-                return
-            fi
+        if [ ! -s "$ENV_FILE" ]; then
+            echo "No configration for applications found. Configure app credentials first."
+            echo "Running setup configuration now...\n"
+            sleep 0.6
+            $APP_CONFIG
+            return
         fi
 
         echo "$install_type\n"
