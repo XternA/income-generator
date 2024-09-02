@@ -476,7 +476,7 @@ main_menu() {
         read -p "Select an option $options: " choice
 
         case $choice in
-            0) display_banner; echo "Quitting..."; $CLEANUP; sleep 0.62; clear; exit 0 ;;
+            0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;
             1) option_1 ;;
             2) option_2 ;;
             3) option_3 ;;
@@ -567,3 +567,5 @@ case "$1" in
     *)
         main_menu
 esac
+$CLEANUP
+exit 0
