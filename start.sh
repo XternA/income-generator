@@ -22,8 +22,7 @@ display_banner() {
 }
 
 stats() {
-    printf "%s\n" "$SYS_INFO"
-    echo
+    printf "%s\n\n" "$SYS_INFO"
     printf "%s\n" "$STATS"
     echo "${GREEN}----------------------------------------${NC}\n"
 }
