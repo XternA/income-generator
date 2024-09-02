@@ -423,7 +423,8 @@ option_9() {
                 done
 
                 display_banner
-                rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
+                rm -rf .env .env.system
+                sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 $APP_SELECTION --default
 
