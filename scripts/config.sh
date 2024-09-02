@@ -145,7 +145,7 @@ if [ -f "$ENV_FILE" ]; then
 else
     echo "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating new one...\n"
     sleep 1.4
-    echo "# ----- Application credentials ---------------" > "$ENV_FILE"
-     process_entries
+    touch "$ENV_FILE"
+    process_entries
 fi
 printf "\nPress Enter to continue..."; read -r input < /dev/tty
