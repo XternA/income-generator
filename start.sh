@@ -201,7 +201,7 @@ option_2() {
 option_3() {
     display_banner
     echo "Starting applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $ALL_COMPOSE_FILES start
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
 }
@@ -209,7 +209,7 @@ option_3() {
 option_4() {
     display_banner
     echo "Stopping applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
 }
@@ -217,7 +217,7 @@ option_4() {
 option_5() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
     docker container prune -f
     echo "\nAll installed applications and volumes removed."
@@ -227,7 +227,7 @@ option_5() {
 option_6() {
     display_banner
     echo "Installed Containers:\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE $ALL_COMPOSE_FILES ps -a
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE $ALL_COMPOSE_FILES ps -a
     printf "\nPress Enter to continue..."; read input
 }
 
