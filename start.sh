@@ -140,11 +140,11 @@ option_1() {
 
         echo "$install_type\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
-        docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
+        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
         echo
         docker container prune -f
         echo
-        docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
+        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
 
         printf "\nPress Enter to continue..."; read input
@@ -497,7 +497,7 @@ main_menu() {
 # Main script
 trap '$CLEANUP; clear; exit 0' INT
 case "$1" in
-    --help|help)
+    -h|--help|help)
         display_banner
         echo "Quick action menu of common operations.\n"
         echo "Usage: igm"
