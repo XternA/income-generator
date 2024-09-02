@@ -19,12 +19,12 @@ write_entry() {
         mv "$ENV_FILE.tmp" "$ENV_FILE"
     else
         if [ $is_new_app = true ]; then
-            echo "\n## $app_name " >> "$ENV_FILE"
+            echo "" >> "$ENV_FILE"
             unset is_new_app
         fi
         echo "$entry_name=$input" >> "$ENV_FILE"
     fi
-    touch $FILE_CHANGED
+    : > $FILE_CHANGED
 }
 
 input_new_value() {
