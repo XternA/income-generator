@@ -63,11 +63,11 @@ process_new_entry() {
 }
 
 process_uuid_user_choice() {
-    printf "Do you want to auto-generate a new UUID for $RED$entry_name$NC? (y/n): "; read -r input < /dev/tty
+    printf "Do you want to auto-generate a new UUID for $RED$entry_name$NC? (Y/N): "; read -r input < /dev/tty
     if [ "$input" = "y" ]; then
         process_new_entry
     else
-        printf "Do you want to define an existing UUID? (y/n): "; read -r input < /dev/tty
+        printf "Do you want to define an existing UUID? (Y/N): "; read -r input < /dev/tty
         [ "$input" = "y" ] && input_new_value
     fi
 }
@@ -136,7 +136,7 @@ process_entries() {
 # Main script
 if [ -f "$ENV_FILE" ]; then
     echo "Credentials will be stored in '${RED}$ENV_FILE${NC}'"
-    printf "\nStart the application setup process? (y/n): "; read -r input
+    printf "\nStart the application setup process? (Y/N): "; read -r input
     if [ "$input" = "y" ]; then
         process_entries
     else

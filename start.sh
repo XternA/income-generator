@@ -91,7 +91,7 @@ option_1() {
                             is_selective=true
                             break
                             ;;
-                        [Nn])
+                        [Nn] | "")
                             compose_files=""
                             break
                             ;;
