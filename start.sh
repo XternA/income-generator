@@ -32,10 +32,11 @@ view_config() {
     KEY='\x1b[94m'     # Blue
     EQUALS='\x1b[91m'  # Red
     VALUE='\x1b[92m'   # Green
+    COMMENT='\x1b[90m' # Grey
     RESET='\x1b[0m'    # Reset
 
     echo "${RED}---------[ START OF CONFIG ]---------\n"
-    cat "$ENV_FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/"
+    tail -n +3 "$ENV_FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/" -e "s/^##.*/${COMMENT}&${RESET}/"
     echo "${RED}\n----------[ END OF CONFIG ]----------${NC}"
     printf "\nPress Enter to continue..."; read input
 }
