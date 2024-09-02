@@ -496,6 +496,9 @@ main_menu() {
 # Main script
 trap '$CLEANUP; clear; exit 0' INT
 case "$1" in
+    "")
+        main_menu
+        ;;
     -h|--help|help)
         display_banner
         echo "Quick action menu of common operations.\n"
@@ -564,7 +567,8 @@ case "$1" in
         clear
         ;;
     *)
-        main_menu
+        echo "igm: '$1' is not a valid command. See 'igm help'."
+        ;;
 esac
 $CLEANUP
 exit 0
