@@ -2,8 +2,9 @@
 **[ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update ]**
 
 ![GitHub Release Date](https://img.shields.io/github/release-date/XternA/income-generator?style=&label=Release%20Date)
-![GitHub Release](https://img.shields.io/github/v/release/XternA/income-generator?style=&display_name=release&label=Version)
-![GitHub Repo stars](https://img.shields.io/github/stars/XternA/income-generator?style=social&label=Stars)
+![GitHub Release](https://img.shields.io/github/v/release/XternA/income-generator?display_name=release&style=flat&label=Version&link=https%3A%2F%2Fgithub.com%2FXternA%2Fincome-generator%2Freleases)
+![GitHub Repo stars](https://img.shields.io/github/stars/XternA/income-generator?style=flat&logo=github&label=Stars&color=orange&link=https%3A%2F%2Fgithub.com%2FXternA%2Fincome-generator)
+
 
 If you like this project, don't forget to leave a star. ⭐
 
