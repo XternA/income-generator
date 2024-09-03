@@ -5,9 +5,6 @@
 ![GitHub Release](https://img.shields.io/github/v/release/XternA/income-generator?sort=date&display_name=release&style=flat&label=Version)
 ![GitHub Repo stars](https://img.shields.io/github/stars/XternA/income-generator?style=flat&logo=github&label=Stars&color=orange)
 
-
-
-
 If you like this project, don't forget to leave a star. ⭐
 
 <p align="center">
