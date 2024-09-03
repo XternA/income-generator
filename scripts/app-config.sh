@@ -20,7 +20,7 @@ write_entry() {
     else
         if [ $is_new_app = true ]; then
             echo "" >> "$ENV_FILE"
-            unset is_new_app
+            is_new_app=false
         fi
         echo "$entry_name=$input" >> "$ENV_FILE"
     fi

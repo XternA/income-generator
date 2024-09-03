@@ -14,7 +14,7 @@ export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
 export JSON_FILE="$ROOT_DIR/apps.json"
 
 # Declared util component ----------------
-export ARCH="sh scripts/arch.sh"
+export SYS_INFO="sh scripts/arch.sh"
 export CLEANUP="sh scripts/cleanup.sh"
 export APP_SELECTION="sh scripts/app-selection.sh"
 export APP_CONFIG="sh scripts/app-config.sh"

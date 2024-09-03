@@ -3,7 +3,7 @@
 . scripts/shared-component.sh
 sh scripts/init.sh
 
-SYS_INFO=$($ARCH)
+SYS_INFO=$($SYS_INFO)
 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
 
 COMPOSE="$(pwd)/compose"
