@@ -1,20 +1,9 @@
 #!/bin/sh
 
-sh "$(pwd)/scripts/jq-install.sh"
-
-GREEN='\033[0;92m'
-RED='\033[0;91m'
-BLUE='\033[1;96m'
-NC='\033[0m'
-
-JSON_FILE="$(pwd)/apps.json"
-ENV_FILE="$(pwd)/.env.deploy"
-
 display_banner() {
     clear
     echo "Income Generator Application Manager"
-    echo "${GREEN}----------------------------------------${NC}"
-    echo
+    echo "${GREEN}----------------------------------------${NC}\n"
 }
 
 display_table() {
@@ -46,20 +35,20 @@ export_selection() {
     json_content=$(cat "$JSON_FILE")
     app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled | if . == true then "ENABLED" else "DISABLED" end)"')
 
-    if [ -f "$ENV_FILE" ]; then
-        rm -f "$ENV_FILE"
+    if [ -f "$ENV_DEPLOY_FILE" ]; then
+        rm -f "$ENV_DEPLOY_FILE"
     fi
 
     echo "$app_data" | while IFS=$'\n' read -r line; do
         name=$(echo "$line" | cut -d' ' -f1)
         is_enabled=$(echo "$line" | cut -d' ' -f2)
 
-        echo "$name=$is_enabled" >> "$ENV_FILE"
+        echo "$name=$is_enabled" >> "$ENV_DEPLOY_FILE"
     done
 }
 
 import_selection() {
-    if [ -f "$ENV_FILE" ]; then
+    if [ -f "$ENV_DEPLOY_FILE" ]; then
         while IFS='=' read -r name is_enabled; do
             if [ "$is_enabled" = "ENABLED" ]; then
                 is_enabled="true"
@@ -72,7 +61,7 @@ import_selection() {
                 updated_json_content=$(jq --indent 4 --arg name "$name" --arg is_enabled "$is_enabled" '. |= map(if .name == $name then .is_enabled = ($is_enabled | fromjson) else . end)' "$JSON_FILE")
                 echo "$updated_json_content" > "$JSON_FILE"
             fi
-        done < "$ENV_FILE"
+        done < "$ENV_DEPLOY_FILE"
     fi
 }
 
@@ -90,17 +79,17 @@ parse_cmd_arg() {
         export_selection
         exit 0
     elif [ "$1" = "--backup" ]; then
-        ENV_FILE="$ENV_FILE.backup"
+        ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.backup"
         export_selection
         echo "\nBackup current app state successfully."
         exit 0
     elif [ "$1" = "--restore" ]; then
-        tmp=$ENV_FILE
-        ENV_FILE="$ENV_FILE.backup"
-        if [ -f "$ENV_FILE" ]; then
+        tmp=$ENV_DEPLOY_FILE
+        ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.backup"
+        if [ -f "$ENV_DEPLOY_FILE" ]; then
             import_selection
-            rm -f "$ENV_FILE"
-            ENV_FILE=$tmp
+            rm -f "$ENV_DEPLOY_FILE"
+            ENV_DEPLOY_FILE=$tmp
             export_selection
             echo "\nSuccessfully re-applied app's enabled/disabled state from backup."
         else

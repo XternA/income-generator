@@ -1,26 +1,16 @@
 #!/bin/sh
 
-sh "$(pwd)/scripts/jq-install.sh"
-
-ENV_FILE="$(pwd)/.env"
-JSON_FILE="$(pwd)/apps.json"
-
-GREEN='\033[1;32m'
-RED='\033[1;31m'
-YELLOW='\033[1;33m'
-BLUE='\033[1;36m'
-NC='\033[0m'
+FILE_CHANGED='.app_marker'
+trap 'rm -f $FILE_CHANGED' INT
 
 display_banner() {
     clear
-    printf $GREEN
-    echo "==========================================================="
+    echo "${GREEN}==========================================================="
     echo "#     ${NC}Application Credential Setup Manager${GREEN}                #"
     echo "==========================================================="
     echo "#  ${NC}Manage, update and configure application credentials.${GREEN}  #"
     echo "#  ${NC}Credentials are stored locally in a ${RED}.env${NC} config file.${GREEN}  #"
-    echo "==========================================================="
-    printf $NC
+    echo "===========================================================${NC}"
 }
 
 write_entry() {
@@ -28,16 +18,18 @@ write_entry() {
         awk -v entry="$entry_name" -v input="$input" -F "=" 'BEGIN { OFS="=" } $1 == entry { $2 = input } 1' "$ENV_FILE" > "$ENV_FILE.tmp"
         mv "$ENV_FILE.tmp" "$ENV_FILE"
     else
+        if [ $is_new_app = true ]; then
+            echo "" >> "$ENV_FILE"
+            unset is_new_app
+        fi
         echo "$entry_name=$input" >> "$ENV_FILE"
     fi
-    echo 1 > /tmp/change_made
+    : > $FILE_CHANGED
 }
 
 input_new_value() {
     printf "Enter a new value for $RED$entry_name$NC (or press Enter to skip): "; read -r input < /dev/tty
-    if [ -n "$input" ]; then
-        write_entry
-    fi
+    [ -n "$input" ] && write_entry
 }
 
 generate_uuid() {
@@ -71,30 +63,24 @@ process_new_entry() {
 }
 
 process_uuid_user_choice() {
-    printf "Do you want to auto-generate a new UUID for $RED$entry_name$NC? (y/n): "; read -r input < /dev/tty
+    printf "Do you want to auto-generate a new UUID for $RED$entry_name$NC? (Y/N): "; read -r input < /dev/tty
     if [ "$input" = "y" ]; then
         process_new_entry
     else
-        printf "Do you want to define an existing UUID? (y/n): "; read -r input < /dev/tty
-        if [ "$input" = "y" ]; then
-            input_new_value
-        fi
+        printf "Do you want to define an existing UUID? (Y/N): "; read -r input < /dev/tty
+        [ "$input" = "y" ] && input_new_value
     fi
 }
 
 process_entries() {
-    echo 0 > /tmp/change_made
-
     num_entries=$(jq '. | length' "$JSON_FILE")
 
     jq -c '.[]' "$JSON_FILE" | while read -r config_entry; do
-        display_banner
         entry_count=$((entry_count + 1))
-        echo "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}"
+        [ $(echo "$config_entry" | jq -r '.is_enabled') = false ] && continue
 
-        if [ $(echo "$config_entry" | jq -r '.is_enabled') = false ]; then
-            continue
-        fi
+        display_banner
+        echo "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}"
 
         app_name=$(echo "$config_entry" | jq -r '.name')
         url=$(echo "$config_entry" | jq -r '.url')
@@ -114,6 +100,7 @@ process_entries() {
         fi
 
         is_update=false
+        is_new_app=true
         properties=$(echo "$config_entry" | jq -r '.properties[]')
 
         if [ -n "$properties" ]; then
@@ -123,9 +110,7 @@ process_entries() {
                     entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "*#&") # Remove surrounding quotes and denoters
                     denoter=$(echo "$entry" | cut -c1)
 
-                    if [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ]; then
-                        is_update=true
-                    fi
+                    [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ] && is_update=true
 
                     if [ "$denoter" = "#" ] || [ "$denoter" = "*" ] || [ "$denoter" = "&" ]; then
                         process_uuid_user_choice
@@ -139,22 +124,19 @@ process_entries() {
         fi
     done
 
-    change_made=$(cat /tmp/change_made)
-
     display_banner
-    if [ "$change_made" -eq 1 ]; then
-        echo "\nDone updating config file '${RED}$ENV_FILE${NC}'."
-    elif [ "$change_made" -eq 0 ] && [ ! -f "$ENV_FILE" ]; then
-        echo "\nDotenv file '${RED}$ENV_FILE${NC}' created."
+    if [ -e "$FILE_CHANGED" ]; then
+        echo "\nDone configuring config file '${RED}$ENV_FILE${NC}'."
     else
         echo "\nNo changes made to '${RED}$ENV_FILE${NC}'."
     fi
+    rm -f $FILE_CHANGED
 }
 
 # Main script
 if [ -f "$ENV_FILE" ]; then
     echo "Credentials will be stored in '${RED}$ENV_FILE${NC}'"
-    printf "\nStart the application setup process? (y/n): "; read -r input
+    printf "\nStart the application setup process? (Y/N): "; read -r input
     if [ "$input" = "y" ]; then
         process_entries
     else
@@ -162,7 +144,7 @@ if [ -f "$ENV_FILE" ]; then
     fi
 else
     echo "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating new one...\n"
-    sleep 1.2
+    sleep 1.4
     touch "$ENV_FILE"
     process_entries
 fi

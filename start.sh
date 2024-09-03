@@ -1,114 +1,151 @@
 #!/bin/sh
 
+. scripts/shared-component.sh
 sh scripts/init.sh
 
-ARCH="$(sh scripts/arch.sh)"
-STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
-ENV_FILE="$(pwd)/.env"
-ENV_DEPLOY_FILE="$(pwd)/.env.deploy"
-COMPOSE="$(pwd)/compose"
-ALL_COMPOSE_FILES="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml -f $COMPOSE/compose.single.yml"
+SYS_INFO=$($ARCH)
+STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
 
-GREEN='\033[1;32m'
-RED='\033[1;91m'
-PINK='\033[1;35m'
-BLUE='\033[1;36m'
-NC='\033[0m'
+COMPOSE="$(pwd)/compose"
+ALL_COMPOSE_FILES="
+-f $COMPOSE/compose.yml
+-f $COMPOSE/compose.unlimited.yml
+-f $COMPOSE/compose.hosting.yml
+-f $COMPOSE/compose.local.yml
+-f $COMPOSE/compose.single.yml
+"
 
 display_banner() {
     clear
     echo "Income Generator Application Manager"
-    echo "${GREEN}----------------------------------------${NC}"
-    echo
+    echo "${GREEN}----------------------------------------${NC}\n"
 }
 
 stats() {
-    printf "%s\n" "$ARCH"
-    echo
+    printf "%s\n\n" "$SYS_INFO"
     printf "%s\n" "$STATS"
-    echo "${GREEN}----------------------------------------${NC}"
-    echo
-}
-
-view_config() {
-    KEY='\x1b[94m'     # Blue
-    EQUALS='\x1b[91m'  # Red
-    VALUE='\x1b[92m'   # Green
-    RESET='\x1b[0m'    # Reset
-
-    echo "${RED}---------[ START OF CONFIG ]---------\n"
-    tail -n +14 "$ENV_FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/"
-    echo "${RED}\n----------[ END OF CONFIG ]----------${NC}"
-    printf "\nPress Enter to continue..."; read input
+    echo "${GREEN}----------------------------------------${NC}\n"
 }
 
 option_1() {
+    display_selected_application() {
+        json_content=$(cat "$JSON_FILE")
+        app_data=$(echo "$json_content" | jq -r '.[] | select(.is_enabled == true) | "\(.name) \(.is_enabled)"')
+
+        echo "Total Apps: ${RED}$(jq '. | length' "$JSON_FILE")${NC}\n"
+
+        # Table header
+        printf "%-4s %-21s %-8s\n" "No." "App Name"
+        printf "%-4s %-21s %-8s\n" "---" "--------------------"
+
+        counter=1
+        echo "$app_data" | while IFS=$'\n' read -r line; do
+            name=$(echo "$line" | cut -d' ' -f1)
+            is_enabled=$(echo "$line" | cut -d' ' -f2)
+            status="${GREEN}Will Install${NC}"
+
+            # Content
+            printf "%-4s ${GREEN}%-21s${NC} %b\n" "$counter" "$name"
+            counter=$((counter + 1))
+        done
+    }
+
+    is_selective=false
+
     while true; do
         display_banner
-        options="(1-4)"
+        options="(1-5)"
 
-        [ "$1" = "quick_menu" ] && echo "How would you like to install?\n"
-        echo "1. All applications including residential support"
-        echo "2. Only applications with only VPS/Hosting support"
-        echo "3. All applications with residential but exclude single install count"
-        echo "4. Only applications allowing unlimited install count"
-        [ "$1" = "quick_menu" ] && echo "0. Exit" || echo "0. Return to Main Menu"
+        if [ "$1" = "quick_menu" ]; then
+            echo "How would you like to install?\n"
+            exit_option="0. Exit"
+        else
+            exit_option="0. Return to Main Menu"
+        fi
+
+        echo "1. Selective applications"
+        echo "2. All applications including residential support"
+        echo "3. Only applications with VPS/Hosting support"
+        echo "4. All applications with residential but exclude single install count"
+        echo "5. Only applications allowing unlimited install count"
+        echo "$exit_option"
         echo
-        read -p "Select an option $options: " option
+        printf "Select an option %s: " "$options"
+        read option
 
-        case $option in
-            1|2|3|4)
-                compose_files=""
-                install_type="\n"
-                case $option in
-                    1)
-                        install_type="Installing all application..."
-                        compose_files=$ALL_COMPOSE_FILES
-                        ;;
-                    2)
-                        install_type="Installing only applications supporting VPS/Hosting..."
-                        compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
-                        ;;
-                    3)
-                        install_type="Installing all applications, excluding single instances only..."
-                        compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml"
-                        ;;
-                    4)
-                        install_type="Installing only applications with unlimited install count..."
-                        compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml"
-                        ;;
-                    esac
+        case "$option" in
+            1)
+                while true; do
                     display_banner
 
-                    # Check if the separator line exists and get its line number
-                    separator_line=$(grep -n "#--*$" $ENV_FILE | head -n 1)
-                    if [ -n "$separator_line" ]; then
-                        line_number=$(echo "$separator_line" | cut -d ":" -f 1)
+                    echo "The following applications will be installed.\n"
+                    display_selected_application
+                    echo "\nOption: ${RED}e${NC} = ${RED}edit${NC}\n"
+                    read -p "Do you want to proceed? (Y/N): " yne
 
-                        # Check if there are lines after the separator
-                        if ! tail -n "+$((line_number + 1))" $ENV_FILE | grep -v '^[[:space:]]*$' | grep -q "^"; then
-                            echo "No configration for applications found. Make sure to complete the configuration setup."
-                            echo "Running setup configuration now..."
-                            sleep 0.6
-                            sh scripts/config.sh
-                            return
-                        fi
-                    fi
-
-                    echo "$install_type\n"
-                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
-                    echo
-                    docker container prune -f
-                    echo
-                    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
-                    ;;
+                    case "$yne" in
+                        [Yy])
+                            install_type="Installing selective applications..."
+                            compose_files=$ALL_COMPOSE_FILES
+                            is_selective=true
+                            break
+                            ;;
+                        [Nn] | "")
+                            compose_files=""
+                            break
+                            ;;
+                        e)
+                            $APP_SELECTION
+                            ;;
+                    esac
+                done
+                ;;
+            2)
+                install_type="Installing all applications..."
+                compose_files=$ALL_COMPOSE_FILES
+                ;;
+            3)
+                install_type="Installing only applications supporting VPS/Hosting..."
+                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
+                ;;
+            4)
+                install_type="Installing all applications, excluding single instances only..."
+                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml"
+                ;;
+            5)
+                install_type="Installing only applications with unlimited install count..."
+                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml"
+                ;;
             0)
-                break  # Return to the main menu
+                break
                 ;;
             *)
                 echo "\nInvalid option. Please select a valid option $options."
+                printf "\nPress Enter to continue..."; read input
                 ;;
         esac
+
+        # Skip installation if no valid option was chosen
+        [ -z "$compose_files" ] && continue
+
+        display_banner
+        if [ ! -s "$ENV_FILE" ]; then
+            echo "No configration for applications found. Configure app credentials first."
+            echo "Running setup configuration now...\n"
+            sleep 0.6
+            $APP_CONFIG
+            return
+        fi
+
+        echo "$install_type\n"
+        [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
+        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
+        echo
+        docker container prune -f
+        echo
+        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
+        [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
+
         printf "\nPress Enter to continue..."; read input
     done
 }
@@ -131,11 +168,11 @@ option_2() {
             1)
                 display_banner
                 echo "Setting up application configuration...\n"
-                sh scripts/config.sh
+                $APP_CONFIG
                 ;;
             2)
                 display_banner
-                view_config
+                $VIEW_CONFIG
                 ;;
             3)
                 display_banner
@@ -144,10 +181,10 @@ option_2() {
                 nano .env
                 ;;
             4)
-                sh scripts/app-selection.sh
+                $APP_SELECTION
                 ;;
             5)
-                sh scripts/backup-restore.sh
+                $BACKUP_RESTORE
                 ;;
             0)
                 break  # Return to the main menu
@@ -163,7 +200,7 @@ option_2() {
 option_3() {
     display_banner
     echo "Starting applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $ALL_COMPOSE_FILES start
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
 }
@@ -171,7 +208,7 @@ option_3() {
 option_4() {
     display_banner
     echo "Stopping applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
 }
@@ -179,7 +216,7 @@ option_4() {
 option_5() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
     docker container prune -f
     echo "\nAll installed applications and volumes removed."
@@ -189,7 +226,7 @@ option_5() {
 option_6() {
     display_banner
     echo "Installed Containers:\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_DEPLOY_FILE $ALL_COMPOSE_FILES ps -a
+    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE $ALL_COMPOSE_FILES ps -a
     printf "\nPress Enter to continue..."; read input
 }
 
@@ -288,8 +325,8 @@ option_8() {
                     5) limit_type="max" ;;
                 esac
                 echo
-                sh scripts/set-limit.sh "$limit_type"
-                STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
+                $SET_LIMIT "$limit_type"
+                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 echo "\nRedeploy applications for new limits to take effect."
                 ;;
             0)
@@ -320,7 +357,7 @@ option_9() {
 
         case $option in
             1)
-                sh scripts/backup-restore.sh
+                $BACKUP_RESTORE
                 ;;
             2)
                 while true; do
@@ -336,12 +373,12 @@ option_9() {
 
                     case $choice in
                         1)
-                            sh scripts/app-selection.sh --default
+                            $APP_SELECTION --default
                             echo "\nAll applications have been re-enabled."
                             printf "\nPress Enter to continue..."; read input
                             ;;
                         2)
-                            sh scripts/app-selection.sh --restore
+                            $APP_SELECTION --restore
                             printf "\nPress Enter to continue..."; read input
                             ;;
                         0)
@@ -356,8 +393,8 @@ option_9() {
                 ;;
             3)
                 echo
-                sh scripts/set-limit.sh low
-                STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
+                $SET_LIMIT low
+                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 printf "\nPress Enter to continue..."; read input
                 ;;
             4)
@@ -370,8 +407,8 @@ option_9() {
                     read -p "Do you want to backup credentials first? (Y/N): " yn
                     case $yn in
                         [Yy]*)
-                            sh scripts/backup-restore.sh
-                            sh scripts/app-selection.sh --backup
+                            $BACKUP_RESTORE
+                            $APP_SELECTION --backup
                             break
                             ;;
                         [Nn]*)
@@ -385,9 +422,10 @@ option_9() {
                 done
 
                 display_banner
-                rm -rf .env; sh scripts/init.sh > /dev/null 2>&1
-                STATS="$(sh scripts/limits.sh "$(sh scripts/set-limit.sh | awk '{print $NF}')")"
-                sh scripts/app-selection.sh --default
+                rm -rf .env .env.system
+                sh scripts/init.sh > /dev/null 2>&1
+                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+                $APP_SELECTION --default
 
                 echo "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
                 echo "Resource limits will need re-applying if previously set."
@@ -397,8 +435,8 @@ option_9() {
                 printf "\nPress Enter to continue..."; read input
                 ;;
             5)
-                sh scripts/check-tool-update.sh --update
-                sh scripts/app-selection.sh --import
+                $UPDATE_CHECKER --update
+                $APP_SELECTION --import
                 unset NEW_UPDATE
                 printf "\nPress Enter to continue..."; read input
                 ;;
@@ -413,12 +451,12 @@ option_9() {
     done
 }
 
-# Main script
 main_menu() {
+    NEW_UPDATE=$($UPDATE_CHECKER)
+
     while true; do
         display_banner
         stats
-        sh scripts/cleanup.sh
         [ -n "$NEW_UPDATE" ] && echo "$NEW_UPDATE\n"
 
         options="(1-9)"
@@ -437,7 +475,7 @@ main_menu() {
         read -p "Select an option $options: " choice
 
         case $choice in
-            0) display_banner; echo "Quitting..."; sleep 0.62; clear; exit 0 ;;
+            0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;
             1) option_1 ;;
             2) option_2 ;;
             3) option_3 ;;
@@ -455,8 +493,13 @@ main_menu() {
     done
 }
 
+# Main script
+trap '$CLEANUP; clear; exit 0' INT
 case "$1" in
-    --help|help)
+    "")
+        main_menu
+        ;;
+    -h|--help|help)
         display_banner
         echo "Quick action menu of common operations.\n"
         echo "Usage: igm"
@@ -502,17 +545,17 @@ case "$1" in
         clear
         ;;
     app)
-        sh scripts/app-selection.sh
+        $APP_SELECTION
         clear
         ;;
     setup)
-        display_banner 
-        sh scripts/config.sh
+        display_banner
+        $APP_CONFIG
         clear
         ;;
     view)
         display_banner
-        view_config
+        $VIEW_CONFIG
         clear
         ;;
     edit)
@@ -524,7 +567,8 @@ case "$1" in
         clear
         ;;
     *)
-        NEW_UPDATE="$(sh scripts/check-tool-update.sh)"
-        main_menu
+        echo "igm: '$1' is not a valid command. See 'igm help'."
         ;;
 esac
+$CLEANUP
+exit 0

@@ -1,11 +1,6 @@
 #!/bin/sh
 
-ENV_FILE="$(pwd)/.env"
 LIMIT_TYPE=${1:-min}
-
-# ANSI color codes
-YELLOW='\033[1;33m'
-NC='\033[0m'  # No Color
 
 if [ $(uname) = 'Linux' ]; then
     CPU_CORES=$(nproc)
@@ -76,33 +71,33 @@ printf "Calculated Reservation:   ${YELLOW}%s MB${NC}\n" "${RAM_RESERVE}"
 RAM_LIMIT="${RAM_LIMIT_MB}m"
 RAM_RESERVE="${RAM_RESERVE}m"
 
-if [ -f "$ENV_FILE" ]; then
-    if grep -q "^CPU_LIMIT=" "$ENV_FILE"; then
-        $SED_INPLACE "s/^CPU_LIMIT=.*/CPU_LIMIT=$CPU_LIMIT_STR/" "$ENV_FILE"
+if [ -f "$ENV_SYSTEM_FILE" ]; then
+    if grep -q "^CPU_LIMIT=" "$ENV_SYSTEM_FILE"; then
+        $SED_INPLACE "s/^CPU_LIMIT=.*/CPU_LIMIT=$CPU_LIMIT_STR/" "$ENV_SYSTEM_FILE"
     else
-        echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_FILE"
+        echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_SYSTEM_FILE"
     fi
 
-    if grep -q "^RAM_LIMIT=" "$ENV_FILE"; then
-        $SED_INPLACE "s/^RAM_LIMIT=.*/RAM_LIMIT=$RAM_LIMIT/" "$ENV_FILE"
+    if grep -q "^RAM_LIMIT=" "$ENV_SYSTEM_FILE"; then
+        $SED_INPLACE "s/^RAM_LIMIT=.*/RAM_LIMIT=$RAM_LIMIT/" "$ENV_SYSTEM_FILE"
     else
-        echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_FILE"
+        echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_SYSTEM_FILE"
     fi
 
-    if grep -q "^RAM_RESERVE=" "$ENV_FILE"; then
-        $SED_INPLACE "s/^RAM_RESERVE=.*/RAM_RESERVE=$RAM_RESERVE/" "$ENV_FILE"
+    if grep -q "^RAM_RESERVE=" "$ENV_SYSTEM_FILE"; then
+        $SED_INPLACE "s/^RAM_RESERVE=.*/RAM_RESERVE=$RAM_RESERVE/" "$ENV_SYSTEM_FILE"
     else
-        echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_FILE"
+        echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_SYSTEM_FILE"
     fi
 
-    if grep -q "^ALT_MIN_CPU_LIMIT=" "$ENV_FILE"; then
-        $SED_INPLACE "s/^ALT_MIN_CPU_LIMIT=.*/ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT/" "$ENV_FILE"
+    if grep -q "^ALT_MIN_CPU_LIMIT=" "$ENV_SYSTEM_FILE"; then
+        $SED_INPLACE "s/^ALT_MIN_CPU_LIMIT=.*/ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT/" "$ENV_SYSTEM_FILE"
     else
-        echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_FILE"
+        echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_SYSTEM_FILE"
     fi
 else
-    echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_FILE"
-    echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_FILE"
-    echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_FILE"
-    echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_FILE"
+    echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_SYSTEM_FILE"
+    echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_SYSTEM_FILE"
+    echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_SYSTEM_FILE"
+    echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_SYSTEM_FILE"
 fi
