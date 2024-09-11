@@ -1,6 +1,6 @@
 Proprietary Software License
 
-Version 1.0
+Version 1.1
 
 This Proprietary Software License ("License") is a legal agreement between you ("Licensee")
 and XternA ("Licensor"). By downloading, installing, or using the software provided under
@@ -20,17 +20,20 @@ not agree to these terms and conditions, do not download, install, or use the so
       a. Modify, adapt, translate, reverse engineer, decompile, disassemble, or create
          derivative works based on the software.
 
-      b. Sell, rent, lease, sublicense, distribute, or otherwise transfer the software
+      b. Integrate the software into your own software, tools, distributions, or any
+          other products or services by any means.
+
+      c. Sell, rent, lease, sublicense, distribute, or otherwise transfer the software
          or any portion thereof to any third party without prior written consent from
          the Licensor.
 
-      c. Remove or alter any labels, copyright, trademark, or other proprietary rights
+      d. Remove or alter any labels, copyright, trademark, or other proprietary rights
          notices contained in the Software;
 
-      d. Use the Software in any manner that infringes the intellectual property rights
+      e. Use the Software in any manner that infringes the intellectual property rights
          of Licensor or any third party;
 
-      e. Use the Software for any unlawful purpose or in violation of any applicable laws
+      f. Use the Software for any unlawful purpose or in violation of any applicable laws
          or regulations.
 
 3. Contributions:
@@ -66,25 +69,66 @@ not agree to these terms and conditions, do not download, install, or use the so
    or tort (including negligence or otherwise) arising out of or in connection with the
    use or performance of the Software, even if advised of the possibility of such damages.
 
-6. Indemnification:
+7. Violation Consequences:
+
+   If the Licensee is found to have violated any of the terms outlined in this License,
+   Licensor reserves the right to immediately terminate the Licensee’s rights under this
+   License. Upon termination, the Licensee must cease all use of the Software and destroy
+   all copies in their possession or control. Licensee shall also be liable for any
+   damages caused, including, but not limited to, any legal costs, attorney’s fees, or
+   compensation for lost revenue as a result of the violation.
+
+   In addition, the Licensee agrees to a penalty of £1,000 to £3,000 or the equivalent
+   value in their local currency if they attempt to integrate the software into their
+   own products, tools, or distributions without prior written consent. This amount is
+   enforceable under the governing law of this License, regardless of the Licensee’s
+   location. The Licensor reserves the right to seek additional compensation if actual
+   damages exceed the stated penalty.
+
+8. Indemnification:
 
    You, the Licensee agree to indemnify, defend and hold harmless the Licensor from and
    against any and all claims, damages, liabilities, any losses, costs, and expenses
    (including reasonable attorneys' fees) arising out of or the result of any violation
    from this Agreement or misuse of the Software.
 
-7. Governing Law:
+9. Governing Law and Jurisdiction:
 
    This License shall be governed by and construed in accordance with the laws of the
-   United Kingdom, without regard to its conflicts of law principles.
+   United Kingdom, without regard to its conflicts of law principles. Any disputes
+   arising out of or in connection with this License shall be subject to the exclusive
+   jurisdiction of the courts located in London, United Kingdom.
 
-8. Termination:
+   The Licensee agrees to submit to the jurisdiction of these courts and waives any
+   objection to such venue or jurisdiction. Any attempt to contest jurisdiction outside
+   of the agreed forum will result in the Licensee being liable for all legal costs
+   incurred by the Licensor in enforcing the terms of this agreement.
+
+10. Arbitration Clause:
+
+   Any dispute, controversy, or claim arising out of or relating to this License,
+   including any breach, shall be resolved by binding arbitration conducted in accordance
+   with the arbitration rules of the London Court of International Arbitration (LCIA).
+   The arbitration shall take place in London, United Kingdom, and be conducted in English.
+   The decision of the arbitrator shall be final and binding upon both parties, and any
+   costs associated with arbitration shall be borne by the Licensee if found to be in
+   violation of this License.
+
+11. Global Enforcement:
+
+   Licensee acknowledges that this License is enforceable globally, and any violations
+   will be pursued under the laws of the United Kingdom. In the case of international
+   violations, Licensor reserves the right to enforce this License through cease-and-desist
+   orders, public disclosure of the violation, or legal action in the Licensee’s country,
+   as allowed by applicable international treaties or agreements.
+
+12. Termination:
 
    Licensor may terminate this Agreement at any time if you fail to comply with any term
-   or condition of this Agreement. Upon termination, you must cease all use of the
-   Software and destroy all copies of the Software in your possession or control.
+   or condition of this Agreement. Upon termination, you must immediately cease all use of
+   the Software and destroy all copies of the Software in your possession or control.
 
-9. Miscellaneous:
+13. Miscellaneous:
 
    This Agreement constitutes the entire agreement between you and the Licensor concerning
    the subject matter hereof and supersedes all prior or contemporaneous understandings
