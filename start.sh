@@ -13,6 +13,7 @@ ALL_COMPOSE_FILES="
 -f $COMPOSE/compose.hosting.yml
 -f $COMPOSE/compose.local.yml
 -f $COMPOSE/compose.single.yml
+-f $COMPOSE/compose.service.yml
 "
 
 display_banner() {
@@ -28,26 +29,49 @@ stats() {
 }
 
 option_1() {
-    display_selected_application() {
-        json_content=$(cat "$JSON_FILE")
-        app_data=$(echo "$json_content" | jq -r '.[] | select(.is_enabled == true) | "\(.name) \(.is_enabled)"')
+    display_apps_services() {
+        app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
+        has_apps=$(echo "$app_data" | awk '{print $2}' | grep -q 'false' && echo "true" || echo "false")
+        has_services=$(echo "$app_data" | awk '{print $2}' | grep -q 'true' && echo "true" || echo "false")
 
-        echo "Total Apps: ${RED}$(jq '. | length' "$JSON_FILE")${NC}\n"
+        if [ "$has_apps" = "false" ] && [ "$has_services" = "false" ]; then
+            echo "No application or service selected.\n\nEnable applications/services to install.\n"
+        else
+            echo "The following applications will be installed.\n"
+            printf "Total Apps: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | "
+            echo "Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}\n"
 
-        # Table header
-        printf "%-4s %-21s %-8s\n" "No." "App Name"
-        printf "%-4s %-21s %-8s\n" "---" "--------------------"
+            printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
+            printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
 
-        counter=1
-        echo "$app_data" | while IFS=$'\n' read -r line; do
-            name=$(echo "$line" | cut -d' ' -f1)
-            is_enabled=$(echo "$line" | cut -d' ' -f2)
-            status="${GREEN}Will Install${NC}"
+            counter=1
+            echo "$app_data" | while IFS=$'\n' read -r line; do
+                name=$(echo "$line" | awk '{print $1}')
+                service_enabled=$(echo "$line" | awk '{print $2}')
 
-            # Content
-            printf "%-4s ${GREEN}%-21s${NC} %b\n" "$counter" "$name"
-            counter=$((counter + 1))
-        done
+                if [ "$service_enabled" = "true" ]; then
+                    if [ $(echo "$line" | awk '{print $3}') = "true" ]; then
+                        printf "%-4s ${GREEN}%-21s %s${NC}\n" "$counter" "$name" "App"
+                        counter=$((counter + 1))
+                    fi
+                    printf "%-4s ${RED}%-21s %s${NC}\n" "$counter" "$name" "Service"
+                else
+                    printf "%-4s ${GREEN}%-21s %s${NC}\n" "$counter" "$name" "App"
+                fi
+                counter=$((counter + 1))
+            done
+            echo
+        fi
+
+        echo "Option:"
+        echo "  ${GREEN}a${NC} = ${GREEN}select applications${NC}"
+        echo "  ${RED}s${NC} = ${RED}select services${NC}\n"
+
+        if [ "$has_apps" = "false" ] && [ "$has_services" = "false" ]; then
+            read -p "Select an option or press Enter to return: " input
+        else
+            read -p "Do you want to proceed? (Y/N): " input
+        fi
     }
 
     is_selective=false
@@ -78,12 +102,8 @@ option_1() {
                 while true; do
                     display_banner
 
-                    echo "The following applications will be installed.\n"
-                    display_selected_application
-                    echo "\nOption: ${RED}e${NC} = ${RED}edit${NC}\n"
-                    read -p "Do you want to proceed? (Y/N): " yne
-
-                    case "$yne" in
+                    display_apps_services
+                    case "$input" in
                         [Yy])
                             install_type="Installing selective applications..."
                             compose_files=$ALL_COMPOSE_FILES
@@ -94,8 +114,15 @@ option_1() {
                             compose_files=""
                             break
                             ;;
-                        e)
+                        a)
                             $APP_SELECTION
+                            ;;
+                        s)
+                            $APP_SELECTION service
+                            ;;
+                        *)
+                            echo "\nInvalid option."
+                            printf "\nPress Enter to continue..."; read input
                             ;;
                     esac
                 done
@@ -544,8 +571,8 @@ case "$1" in
         option_1 quick_menu
         clear
         ;;
-    app)
-        $APP_SELECTION
+    app|service)
+        $APP_SELECTION "$1"
         clear
         ;;
     setup)
