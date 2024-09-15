@@ -42,10 +42,7 @@ display_table_choice() {
     printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
 
     counter=1
-    echo "$app_data" | while IFS=$'\n' read -r line; do
-        name=$(echo "$line" | cut -d' ' -f1)
-        is_enabled=$(echo "$line" | cut -d' ' -f2)
-
+    echo "$app_data" | while IFS=' ' read -r name is_enabled; do
         if [ "$is_enabled" = "true" ]; then
             status="${GREEN}Enabled${NC}"
         else
@@ -108,15 +105,11 @@ display_table_choice() {
 
 export_selection() {
     json_content=$(cat "$JSON_FILE")
-    app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled | if . == true then "ENABLED" else "DISABLED" end) \(.service_enabled // null)"')
+    app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled | if . == true then "ENABLED" else "DISABLED" end) \(.service_enabled)"')
 
     > "$ENV_DEPLOY_FILE" # Empty file
 
-    echo "$app_data" | while IFS=$'\n' read -r line; do
-        name=$(echo "$line" | cut -d' ' -f1)
-        is_enabled=$(echo "$line" | cut -d' ' -f2)
-        service_enabled=$(echo "$line" | cut -d' ' -f3)
-
+    echo "$app_data" | while IFS=' ' read -r name is_enabled service_enabled; do
         echo "$name=$is_enabled" >> "$ENV_DEPLOY_FILE"
 
         if [ "$service_enabled" != "null" ]; then
@@ -131,38 +124,23 @@ export_selection() {
 }
 
 import_selection() {
-    if [ -f "$ENV_DEPLOY_FILE" ]; then
-        temp_file=$(mktemp)
-        cp "$JSON_FILE" "$temp_file"
+    [ -f "$ENV_DEPLOY_FILE" ] || return
 
-        while IFS='=' read -r name is_enabled; do
-            if [ "$name" = *_SERVICE ]; then
-                base_name="${name%_SERVICE}"
-                if [ "$is_enabled" = "ENABLED" ]; then
-                    service_enabled="true"
-                else
-                    service_enabled="false"
-                fi
+    jq_filter="map("
+    while IFS='=' read -r name is_enabled; do
+        app_enabled="false"
+            [ "$is_enabled" = "ENABLED" ] && app_enabled="true"
 
-                updated_json_content=$(jq --indent 4 --arg name "$base_name" --arg service_enabled "$service_enabled" \
-                    'map(if .name == $name then .service_enabled = ($service_enabled | fromjson) else . end)' "$temp_file")
+        if [ "${name#*_SERVICE}" != "$name" ]; then
+            jq_filter="$jq_filter if .name == \"${name%_SERVICE}\" then .service_enabled = $app_enabled else . end |"
+        else
+            jq_filter="$jq_filter if .name == \"$name\" then .is_enabled = $app_enabled else . end |"
+        fi
+    done < "$ENV_DEPLOY_FILE"
 
-                echo "$updated_json_content" > "$temp_file"
-            else
-                if [ "$is_enabled" = "ENABLED" ]; then
-                    is_enabled="true"
-                else
-                    is_enabled="false"
-                fi
-
-                updated_json_content=$(jq --indent 4 --arg name "$name" --arg is_enabled "$is_enabled" \
-                    'map(if .name == $name then .is_enabled = ($is_enabled | fromjson) else . end)' "$temp_file")
-
-                echo "$updated_json_content" > "$temp_file"
-            fi
-        done < "$ENV_DEPLOY_FILE"
-        mv "$temp_file" "$JSON_FILE"
-    fi
+    jq_filter="${jq_filter%|}" # Remove trailing pipe
+    jq --indent 4 "$jq_filter)" "$JSON_FILE" > "$JSON_FILE.tmp"
+    mv "$JSON_FILE.tmp" "$JSON_FILE"
 }
 
 parse_cmd_arg() {
