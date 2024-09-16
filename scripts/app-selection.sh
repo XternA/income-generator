@@ -150,7 +150,12 @@ import_selection() {
 
 parse_cmd_arg() {
     if [ "$1" = "--default" ]; then
-        updated_json_content=$(jq --indent 4 '. |= map(.is_enabled = true)' "$JSON_FILE")
+        updated_json_content=$(jq --indent 4 '
+            map(
+                .is_enabled = true |
+                if has("service_enabled") then .service_enabled = true else . end
+            )
+        ' "$JSON_FILE")
         echo "$updated_json_content" > "$JSON_FILE"
         export_selection
         exit 0
