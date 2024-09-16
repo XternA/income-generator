@@ -90,6 +90,9 @@ install_applications() {
 
                     display_apps_services
                     case "$input" in
+                        "")
+                            break
+                            ;;
                         [Yy])
                             if [ "$can_install" = "true" ]; then
                                 install_type="Installing selective applications..."
@@ -99,7 +102,7 @@ install_applications() {
                             fi
                             printf "\nInvalid option.\n\nPress Enter to continue..."; read input
                             ;;
-                        [Nn] | "")
+                        [Nn])
                             if [ "$can_install" = "true" ]; then
                                 compose_files=""
                                 break
