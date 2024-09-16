@@ -340,21 +340,22 @@ case "$1" in
         display_banner
         echo "Quick action menu of common operations.\n"
         echo "Usage: igm"
-        echo "Usage: igm [command]"
+        echo "Usage: igm [option]"
+        echo "Usage: igm [option] [arg]"
 
         echo "\n[${BLUE}General${NC}]"
         echo "  igm                  Launch the Income Generator tool."
         echo "  igm help             Display this help usage guide."
 
         echo "\n[${BLUE}Manage${NC}]"
-        echo "  igm start            Start all currently deployed applications."
-        echo "  igm stop             Stop all currently deployed running applications."
-        echo "  igm remove           Stop and remove all currently deployed applications."
+        echo "  igm start  [name]    Start one or all currently deployed applications."
+        echo "  igm stop   [name]    Stop one or all currently deployed running applications."
+        echo "  igm remove [name]    Stop and remove one or all currently deployed applications."
         echo "  igm show             Show list of installed and running applications."
         echo "  igm deploy           Launch the install manager for deploying applications."
 
         echo "\n[${BLUE}Configuration${NC}]"
-        echo "  igm app              Enable or disable applications for deployment."
+        echo "  igm app|service      Enable or disable applications/services for deployment."
         echo "  igm setup            Setup credentials for applications to be deployed."
         echo "  igm view             View all configured application credentials."
         echo "  igm edit             Edit configured credentials and config file directly."
@@ -362,16 +363,28 @@ case "$1" in
         echo
         ;;
     start)
-        start_applications
-        clear
+        if [ -n "$2" ]; then
+            start_application "$2"
+        else
+            start_applications
+            clear
+        fi
         ;;
     stop)
-        stop_applications
-        clear
+        if [ -n "$2" ]; then
+            stop_application "$2"
+        else
+            stop_applications
+            clear
+        fi
         ;;
     remove)
-        remove_applications
-        clear
+        if [ -n "$2" ]; then
+            remove_application "$2"
+        else
+            remove_applications
+            clear
+        fi
         ;;
     show)
         show_applications

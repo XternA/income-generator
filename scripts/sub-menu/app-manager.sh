@@ -1,5 +1,6 @@
 #!/bin/sh
 
+CONTAINER_ALIAS="docker"
 LOADED_ENV_FILES="--env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE"
 
 COMPOSE="$(pwd)/compose"
@@ -59,11 +60,9 @@ install_applications() {
         read input
     }
 
-    is_selective=false
-
     while true; do
         display_banner
-        options="(1-5)"
+        options="(1-6)"
 
         if [ "$1" = "quick_menu" ]; then
             echo "How would you like to install?\n"
@@ -71,12 +70,14 @@ install_applications() {
         else
             exit_option="0. Return to Main Menu"
         fi
+        is_selective=false
 
         echo "1. Selective applications"
         echo "2. All applications including residential support"
         echo "3. Only applications with VPS/Hosting support"
         echo "4. All applications with residential but exclude single install count"
         echo "5. Only applications allowing unlimited install count"
+        echo "6. All available service applications"
         echo "$exit_option"
         echo
         printf "Select an option %s: " "$options"
@@ -133,6 +134,10 @@ install_applications() {
                 install_type="Installing only applications with unlimited install count..."
                 compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml"
                 ;;
+            6)
+                install_type="Installing all available services application..."
+                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.service.yml"
+                ;;
             0)
                 break
                 ;;
@@ -156,11 +161,11 @@ install_applications() {
 
         echo "$install_type\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
-        docker compose $LOADED_ENV_FILES --profile ENABLED $compose_files pull
+        $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $compose_files pull
         echo
-        docker container prune -f
+        $CONTAINER_ALIAS container prune -f
         echo
-        docker compose $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
+        $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
 
         printf "\nPress Enter to continue..."; read input
@@ -170,32 +175,47 @@ install_applications() {
 start_applications() {
     display_banner
     echo "Starting applications...\n"
-    docker compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
+    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
+}
+
+start_application() {
+    printf "Starting application "
+    $CONTAINER_ALIAS start "$1"
 }
 
 stop_applications() {
     display_banner
     echo "Stopping applications...\n"
-    docker compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
+    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
+}
+
+stop_application() {
+    printf "Stopping application "
+    $CONTAINER_ALIAS stop -t 6 "$1"
 }
 
 remove_applications() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
-    docker compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
-    docker container prune -f
+    $CONTAINER_ALIAS container prune -f
     echo "\nAll installed applications and volumes removed."
     printf "\nPress Enter to continue..."; read input
+}
+
+remove_application() {
+    printf "Removing application "
+    $CONTAINER_ALIAS rm -f -v "$1"
 }
 
 show_applications() {
     display_banner
     echo "Installed Containers:\n"
-    docker compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a
+    $CONTAINER_ALIAS compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a
     printf "\nPress Enter to continue..."; read input
 }
