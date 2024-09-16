@@ -3,18 +3,10 @@
 . scripts/shared-component.sh
 sh scripts/init.sh
 
+. scripts/sub-menu/app-manager.sh
+
 SYS_INFO=$($SYS_INFO)
 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
-
-COMPOSE="$(pwd)/compose"
-ALL_COMPOSE_FILES="
--f $COMPOSE/compose.yml
--f $COMPOSE/compose.unlimited.yml
--f $COMPOSE/compose.hosting.yml
--f $COMPOSE/compose.local.yml
--f $COMPOSE/compose.single.yml
--f $COMPOSE/compose.service.yml
-"
 
 display_banner() {
     clear
@@ -26,155 +18,6 @@ stats() {
     printf "%s\n\n" "$SYS_INFO"
     printf "%s\n" "$STATS"
     echo "${GREEN}----------------------------------------${NC}\n"
-}
-
-option_1() {
-    display_apps_services() {
-        app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
-        has_apps=$(echo "$app_data" | awk '{print $2}' | grep -q 'false' && echo "true" || echo "false")
-        has_services=$(echo "$app_data" | awk '{print $2}' | grep -q 'true' && echo "true" || echo "false")
-
-        if [ "$has_apps" = "false" ] && [ "$has_services" = "false" ]; then
-            echo "No application or service selected.\n\nEnable applications/services to install.\n"
-        else
-            echo "The following applications will be installed.\n"
-            printf "Total Apps: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | "
-            echo "Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}\n"
-
-            printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
-            printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
-
-            counter=1
-            echo "$app_data" | while IFS=$'\n' read -r line; do
-                name=$(echo "$line" | awk '{print $1}')
-                service_enabled=$(echo "$line" | awk '{print $2}')
-
-                if [ "$service_enabled" = "true" ]; then
-                    if [ $(echo "$line" | awk '{print $3}') = "true" ]; then
-                        printf "%-4s ${GREEN}%-21s %s${NC}\n" "$counter" "$name" "App"
-                        counter=$((counter + 1))
-                    fi
-                    printf "%-4s ${RED}%-21s %s${NC}\n" "$counter" "$name" "Service"
-                else
-                    printf "%-4s ${GREEN}%-21s %s${NC}\n" "$counter" "$name" "App"
-                fi
-                counter=$((counter + 1))
-            done
-            echo
-        fi
-
-        echo "Option:"
-        echo "  ${GREEN}a${NC} = ${GREEN}select applications${NC}"
-        echo "  ${RED}s${NC} = ${RED}select services${NC}\n"
-
-        if [ "$has_apps" = "false" ] && [ "$has_services" = "false" ]; then
-            read -p "Select an option or press Enter to return: " input
-        else
-            read -p "Do you want to proceed? (Y/N): " input
-        fi
-    }
-
-    is_selective=false
-
-    while true; do
-        display_banner
-        options="(1-5)"
-
-        if [ "$1" = "quick_menu" ]; then
-            echo "How would you like to install?\n"
-            exit_option="0. Exit"
-        else
-            exit_option="0. Return to Main Menu"
-        fi
-
-        echo "1. Selective applications"
-        echo "2. All applications including residential support"
-        echo "3. Only applications with VPS/Hosting support"
-        echo "4. All applications with residential but exclude single install count"
-        echo "5. Only applications allowing unlimited install count"
-        echo "$exit_option"
-        echo
-        printf "Select an option %s: " "$options"
-        read option
-
-        case "$option" in
-            1)
-                while true; do
-                    display_banner
-
-                    display_apps_services
-                    case "$input" in
-                        [Yy])
-                            install_type="Installing selective applications..."
-                            compose_files=$ALL_COMPOSE_FILES
-                            is_selective=true
-                            break
-                            ;;
-                        [Nn] | "")
-                            compose_files=""
-                            break
-                            ;;
-                        a)
-                            $APP_SELECTION
-                            ;;
-                        s)
-                            $APP_SELECTION service
-                            ;;
-                        *)
-                            echo "\nInvalid option."
-                            printf "\nPress Enter to continue..."; read input
-                            ;;
-                    esac
-                done
-                ;;
-            2)
-                install_type="Installing all applications..."
-                compose_files=$ALL_COMPOSE_FILES
-                ;;
-            3)
-                install_type="Installing only applications supporting VPS/Hosting..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
-                ;;
-            4)
-                install_type="Installing all applications, excluding single instances only..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml"
-                ;;
-            5)
-                install_type="Installing only applications with unlimited install count..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml"
-                ;;
-            0)
-                break
-                ;;
-            *)
-                echo "\nInvalid option. Please select a valid option $options."
-                printf "\nPress Enter to continue..."; read input
-                ;;
-        esac
-
-        # Skip installation if no valid option was chosen
-        [ -z "$compose_files" ] && continue
-
-        display_banner
-        if [ ! -s "$ENV_FILE" ]; then
-            echo "No configration for applications found. Configure app credentials first."
-            echo "Running setup configuration now...\n"
-            sleep 0.6
-            $APP_CONFIG
-            return
-        fi
-
-        echo "$install_type\n"
-        [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
-        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
-        echo
-        docker container prune -f
-        echo
-        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
-        [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
-
-        printf "\nPress Enter to continue..."; read input
-    done
 }
 
 option_2() {
@@ -222,39 +65,6 @@ option_2() {
                 ;;
         esac
     done
-}
-
-option_3() {
-    display_banner
-    echo "Starting applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $ALL_COMPOSE_FILES start
-    echo "\nAll installed applications started."
-    printf "\nPress Enter to continue..."; read input
-}
-
-option_4() {
-    display_banner
-    echo "Stopping applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
-    echo "\nAll running applications stopped."
-    printf "\nPress Enter to continue..."; read input
-}
-
-option_5() {
-    display_banner
-    echo "Stopping and removing applications and volumes...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
-    echo
-    docker container prune -f
-    echo "\nAll installed applications and volumes removed."
-    printf "\nPress Enter to continue..."; read input
-}
-
-option_6() {
-    display_banner
-    echo "Installed Containers:\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE $ALL_COMPOSE_FILES ps -a
-    printf "\nPress Enter to continue..."; read input
 }
 
 option_7() {
@@ -503,12 +313,12 @@ main_menu() {
 
         case $choice in
             0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;
-            1) option_1 ;;
+            1) install_applications ;;
             2) option_2 ;;
-            3) option_3 ;;
-            4) option_4 ;;
-            5) option_5 ;;
-            6) option_6 ;;
+            3) start_applications ;;
+            4) stop_applications ;;
+            5) remove_applications ;;
+            6) show_applications ;;
             7) option_7 ;;
             8) option_8 ;;
             9) option_9 ;;
@@ -552,23 +362,23 @@ case "$1" in
         echo
         ;;
     start)
-        option_3
+        start_applications
         clear
         ;;
     stop)
-        option_4
+        stop_applications
         clear
         ;;
     remove)
-        option_5
+        remove_applications
         clear
         ;;
     show)
-        option_6
+        show_applications
         clear
         ;;
     deploy)
-        option_1 quick_menu
+        install_applications quick_menu
         clear
         ;;
     app|service)
