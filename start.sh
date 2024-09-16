@@ -3,17 +3,10 @@
 . scripts/shared-component.sh
 sh scripts/init.sh
 
+. scripts/sub-menu/app-manager.sh
+
 SYS_INFO=$($SYS_INFO)
 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
-
-COMPOSE="$(pwd)/compose"
-ALL_COMPOSE_FILES="
--f $COMPOSE/compose.yml
--f $COMPOSE/compose.unlimited.yml
--f $COMPOSE/compose.hosting.yml
--f $COMPOSE/compose.local.yml
--f $COMPOSE/compose.single.yml
-"
 
 display_banner() {
     clear
@@ -25,129 +18,6 @@ stats() {
     printf "%s\n\n" "$SYS_INFO"
     printf "%s\n" "$STATS"
     echo "${GREEN}----------------------------------------${NC}\n"
-}
-
-option_1() {
-    display_selected_application() {
-        json_content=$(cat "$JSON_FILE")
-        app_data=$(echo "$json_content" | jq -r '.[] | select(.is_enabled == true) | "\(.name) \(.is_enabled)"')
-
-        echo "Total Apps: ${RED}$(jq '. | length' "$JSON_FILE")${NC}\n"
-
-        # Table header
-        printf "%-4s %-21s %-8s\n" "No." "App Name"
-        printf "%-4s %-21s %-8s\n" "---" "--------------------"
-
-        counter=1
-        echo "$app_data" | while IFS=$'\n' read -r line; do
-            name=$(echo "$line" | cut -d' ' -f1)
-            is_enabled=$(echo "$line" | cut -d' ' -f2)
-            status="${GREEN}Will Install${NC}"
-
-            # Content
-            printf "%-4s ${GREEN}%-21s${NC} %b\n" "$counter" "$name"
-            counter=$((counter + 1))
-        done
-    }
-
-    is_selective=false
-
-    while true; do
-        display_banner
-        options="(1-5)"
-
-        if [ "$1" = "quick_menu" ]; then
-            echo "How would you like to install?\n"
-            exit_option="0. Exit"
-        else
-            exit_option="0. Return to Main Menu"
-        fi
-
-        echo "1. Selective applications"
-        echo "2. All applications including residential support"
-        echo "3. Only applications with VPS/Hosting support"
-        echo "4. All applications with residential but exclude single install count"
-        echo "5. Only applications allowing unlimited install count"
-        echo "$exit_option"
-        echo
-        printf "Select an option %s: " "$options"
-        read option
-
-        case "$option" in
-            1)
-                while true; do
-                    display_banner
-
-                    echo "The following applications will be installed.\n"
-                    display_selected_application
-                    echo "\nOption: ${RED}e${NC} = ${RED}edit${NC}\n"
-                    read -p "Do you want to proceed? (Y/N): " yne
-
-                    case "$yne" in
-                        [Yy])
-                            install_type="Installing selective applications..."
-                            compose_files=$ALL_COMPOSE_FILES
-                            is_selective=true
-                            break
-                            ;;
-                        [Nn] | "")
-                            compose_files=""
-                            break
-                            ;;
-                        e)
-                            $APP_SELECTION
-                            ;;
-                    esac
-                done
-                ;;
-            2)
-                install_type="Installing all applications..."
-                compose_files=$ALL_COMPOSE_FILES
-                ;;
-            3)
-                install_type="Installing only applications supporting VPS/Hosting..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
-                ;;
-            4)
-                install_type="Installing all applications, excluding single instances only..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml"
-                ;;
-            5)
-                install_type="Installing only applications with unlimited install count..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml"
-                ;;
-            0)
-                break
-                ;;
-            *)
-                echo "\nInvalid option. Please select a valid option $options."
-                printf "\nPress Enter to continue..."; read input
-                ;;
-        esac
-
-        # Skip installation if no valid option was chosen
-        [ -z "$compose_files" ] && continue
-
-        display_banner
-        if [ ! -s "$ENV_FILE" ]; then
-            echo "No configration for applications found. Configure app credentials first."
-            echo "Running setup configuration now...\n"
-            sleep 0.6
-            $APP_CONFIG
-            return
-        fi
-
-        echo "$install_type\n"
-        [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
-        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files pull
-        echo
-        docker container prune -f
-        echo
-        docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $compose_files up --force-recreate --build -d
-        [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
-
-        printf "\nPress Enter to continue..."; read input
-    done
 }
 
 option_2() {
@@ -195,39 +65,6 @@ option_2() {
                 ;;
         esac
     done
-}
-
-option_3() {
-    display_banner
-    echo "Starting applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED $ALL_COMPOSE_FILES start
-    echo "\nAll installed applications started."
-    printf "\nPress Enter to continue..."; read input
-}
-
-option_4() {
-    display_banner
-    echo "Stopping applications...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
-    echo "\nAll running applications stopped."
-    printf "\nPress Enter to continue..."; read input
-}
-
-option_5() {
-    display_banner
-    echo "Stopping and removing applications and volumes...\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
-    echo
-    docker container prune -f
-    echo "\nAll installed applications and volumes removed."
-    printf "\nPress Enter to continue..."; read input
-}
-
-option_6() {
-    display_banner
-    echo "Installed Containers:\n"
-    docker compose --env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE $ALL_COMPOSE_FILES ps -a
-    printf "\nPress Enter to continue..."; read input
 }
 
 option_7() {
@@ -476,12 +313,12 @@ main_menu() {
 
         case $choice in
             0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;
-            1) option_1 ;;
+            1) install_applications ;;
             2) option_2 ;;
-            3) option_3 ;;
-            4) option_4 ;;
-            5) option_5 ;;
-            6) option_6 ;;
+            3) start_applications ;;
+            4) stop_applications ;;
+            5) remove_applications ;;
+            6) show_applications ;;
             7) option_7 ;;
             8) option_8 ;;
             9) option_9 ;;
@@ -503,21 +340,22 @@ case "$1" in
         display_banner
         echo "Quick action menu of common operations.\n"
         echo "Usage: igm"
-        echo "Usage: igm [command]"
+        echo "Usage: igm [option]"
+        echo "Usage: igm [option] [arg]"
 
         echo "\n[${BLUE}General${NC}]"
         echo "  igm                  Launch the Income Generator tool."
         echo "  igm help             Display this help usage guide."
 
         echo "\n[${BLUE}Manage${NC}]"
-        echo "  igm start            Start all currently deployed applications."
-        echo "  igm stop             Stop all currently deployed running applications."
-        echo "  igm remove           Stop and remove all currently deployed applications."
+        echo "  igm start  [name]    Start one or all currently deployed applications."
+        echo "  igm stop   [name]    Stop one or all currently deployed running applications."
+        echo "  igm remove [name]    Stop and remove one or all currently deployed applications."
         echo "  igm show             Show list of installed and running applications."
         echo "  igm deploy           Launch the install manager for deploying applications."
 
         echo "\n[${BLUE}Configuration${NC}]"
-        echo "  igm app              Enable or disable applications for deployment."
+        echo "  igm app|service      Enable or disable applications/services for deployment."
         echo "  igm setup            Setup credentials for applications to be deployed."
         echo "  igm view             View all configured application credentials."
         echo "  igm edit             Edit configured credentials and config file directly."
@@ -525,27 +363,39 @@ case "$1" in
         echo
         ;;
     start)
-        option_3
-        clear
+        if [ -n "$2" ]; then
+            start_application "$2"
+        else
+            start_applications
+            clear
+        fi
         ;;
     stop)
-        option_4
-        clear
+        if [ -n "$2" ]; then
+            stop_application "$2"
+        else
+            stop_applications
+            clear
+        fi
         ;;
     remove)
-        option_5
-        clear
+        if [ -n "$2" ]; then
+            remove_application "$2"
+        else
+            remove_applications
+            clear
+        fi
         ;;
     show)
-        option_6
+        show_applications
         clear
         ;;
     deploy)
-        option_1 quick_menu
+        install_applications quick_menu
         clear
         ;;
-    app)
-        $APP_SELECTION
+    app|service)
+        $APP_SELECTION "$1"
         clear
         ;;
     setup)

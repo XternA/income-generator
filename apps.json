@@ -17,7 +17,8 @@
             "HONEYGAIN_EMAIL",
             "HONEYGAIN_PASSWORD"
         ],
-        "is_enabled": true
+        "is_enabled": true,
+        "service_enabled": true
     },
     {
         "name": "PEER2PROFIT",
@@ -168,6 +169,7 @@
             "BEARSHARE_EMAIL",
             "BEARSHARE_PASSWORD"
         ],
-        "is_enabled": true
+        "is_enabled": true,
+        "service_enabled": true
     }
 ]

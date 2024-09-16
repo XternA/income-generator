@@ -1,0 +1,32 @@
+services:
+    honeygain-pot:
+        container_name: honeygain-pot
+        image: xterna/honeygain-pot
+        restart: always
+        environment:
+            - EMAIL=${HONEYGAIN_EMAIL:-}
+            - PASSWORD=${HONEYGAIN_PASSWORD:-}
+        profiles:
+          - ${HONEYGAIN_SERVICE:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $ALT_MIN_CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+
+    bearshare-pot:
+        container_name: bearshare-pot
+        image: xterna/bearshare-pot
+        restart: always
+        environment:
+            - EMAIL=${BEARSHARE_EMAIL:-}
+            - PASSWORD=${BEARSHARE_PASSWORD:-}
+        profiles:
+          - ${BEARSHARE_SERVICE:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $ALT_MIN_CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
