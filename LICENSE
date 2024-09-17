@@ -1,6 +1,6 @@
 Proprietary Software License
 
-Version 1.1
+Version 1.2
 
 This Proprietary Software License ("License") is a legal agreement between you ("Licensee")
 and XternA ("Licensor"). By downloading, installing, or using the software provided under
@@ -10,9 +10,16 @@ not agree to these terms and conditions, do not download, install, or use the so
 1. License Grant:
 
    Subject to the terms and conditions of this Agreement, the Licensor grants you, the
-   Licensee a non-exclusive, non-transferable, revocable license to use the software
-   for both non-commercial and commercial purposes, subject to the limitations and
-   obligations outlined in this License.
+   Licensee, a non-exclusive, non-transferable, revocable license to use the software
+   strictly for your own personal, non-commercial purposes. The Licensee is prohibited
+   from using the software for any purpose other than their own use, including but not
+   limited to use within organizations, redistribution, or for the benefit of any third
+   party, subject to the limitations and obligations outlined in this License.
+
+   Any form of use of the software that results in direct or indirect financial gain,
+   including but not limited to selling, offering services, integrating the software
+   into a product for sale, earning referral commissions, ad revenue, or receiving
+   donations associated with the use of this software, is expressly prohibited.
 
 2. Restrictions:
 
@@ -21,7 +28,10 @@ not agree to these terms and conditions, do not download, install, or use the so
          derivative works based on the software.
 
       b. Integrate the software into your own software, tools, distributions, or any
-          other products or services by any means.
+         other products or services by any means, including open-source projects or host
+         on platforms that generate revenue or donations, such as earning commissions
+         through referrals, advertising, sponsorship, or monetization of associated
+         services.
 
       c. Sell, rent, lease, sublicense, distribute, or otherwise transfer the software
          or any portion thereof to any third party without prior written consent from
@@ -35,6 +45,15 @@ not agree to these terms and conditions, do not download, install, or use the so
 
       f. Use the Software for any unlawful purpose or in violation of any applicable laws
          or regulations.
+
+3. Non-Commercial Use Definition:
+
+   For the purposes of this License, "non-commercial use" means the use of the software
+   solely for you the individual, personal purposes without generating any form of financial
+   gain, direct or indirect. This includes, but is not limited to, avoiding usage in any
+   context where the software contributes to or is involved in financial transactions,
+   commissions, donations, sponsorships, advertisements, or any other means of generating
+   income.
 
 3. Contributions:
 
@@ -62,6 +81,10 @@ not agree to these terms and conditions, do not download, install, or use the so
 
 6. Limitation of Liability:
 
+   Licensee acknowledges that the responsibility for legal compliance lies solely with
+   them, and they shall hold Licensor harmless from any claims or liabilities arising
+   from Licensee’s use of the Software.
+
    In no event shall Licensor be liable for any direct, indirect, incidental, special,
    exemplary, or consequential damages (including, but not limited to, procurement of
    substitute goods or services; loss of use, data, or profits; or business interruption)
@@ -78,19 +101,23 @@ not agree to these terms and conditions, do not download, install, or use the so
    damages caused, including, but not limited to, any legal costs, attorney’s fees, or
    compensation for lost revenue as a result of the violation.
 
-   In addition, the Licensee agrees to a penalty of £1,000 to £3,000 or the equivalent
-   value in their local currency if they attempt to integrate the software into their
-   own products, tools, or distributions without prior written consent. This amount is
-   enforceable under the governing law of this License, regardless of the Licensee’s
-   location. The Licensor reserves the right to seek additional compensation if actual
-   damages exceed the stated penalty.
+   The Licensee agrees to a penalty of £1,000 to £3,000 or the equivalent value in their
+   local currency, or the full amount of any profits made, whichever is greater, based on
+   an assessment of gross revenue generated from the use of the software in violation of
+   this License. This amount is enforceable under the governing law of this License,
+   regardless of the Licensee’s location. The Licensor reserves the right to seek
+   additional compensation if actual damages exceed the stated penalty.
 
 8. Indemnification:
 
-   You, the Licensee agree to indemnify, defend and hold harmless the Licensor from and
-   against any and all claims, damages, liabilities, any losses, costs, and expenses
-   (including reasonable attorneys' fees) arising out of or the result of any violation
-   from this Agreement or misuse of the Software.
+   Licensee agrees to be fully responsible for ensuring that their use of the Software
+   complies with all applicable laws and this License. You, the Licensee, agree to
+   indemnify, defend, and hold harmless the Licensor from and against any and all claims,
+   damages, liabilities, losses, costs, and expenses (including reasonable attorneys' fees)
+   arising out of or resulting from any violation of this Agreement, unauthorized or
+   prohibited use of the Software, or misuse of the Software. This indemnification
+   obligation includes, but is not limited to, any legal claims or penalties arising
+   from such violations or misuse.
 
 9. Governing Law and Jurisdiction:
 
@@ -118,9 +145,10 @@ not agree to these terms and conditions, do not download, install, or use the so
 
    Licensee acknowledges that this License is enforceable globally, and any violations
    will be pursued under the laws of the United Kingdom. In the case of international
-   violations, Licensor reserves the right to enforce this License through cease-and-desist
-   orders, public disclosure of the violation, or legal action in the Licensee’s country,
-   as allowed by applicable international treaties or agreements.
+   violations, the Licensor reserves the right to collaborate with legal authorities in
+   the Licensee’s country to enforce this License through cease-and-desist orders, public
+   disclosure of the violation, or legal action in the Licensee’s country, as allowed by
+   applicable international treaties or agreements.
 
 12. Termination:
 
@@ -138,6 +166,13 @@ not agree to these terms and conditions, do not download, install, or use the so
    If any provision of this Agreement is held to be unenforceable, such provision shall be
    amended to achieve as nearly as possible the same economic effect as the original
    provision, and the remainder of this Agreement shall continue in full force and effect.
+
+14. Enforcement:
+
+   Licensor reserves the right to monitor and audit the use of the Software to ensure
+   compliance with this License. Licensor reserves the right to pursue legal action against
+   any Licensee found to be in violation of this License and will seek all applicable damages
+   and penalties.
 
 Please review this Agreement carefully before downloading, installing, or using the
 Software. By using the Software, you acknowledge that you have read, understood, and
