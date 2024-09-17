@@ -1,5 +1,12 @@
- # 💻 Income Generator 💵
-**[ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update ]**
+<h1 align="center">
+💻 Income Generator 💵
+ </h1>
+
+<h4 align="center">
+[ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update ]
+</h4>
+
+<div align="center">
 
 [![GitHub Release Date](https://img.shields.io/github/release-date/XternA/income-generator?style=&label=Release%20Date)](https://github.com/XternA/income-generator/releases)
 [![GitHub Release](https://img.shields.io/github/v/release/XternA/income-generator?sort=date&display_name=release&style=flat&label=Version)](https://github.com/XternA/income-generator/releases/latest)
@@ -7,10 +14,9 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat&logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=32DCQ65QM5FNE)
 
 If you like this project, don't forget to leave a star. ⭐
+</div>
 
-<p align="center">
-<img src="https://github.com/XternA/income-generator/assets/9136075/22881e8c-c3f8-4c61-a927-cccc18bd0c7e" alt="Income Generator" width=80% height=80%>
-</p>
+![image](https://github.com/XternA/income-generator/assets/9136075/22881e8c-c3f8-4c61-a927-cccc18bd0c7e)
 
 **Income Generator** is an all-in-one tool that allows generating passive income by leveraging income generating applications and unused internet bandwidth with minimal system resource.
 
@@ -135,7 +141,7 @@ Even if you do not wish to contribute, you can still show your support by giving
 
 Donations are warmly welcomed, no matter the amount, your support is gratefully appreciated. Additionally, it helps fuel future developments and maintenance. Thank you. 🙏🏻
 
-## :warning: Disclaimer
+## Disclaimer ⚠️
 Before using the applications provided in this stack, it is essential to verify that your actions comply with the laws of your jurisdiction and adhere to the terms outlined in your internet service provider's contract. The integration of these applications within this stack is purely for user convenience and does not signify an endorsement of their utilization.
 
 The author of this stack does not accept any responsibility for the outcomes resulting from the utilization of these applications. While this stack streamlines the configuration process and facilitates automated updates for the included applications, it is distributed on an "as is" basis without any warranties.
