@@ -1,7 +1,7 @@
 services:
     honeygain-pot:
         container_name: honeygain-pot
-        image: xterna/honeygain-pot
+        image: ghcr.io/xterna/honeygain-pot
         restart: always
         environment:
             - EMAIL=${HONEYGAIN_EMAIL:-}
@@ -17,7 +17,7 @@ services:
 
     bearshare-pot:
         container_name: bearshare-pot
-        image: xterna/bearshare-pot
+        image: ghcr.io/xterna/bearshare-pot
         restart: always
         environment:
             - EMAIL=${BEARSHARE_EMAIL:-}
