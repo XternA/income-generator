@@ -34,6 +34,7 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 - **Resource Limit** - Easily apply resource limit based on system hardware.
 - **Selective Apps** - Enable or disable the application of your choice to deploy and earn.
 - **Quick Actions** -  CLI commands for common operations without launching the tool.
+- **Auto Claim** - Comes with service applications that auto claims rewards for supported applications.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
