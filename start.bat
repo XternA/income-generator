@@ -5,13 +5,13 @@ set ARGS="%*"
 set REPO="https://github.com/XternA/income-generator.git"
 set TOOL_DIR="~/.income-generator"
 
-winget --version >nul 2>&1
+where winget >nul 2>&1
 if %errorlevel% neq 0 (
     echo No winget found on the system. Please install winget before proceeding.
     exit /b 1
 )
 
-wsl --version >nul 2>&1
+where wsl >nul 2>&1
 if %errorlevel% neq 0 (
     echo No Windows Subsystem for Linux found on the system. Ensure WSL is enabled before proceeding.
     exit /b 1
