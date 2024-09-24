@@ -353,6 +353,7 @@ case "$1" in
         echo "  igm remove [name]    Stop and remove one or all currently deployed applications."
         echo "  igm show             Show list of installed and running applications."
         echo "  igm deploy           Launch the install manager for deploying applications."
+        echo "  igm redeploy         Redeploy the last installed application state."
 
         echo "\n[${BLUE}Configuration${NC}]"
         echo "  igm app|service      Enable or disable applications/services for deployment."
@@ -392,6 +393,10 @@ case "$1" in
         ;;
     deploy)
         install_applications quick_menu
+        clear
+        ;;
+    redeploy)
+        reinstall_applications
         clear
         ;;
     app|service)

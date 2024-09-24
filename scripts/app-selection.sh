@@ -166,22 +166,35 @@ parse_cmd_arg() {
         import_selection
         export_selection
         exit 0
+    elif [ "$1" = "--save" ]; then
+        ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.save"
+        export_selection
+        exit 0
     elif [ "$1" = "--backup" ]; then
         ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.backup"
         export_selection
         echo "\nBackup current app state successfully."
         exit 0
     elif [ "$1" = "--restore" ]; then
+        save_state=$([ "$2" = "redeploy" ] && echo true || echo false)
+
         tmp=$ENV_DEPLOY_FILE
-        ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.backup"
+        if [ $save_state = "true" ]; then
+            restore_type="save state"
+            ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.save"
+        else
+            restore_type="backup"
+            ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.backup"
+        fi
+
         if [ -f "$ENV_DEPLOY_FILE" ]; then
             import_selection
-            rm -f "$ENV_DEPLOY_FILE"
+            [ $save_state = "false" ] && rm -f "$ENV_DEPLOY_FILE"
             ENV_DEPLOY_FILE=$tmp
             export_selection
-            echo "\nSuccessfully re-applied app's enabled/disabled state from backup."
+            echo "\nSuccessfully re-applied app's enabled/disabled state from ${restore_type}."
         else
-            echo "\nNo backup found. Nothing to restore from."
+            echo "\nNo ${restore_type} found. Nothing to restore from."
         fi
         exit 0
     fi

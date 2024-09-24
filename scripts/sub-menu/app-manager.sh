@@ -13,6 +13,77 @@ ALL_COMPOSE_FILES="
 -f $COMPOSE/compose.service.yml
 "
 
+display_install_info() {
+    display_banner
+
+    local is_reinstall_state="$1"
+
+    install_type="installed"
+    [ "$is_reinstall_state" = "redeploy" ] && install_type="redeployed"
+
+    app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
+    has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
+
+    if [ "$is_reinstall_state" != "redeploy" ]; then
+        total_apps="Total Available:\n ${GREEN}Applications: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | \
+                ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}\n"
+        echo $total_apps
+    fi
+
+    if [ -z "$has_apps_services" ]; then
+        can_install="false"
+
+        if [ "$is_reinstall_state" = "redeploy" ]; then
+            echo "No save state to redeploy from.\nInstall normally to save state first."
+        else
+            echo "No applications/services currently selected to ${install_type}."
+        fi
+    else
+        echo "The following applications will be ${install_type}.\n"
+
+        printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
+        printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
+
+        printf "%s\n" "$app_data" | awk -v GREEN="$GREEN" -v YELLOW="$YELLOW" -v NC="$NC" '
+        BEGIN { counter = 1 }
+        {
+            if ($2 == "true" && $3 == "true") {
+                printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
+                counter++
+            }
+            if ($2 == "true") {
+                printf "%-4s %s%-21s %s%s\n", counter, YELLOW, $1, "Service", NC
+            } else {
+                printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
+            }
+            counter++
+        }'
+        can_install="true"
+    fi
+
+    if [ "$is_reinstall_state" != "redeploy" ]; then
+        echo "\nOption:"
+        echo "  ${GREEN}a${NC} = ${GREEN}select applications${NC}"
+        echo "  ${YELLOW}s${NC} = ${YELLOW}select services${NC}"
+    else
+        if [ "$can_install" = "true" ]; then
+            echo "\nOption:"
+            echo "  ${RED}c${NC} = ${RED}clear redeploy state${NC}"
+        fi
+    fi
+
+    if [ "$can_install" = "false" ]; then
+        if [ "$is_reinstall_state" = "redeploy" ]; then
+            printf "\nPress Enter to quit. "
+        else
+            printf "\nSelect an option or press Enter to return: "
+        fi
+    else
+        printf "\nDo you want to proceed? (Y/N): "
+    fi
+    read input
+}
+
 install_applications() {
     display_apps_services() {
         app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
@@ -86,9 +157,8 @@ install_applications() {
         case "$option" in
             1)
                 while true; do
-                    display_banner
+                    display_install_info
 
-                    display_apps_services
                     case "$input" in
                         "")
                             break
@@ -170,9 +240,52 @@ install_applications() {
         echo
         $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
+        $APP_SELECTION --save > /dev/null 2>&1
 
         printf "\nPress Enter to continue..."; read input
     done
+}
+
+reinstall_applications() {
+    $APP_SELECTION --backup > /dev/null 2>&1
+    $APP_SELECTION --restore redeploy > /dev/null 2>&1
+
+    while true; do
+        display_install_info redeploy
+
+        case "$can_install" in
+            false) break ;;
+        esac
+
+        case "$input" in
+            "")
+                break
+                ;;
+            [Yy])
+                display_banner
+                echo "Redeploying last application install state...\n"
+                $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
+                echo
+                $CONTAINER_ALIAS container prune -f
+                echo
+                $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                printf "\nPress Enter to continue..."; read input
+                break
+                ;;
+            [Nn])
+                break
+                ;;
+            c)
+                rm -f "$ENV_DEPLOY_FILE.save"
+                echo "\nRedeploy save state has been cleared."
+                printf "\nPress Enter to continue..."; read input
+                ;;
+            *)
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                ;;
+        esac
+    done
+    $APP_SELECTION --restore > /dev/null 2>&1
 }
 
 start_applications() {
