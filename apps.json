@@ -171,5 +171,15 @@
         ],
         "is_enabled": true,
         "service_enabled": true
+    },
+    {
+        "name": "PACKETSHARE",
+        "url": "https://bit.ly/47NcTVR",
+        "description": " Only 1 device per IP allowed. Use IGM tool to disable app deployment on other machines in same IP network.",
+        "properties": [
+            "PACKETSHARE_EMAIL",
+            "PACKETSHARE_PASSWORD"
+        ],
+        "is_enabled": true
     }
 ]

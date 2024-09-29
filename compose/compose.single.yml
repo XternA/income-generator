@@ -35,3 +35,20 @@ services:
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+
+    packetshare:
+        container_name: packetshare
+        image: packetshare/packetshare
+        restart: always
+        command: >
+            -accept-tos
+            -email=${PACKETSHARE_EMAIL:-}
+            -password=${PACKETSHARE_PASSWORD:-}
+        profiles:
+          - ${PACKETSHARE:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
