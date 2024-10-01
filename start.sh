@@ -331,7 +331,8 @@ main_menu() {
 }
 
 # Main script
-trap '$CLEANUP; clear; exit 0' INT
+trap '$POST_OPS; clear; exit 0' INT
+$DECRYPT_CRED
 case "$1" in
     "")
         main_menu
@@ -425,5 +426,5 @@ case "$1" in
         echo "igm: '$1' is not a valid command. See 'igm help'."
         ;;
 esac
-$CLEANUP
+$POST_OPS
 exit 0
