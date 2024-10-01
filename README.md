@@ -75,11 +75,11 @@ igm
 
 Open the terminal and clone the project.
 ```sh
-git clone --depth=1 https://github.com/XternA/income-generator.git ~/.income-generator
+git clone --depth=1 https://github.com/XternA/income-generator.git ~/.igm
 ```
 Register alias for global access. (Auto detects and adds to current shell choice e.g. `.bashrc`, `.zshrc` etc.)
 ```sh
-echo "alias igm=\"sh -c 'cd ~/.income-generator; sh start.sh \\\"\\\$@\\\"' --\"" >> ~/."${SHELL##*/}rc"; source ~/."${SHELL##*/}rc"
+echo "alias igm=\"sh -c 'cd ~/.igm; sh start.sh \\\"\\\$@\\\"' --\"" >> ~/."${SHELL##*/}rc"; source ~/."${SHELL##*/}rc"
 ```
 Run the tool.
 ```sh
