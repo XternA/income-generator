@@ -180,6 +180,7 @@
             "PACKETSHARE_EMAIL",
             "PACKETSHARE_PASSWORD"
         ],
-        "is_enabled": true
+        "is_enabled": true,
+        "service_enabled": true
     }
 ]
