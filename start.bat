@@ -3,7 +3,7 @@ setlocal
 
 set ARGS="%*"
 set REPO="https://github.com/XternA/income-generator.git"
-set TOOL_DIR="~/.income-generator"
+set TOOL_DIR="~/.igm"
 
 where winget >nul 2>&1
 if %errorlevel% neq 0 (
