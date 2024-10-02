@@ -31,7 +31,8 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 - **Auto update** - Ensures applications always running up-to-date.
 - **On-the-fly-update** - Tool can be updated on the fly whilst preserving config settings.
 - **Local Config** - Config file is auto-generated and stored locally, including credentials.
-- **Resource Limit** - Easily apply resource limit based on system hardware.
+- **Encryption** - Credential secrets are automatically encrypted/decrypted when in operation.
+- **Resource Limit** - Easily apply resource limit based on system hardware dynamically.
 - **Selective Apps** - Enable or disable the application of your choice to deploy and earn.
 - **Quick Actions** -  CLI commands for common operations without launching the tool.
 - **Auto Claim** - Comes with service applications that auto claims rewards for supported applications.
