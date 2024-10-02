@@ -3,6 +3,9 @@
 TEMP_FILE="$ENV_FILE.tmp"
 BACKUP_FILE="$ENV_FILE.backup"
 
+ENCRYPT_BACKUP="$ENCRYPTOR -es $BACKUP_FILE"
+DECRYPT_BACKUP="$ENCRYPTOR -ds $BACKUP_FILE"
+
 # TODO temporary to migrate old config over to new
 if grep -q "^#------------------------------------------------------------------------$" "$ENV_FILE"; then
     IS_OLD_CONFIG=true
@@ -66,7 +69,6 @@ backup_config() {
                     printf "\nPress Enter to continue..."; read input
                     ;;
             esac
-            # printf "\nPress Enter to continue..."; read input
         done
     fi
 
@@ -134,6 +136,8 @@ remove_backup() {
 }
 
 # Main script
+trap '$ENCRYPT_BACKUP' INT
+$DECRYPT_BACKUP
 while true; do
     display_banner
     options="(1-3)"
@@ -160,6 +164,7 @@ while true; do
             remove_backup
             ;;
         0)
+            $ENCRYPT_BACKUP
             exit 0
             ;;
         *)

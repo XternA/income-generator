@@ -259,7 +259,7 @@ option_9() {
                 done
 
                 display_banner
-                rm -rf .env .env.system
+                rm -rf .env .env.system .env.deploy.save
                 sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 $APP_SELECTION --default
@@ -331,7 +331,8 @@ main_menu() {
 }
 
 # Main script
-trap '$CLEANUP; clear; exit 0' INT
+trap '$POST_OPS; clear; exit 0' INT
+$DECRYPT_CRED
 case "$1" in
     "")
         main_menu
@@ -425,5 +426,5 @@ case "$1" in
         echo "igm: '$1' is not a valid command. See 'igm help'."
         ;;
 esac
-$CLEANUP
+$POST_OPS
 exit 0

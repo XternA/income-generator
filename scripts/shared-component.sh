@@ -15,10 +15,16 @@ export JSON_FILE="$ROOT_DIR/apps.json"
 
 # Declared util component ----------------
 export SYS_INFO="sh scripts/arch.sh"
+export ENCRYPTOR="sh scripts/encryptor.sh"
 export CLEANUP="sh scripts/cleanup.sh"
+export POST_OPS="sh scripts/post-operation.sh"
 export APP_SELECTION="sh scripts/app-selection.sh"
 export APP_CONFIG="sh scripts/app-config.sh"
 export BACKUP_RESTORE="sh scripts/backup-restore.sh"
 export SET_LIMIT="sh scripts/set-limit.sh"
 export UPDATE_CHECKER="sh scripts/check-tool-update.sh"
 export VIEW_CONFIG="sh scripts/config-viewer.sh"
+
+# Declared quick util operation ----------------
+export ENCRYPT_CRED="$ENCRYPTOR -es $ENV_FILE"
+export DECRYPT_CRED="$ENCRYPTOR -ds $ENV_FILE"
