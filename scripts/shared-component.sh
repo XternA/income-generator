@@ -7,11 +7,13 @@ export YELLOW='\033[1;93m'
 export PINK='\033[1;95m'
 export NC='\033[0m'
 
-ROOT_DIR=$(pwd)
+export CONTAINER_ALIAS="docker"
+export ROOT_DIR=$(pwd)
 export ENV_FILE="$ROOT_DIR/.env"
 export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"
 export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
 export JSON_FILE="$ROOT_DIR/apps.json"
+export COMPOSE_DIR="$ROOT_DIR/compose"
 
 # Declared util component ----------------
 export SYS_INFO="sh scripts/arch.sh"

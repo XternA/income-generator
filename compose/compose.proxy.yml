@@ -1,0 +1,20 @@
+services:
+    tun2socks:
+        container_name: tun2socks
+        image: xjasonlyu/tun2socks
+        restart: always
+        environment:
+            - LOGLEVEL=info
+            - PROXY=${PROXY:-}
+            - EXTRA_COMMANDS=ip rule add iif lo ipproto udp dport 53 lookup main;
+        cap_add:
+            - NET_ADMIN
+        network_mode: "bridge"
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        volumes:
+            - '/dev/net/tun:/dev/net/tun'
+        cpus: $ALT_MIN_CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
