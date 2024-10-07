@@ -138,6 +138,7 @@ install_proxy_instance() {
 
     for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && mv "$compose_file.bak" "$compose_file"; done
     mv "$TUNNEL_FILE.bak" "$TUNNEL_FILE"
+    rm -f $ENV_PROXY_FILE
 
     echo "Proxy application install complete."
     printf "\nPress Enter to continue..."; read input
@@ -163,11 +164,10 @@ remove_proxy_instance() {
 
     display_banner
     echo "Removing proxy applications..."
-    proxy_count="$(wc -l < $INPUT_FILE)"
     echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
-    while test "$install_count" -le "$proxy_count"; do
+    while test "$install_count" -le "$TOTAL_PROXIES"; do
         echo "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
 
         echo "$APP_DATA" | while read -r name; do
