@@ -1,16 +1,18 @@
 #!/bin/sh
 
-CONTAINER_ALIAS="docker"
-LOADED_ENV_FILES="--env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE"
+LOADED_ENV_FILES="
+--env-file $ENV_FILE
+--env-file $ENV_SYSTEM_FILE
+--env-file $ENV_DEPLOY_FILE
+"
 
-COMPOSE="$(pwd)/compose"
 ALL_COMPOSE_FILES="
--f $COMPOSE/compose.yml
--f $COMPOSE/compose.unlimited.yml
--f $COMPOSE/compose.hosting.yml
--f $COMPOSE/compose.local.yml
--f $COMPOSE/compose.single.yml
--f $COMPOSE/compose.service.yml
+-f $COMPOSE_DIR/compose.yml
+-f $COMPOSE_DIR/compose.unlimited.yml
+-f $COMPOSE_DIR/compose.hosting.yml
+-f $COMPOSE_DIR/compose.local.yml
+-f $COMPOSE_DIR/compose.single.yml
+-f $COMPOSE_DIR/compose.service.yml
 "
 
 display_install_info() {
@@ -197,19 +199,19 @@ install_applications() {
                 ;;
             3)
                 install_type="Installing only applications supporting VPS/Hosting..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml"
                 ;;
             4)
                 install_type="Installing all applications, excluding single instances only..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml -f $COMPOSE_DIR/compose.local.yml"
                 ;;
             5)
                 install_type="Installing only applications with unlimited install count..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml"
                 ;;
             6)
                 install_type="Installing all available services application..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.service.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.service.yml"
                 ;;
             0)
                 break
@@ -246,7 +248,7 @@ install_applications() {
     done
 }
 
-reinstall_applications() {
+reinstall_applications() { 
     $APP_SELECTION --backup > /dev/null 2>&1
     $APP_SELECTION --restore redeploy > /dev/null 2>&1
 
@@ -332,6 +334,35 @@ remove_application() {
 show_applications() {
     display_banner
     echo "Installed Containers:\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a
+
+    standard_apps="$CONTAINER_ALIAS compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
+    proxy_apps="$CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
+
+    if [ -z "$1" ]; then
+        has_proxy_apps="$($proxy_apps -q)"
+
+        if [ ! -z "$($standard_apps -q)" ]; then
+            [ "$has_proxy_apps" ] && echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
+            $standard_apps
+        fi
+        if [ ! -z "$has_proxy_apps" ]; then
+            echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
+            $proxy_apps
+        fi
+    else
+        if [ "$1" = "proxy" ]; then
+            if [ -z "$($proxy_apps -q)" ]; then
+                echo "No installed proxy applications."
+            else
+                $proxy_apps
+            fi
+        elif [ "$1" = "apps" ]; then
+            if [ -z "$($standard_apps -q)" ]; then
+                echo "No installed applications."
+            else
+                $standard_apps
+            fi
+        fi
+    fi
     printf "\nPress Enter to continue..."; read input
 }
