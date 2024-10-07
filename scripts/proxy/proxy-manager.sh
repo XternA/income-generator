@@ -87,16 +87,15 @@ install_proxy_instance() {
 
             for compose_file in $COMPOSE_FILES; do
                 if [ "$compose_file" != "-f" ]; then
-                    # Check if app_name exists with digit suffix (like appname-1, appname-2, etc.)
                     if grep -q "^\([[:space:]]*\)${app_name}-[0-9]*:" "$compose_file"; then
                         new_app_name=$(grep "^\([[:space:]]*\)${app_name}-[0-9]*:" "$compose_file" | sed -n 's/.*-\([0-9]\+\):.*/\1/p' | sort -n | tail -n 1)
                         new_app_name="${app_name}-$((new_app_name + 1))"
 
-                        # Update service and container names
+                        # Update existing service and container names
                         sed -i "s/^\([[:space:]]*\)${app_name}-[0-9]*:/\1${new_app_name}:/" "$compose_file"
                         sed -i "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}-[0-9]*\b/\1container_name: ${new_app_name}/" "$compose_file"
 
-                        # Replace existing network_mode or add it under the profiles section
+                        # Update proxy network
                         if grep -q "^\([[:space:]]*\)network_mode:" "$compose_file"; then
                             sed -i "s/^\([[:space:]]*\)network_mode:.*$/\1network_mode: \"container:tun2socks-${install_count}\"/" "$compose_file"
                         else
@@ -109,7 +108,7 @@ install_proxy_instance() {
                         sed -i "s/^\([[:space:]]*\)${app_name}:/\1${new_app_name}:/" "$compose_file"
                         sed -i "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}/\1container_name: ${new_app_name}/" "$compose_file"
 
-                        # Add network_mode correctly under profiles if it doesn't already exist
+                        # Replace DNS with proxy network
                         if ! grep -q "^\([[:space:]]*\)network_mode:" "$compose_file"; then
                             sed -i "/^\([[:space:]]*\)dns:/,/^\([[:space:]]*\)- 8.8.8.8$/c\        network_mode: \"container:tun2socks-${install_count}\"" "$compose_file"
                         fi
@@ -216,8 +215,6 @@ case "$(basename "$INPUT_FILE")" in
         DEFAULT_PROTOCOL=""  # No default protocol
         ;;
 esac
-
-> "$ENV_PROXY_FILE"
 
 if [ -z "$1" ]; then
     install_proxy_instance
