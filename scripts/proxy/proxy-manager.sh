@@ -17,34 +17,57 @@ COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.single.yml
 "
 
+APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
+
 display_banner() {
     clear
     echo "Income Generator Proxy Manager"
     echo "${GREEN}----------------------------------------${NC}\n"
 }
 
-install_proxy_instance() {
+display_info() {
     display_banner
-    app_data=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
-
-    echo "The following applications will be proxy installed.\n"
+    echo "The following proxy applications will be $1.\n"
+    echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     printf "%-4s %-21s\n" "No." "Name"
     printf "%-4s %-21s\n" "---" "--------------------"
-    printf "%s\n" "$app_data" | awk -v GREEN="$GREEN" -v NC="$NC" '
+    printf "%s\n" "$APP_DATA" | awk -v GREEN="$GREEN" -v NC="$NC" '
     BEGIN { counter = 1 }
     {
         printf "%-4s %s%-21s%s\n", counter, GREEN, $1, NC
         counter++
     }'
 
+    printf "\nDo you want to proceed? (Y/N): "; read input
+}
+
+install_proxy_instance() {
+    while true; do
+        display_info installed
+
+        case "$input" in
+            [Yy])
+                break
+                ;;
+            [Nn])
+                clear
+                exit
+                ;;
+            *)
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                ;;
+        esac
+    done
+
     for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && cp "$compose_file" "$compose_file.bak"; done
     cp "$TUNNEL_FILE" "$TUNNEL_FILE.bak"
 
-    echo "\nPulling latest image..."
+    display_banner
+    echo "Pulling latest image...\n"
     $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE pull
     echo "\nUsing Proxy File: ${BLUE}${INPUT_FILE}${NC}"
-    echo "Total Proxies: ${RED}$(wc -l < $INPUT_FILE)${NC}\n"
+    echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
     while IFS= read -r proxy; do
@@ -58,7 +81,7 @@ install_proxy_instance() {
         echo "Proxy Address: ${RED}$(echo $PROXY | cut -d'@' -f2)${NC}"
         echo "PROXY=$PROXY" > "$ENV_PROXY_FILE"
 
-        echo "$app_data" | while read -r name; do
+        echo "$APP_DATA" | while read -r name; do
             app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
             echo "  ${GREEN}->${NC} ${app_name}-${install_count}"
 
@@ -121,28 +144,33 @@ install_proxy_instance() {
 }
 
 remove_proxy_instance() {
+    while true; do
+        display_info removed
+
+        case "$input" in
+            [Yy])
+                break
+                ;;
+            [Nn])
+                clear
+                exit
+                ;;
+            *)
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                ;;
+        esac
+    done
+
     display_banner
-    app_data=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
-
-    echo "The following prxoy applications will be removed.\n"
-
-    printf "%-4s %-21s\n" "No." "Name"
-    printf "%-4s %-21s\n" "---" "--------------------"
-    printf "%s\n" "$app_data" | awk -v GREEN="$GREEN" -v NC="$NC" '
-    BEGIN { counter = 1 }
-    {
-        printf "%-4s %s%-21s%s\n", counter, GREEN, $1, NC
-        counter++
-    }'
-
+    echo "Removing proxy applications..."
     proxy_count="$(wc -l < $INPUT_FILE)"
-    echo "\nTotal Proxies: ${RED}${proxy_count}${NC}\n"
+    echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
     while test "$install_count" -le "$proxy_count"; do
         echo "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
 
-        echo "$app_data" | while read -r name; do
+        echo "$APP_DATA" | while read -r name; do
             app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
             app_name="${app_name}-${install_count}"
             echo "  ${GREEN}->${NC} $app_name"
@@ -163,6 +191,7 @@ display_banner
 
 # Detect input file with an exact name match in the root directory
 INPUT_FILE=$(ls "$ROOT_DIR"/*.txt | grep -xE "$ROOT_DIR/(socks5.txt|socks4.txt|https.txt|http.txt|proxies.txt)" | head -n 1)
+TOTAL_PROXIES="$(wc -l < $INPUT_FILE)"
 
 if [ -z "$INPUT_FILE" ]; then
     echo "No valid proxy file found! Expected socks5.txt, socks4.txt, https.txt, http.txt, or proxies.txt."
