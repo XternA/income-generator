@@ -338,31 +338,38 @@ show_applications() {
     standard_apps="$CONTAINER_ALIAS compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
     proxy_apps="$CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
 
-    if [ -z "$1" ]; then
-        has_proxy_apps="$($proxy_apps -q)"
-
-        if [ ! -z "$($standard_apps -q)" ]; then
-            [ "$has_proxy_apps" ] && echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
-            $standard_apps
-        fi
-        if [ ! -z "$has_proxy_apps" ]; then
-            echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
-            $proxy_apps
-        fi
-    else
-        if [ "$1" = "proxy" ]; then
+    case "$1" in
+        "")
+            has_proxy_apps="$($proxy_apps -q)"
+            if [ ! -z "$($standard_apps -q)" ]; then
+                [ "$has_proxy_apps" ] && echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
+                $standard_apps
+            fi
+            if [ ! -z "$has_proxy_apps" ]; then
+                echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
+                $proxy_apps
+            fi
+            break
+            ;;
+        proxy)
             if [ -z "$($proxy_apps -q)" ]; then
                 echo "No installed proxy applications."
             else
                 $proxy_apps
             fi
-        elif [ "$1" = "apps" ]; then
+            break
+            ;;
+        app)
             if [ -z "$($standard_apps -q)" ]; then
                 echo "No installed applications."
             else
                 $standard_apps
             fi
-        fi
-    fi
+            break
+            ;;
+        *)
+            echo "igm: '$1' is not a valid command. See 'igm help'."
+            ;;
+    esac
     printf "\nPress Enter to continue..."; read input
 }
