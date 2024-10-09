@@ -17,8 +17,6 @@ COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.single.yml
 "
 
-APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
-
 display_banner() {
     clear
     echo "Income Generator Proxy Manager"
@@ -52,7 +50,7 @@ install_proxy_instance() {
                 ;;
             [Nn])
                 clear
-                exit
+                exit 0
                 ;;
             *)
                 printf "\nInvalid option.\n\nPress Enter to continue..."; read input
@@ -60,14 +58,15 @@ install_proxy_instance() {
         esac
     done
 
+    > "$ENV_PROXY_FILE"
+
     for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && cp "$compose_file" "$compose_file.bak"; done
     cp "$TUNNEL_FILE" "$TUNNEL_FILE.bak"
 
     display_banner
     echo "Pulling latest image...\n"
     $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE pull
-    echo "\nUsing Proxy File: ${BLUE}${INPUT_FILE}${NC}"
-    echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
+    echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
     while IFS= read -r proxy; do
@@ -133,7 +132,7 @@ install_proxy_instance() {
         $CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d > /dev/null 2>&1
         install_count=$((install_count + 1))
         echo
-    done < "$INPUT_FILE"
+    done < "$PROXY_FILE"
 
     for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && mv "$compose_file.bak" "$compose_file"; done
     mv "$TUNNEL_FILE.bak" "$TUNNEL_FILE"
@@ -153,7 +152,7 @@ remove_proxy_instance() {
                 ;;
             [Nn])
                 clear
-                exit
+                exit 0
                 ;;
             *)
                 printf "\nInvalid option.\n\nPress Enter to continue..."; read input
@@ -179,7 +178,7 @@ remove_proxy_instance() {
         $CONTAINER_ALIAS rm -f tun2socks-${install_count} > /dev/null 2>&1
         install_count=$((install_count + 1))
         echo
-    done < "$INPUT_FILE"
+    done < "$PROXY_FILE"
 
     echo "Proxy application uninstall complete."
     printf "\nPress Enter to continue..."; read input
@@ -187,37 +186,21 @@ remove_proxy_instance() {
 
 # Main script
 display_banner
-
-# Detect input file with an exact name match in the root directory
-INPUT_FILE=$(ls "$ROOT_DIR"/*.txt | grep -xE "$ROOT_DIR/(socks5.txt|socks4.txt|https.txt|http.txt|proxies.txt)" | head -n 1)
-TOTAL_PROXIES="$(wc -l < $INPUT_FILE)"
-
-if [ -z "$INPUT_FILE" ]; then
-    echo "No valid proxy file found! Expected socks5.txt, socks4.txt, https.txt, http.txt, or proxies.txt."
-    exit 1
+if [ ! -e "$PROXY_FILE" ]; then
+    echo "Proxy file doesn't exist.\nSetup proxy entries first."
+    printf "\nPress Enter to continue..."; read input
+    return
+elif [ ! -s "$PROXY_FILE" ]; then
+    echo "Proxy file is empty. Add entries first."
+    printf "\nPress Enter to continue..."; read input
+    return
 fi
 
-# Determine the protocol based on the input file name
-case "$(basename "$INPUT_FILE")" in
-    socks5.txt)
-        DEFAULT_PROTOCOL="socks5://"
-        ;;
-    socks4.txt)
-        DEFAULT_PROTOCOL="socks4://"
-        ;;
-    https.txt)
-        DEFAULT_PROTOCOL="https://"
-        ;;
-    http.txt)
-        DEFAULT_PROTOCOL="http://"
-        ;;
-    *)
-        DEFAULT_PROTOCOL=""  # No default protocol
-        ;;
-esac
+APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
+TOTAL_PROXIES=$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")
 
-if [ -z "$1" ]; then
+if [ "$1" = "install" ]; then
     install_proxy_instance
-else
-    [ "$1" = "remove" ] && remove_proxy_instance
+elif [ "$1" = "remove" ]; then
+    remove_proxy_instance
 fi

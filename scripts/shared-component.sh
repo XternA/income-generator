@@ -14,6 +14,7 @@ export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"
 export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
 export JSON_FILE="$ROOT_DIR/apps.json"
 export COMPOSE_DIR="$ROOT_DIR/compose"
+export PROXY_FILE="$ROOT_DIR/proxies.txt"
 
 # Declared util component ----------------
 export SYS_INFO="sh scripts/arch.sh"
