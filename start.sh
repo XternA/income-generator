@@ -46,7 +46,7 @@ option_2() {
                 ;;
             3)
                 display_banner
-                echo "Using nano editor. After making changes press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
+                echo "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
                 printf "\nPress Enter to continue..."; read input
                 nano .env
                 ;;
@@ -345,24 +345,48 @@ case "$1" in
         echo "Usage: igm [option] [arg]"
 
         echo "\n[${BLUE}General${NC}]"
-        echo "  igm                  Launch the Income Generator tool."
-        echo "  igm help             Display this help usage guide."
+        echo "  igm                      Launch the Income Generator tool."
+        echo "  igm help                 Display this help usage guide."
 
         echo "\n[${BLUE}Manage${NC}]"
-        echo "  igm start  [name]    Start one or all currently deployed applications."
-        echo "  igm stop   [name]    Stop one or all currently deployed running applications."
-        echo "  igm remove [name]    Stop and remove one or all currently deployed applications."
-        echo "  igm show             Show list of installed and running applications."
-        echo "  igm deploy           Launch the install manager for deploying applications."
-        echo "  igm redeploy         Redeploy the last installed application state."
+        echo "  igm start  [name]        Start one or all currently deployed applications."
+        echo "  igm stop   [name]        Stop one or all currently deployed running applications."
+        echo "  igm remove [name]        Stop and remove one or all currently deployed applications."
+        echo "  igm show   [app|proxy]   Show list of installed and running applications."
+        echo "  igm deploy               Launch the install manager for deploying applications."
+        echo "  igm redeploy             Redeploy the last installed application state."
+
+        echo "\n[${BLUE}Proxy${NC}]"
+        echo "  igm proxy                Launch the proxy tool menu."
+        echo "  igm proxy setup          Setup and define list of proxy entries."
+        echo "  igm proxy install        Install selected proxy applications."
+        echo "  igm proxy remove         Remove all currently deployed proxy applications."
+        echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
 
         echo "\n[${BLUE}Configuration${NC}]"
-        echo "  igm app|service      Enable or disable applications/services for deployment."
-        echo "  igm setup            Setup credentials for applications to be deployed."
-        echo "  igm view             View all configured application credentials."
-        echo "  igm edit             Edit configured credentials and config file directly."
-        echo "  igm limit            Set the application resource limits."
+        echo "  igm app|service          Enable or disable applications/services for deployment."
+        echo "  igm setup                Setup credentials for applications to be deployed."
+        echo "  igm view                 View all configured application credentials."
+        echo "  igm edit                 Edit configured credentials and config file directly."
+        echo "  igm limit                Set the application resource limits."
         echo
+        ;;
+    proxy)
+        proxy_menu="scripts/proxy/proxy-menu.sh"
+        case "$2" in
+            "")
+                . "$proxy_menu" ;;
+            setup|reset)
+                sh "$proxy_menu" "$2"
+                clear
+                ;;
+            install|remove)
+                sh "scripts/proxy/proxy-manager.sh" "$2"
+                clear
+                ;;
+            *)
+                echo "igm proxy: '$2' is not a valid command. See 'igm help'." ;;
+        esac
         ;;
     start)
         if [ -n "$2" ]; then
@@ -389,7 +413,7 @@ case "$1" in
         fi
         ;;
     show)
-        show_applications
+        show_applications "$2"
         clear
         ;;
     deploy)
