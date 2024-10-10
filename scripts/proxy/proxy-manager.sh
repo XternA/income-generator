@@ -240,8 +240,7 @@ check_proxy_file
 APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
 TOTAL_PROXIES=$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")
 
-if [ "$1" = "install" ]; then
-    install_proxy_instance
-elif [ "$1" = "remove" ]; then
-    remove_proxy_instance
-fi
+case "$1" in
+    install) install_proxy_instance ;;
+    remove) remove_proxy_instance ;;
+esac

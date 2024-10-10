@@ -338,10 +338,12 @@ show_applications() {
     standard_apps="$CONTAINER_ALIAS compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
     proxy_apps="$CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
 
+    has_standard_apps="$($CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=compose' | head -n 1)"
+    has_proxy_apps="$($CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=igm-proxy' | head -n 1)"
+
     case "$1" in
         "")
-            has_proxy_apps="$($proxy_apps -q)"
-            if [ ! -z "$($standard_apps -q)" ]; then
+            if [ ! -z "$has_standard_apps" ]; then
                 [ "$has_proxy_apps" ] && echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
                 $standard_apps
             fi
@@ -352,7 +354,7 @@ show_applications() {
             break
             ;;
         proxy)
-            if [ -z "$($proxy_apps -q)" ]; then
+            if [ -z "$has_proxy_apps" ]; then
                 echo "No installed proxy applications."
             else
                 $proxy_apps
@@ -360,7 +362,7 @@ show_applications() {
             break
             ;;
         app)
-            if [ -z "$($standard_apps -q)" ]; then
+            if [ -z "$has_standard_apps" ]; then
                 echo "No installed applications."
             else
                 $standard_apps

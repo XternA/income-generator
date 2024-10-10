@@ -1,5 +1,7 @@
 #!/bin/sh
 
+HAS_PROXY_APPS="$CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=igm-proxy' | head -n 1 > /dev/null 2>&1"
+
 display_banner() {
     clear
     echo "Income Generator Proxy Manager"
@@ -8,9 +10,9 @@ display_banner() {
 
 setup_proxy() {
     display_banner
-    still_has_apps="$CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a -q"
+    eval "$HAS_PROXY_APPS"
 
-    if [ ! -z "$($still_has_apps -q)" ]; then
+    if [ $? -eq 0 ]; then
         echo "Proxy application still active."
         echo "\nRemove existing applications first before editing."
         printf "\nPress Enter to continue..."; read input
@@ -41,8 +43,8 @@ reset_proxy() {
         echo "Proxy file doesn't exist."
         printf "\nPress Enter to continue..."; read input
     else
-        still_has_apps="$CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a -q"
-        if [ ! -z "$($still_has_apps -q)" ]; then
+        eval "$HAS_PROXY_APPS"
+        if [ $? -eq 0 ]; then
             echo "Proxy application still active."
             echo "\nRemove existing applications first."
             printf "\nPress Enter to continue..."; read input
@@ -109,8 +111,8 @@ main_menu() {
 }
 
 # Main script
-if [ "$1" = "setup" ]; then
-    setup_proxy
-else
-    main_menu
-fi
+case "$1" in
+    setup) setup_proxy ;;
+    reset) reset_proxy ;;
+    *) main_menu ;;
+esac
