@@ -8,7 +8,7 @@ services:
             - RP_API_KEY=${REPOCKET_API_KEY:-}
         platform: linux/amd64
         profiles:
-          - ${REPOCKET:-DISABLED}
+            - ${REPOCKET:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -26,7 +26,7 @@ services:
             - UUID=${PROXYRACK_UUID:-}
         platform: linux/amd64
         profiles:
-          - ${PROXYRACK:-DISABLED}
+            - ${PROXYRACK:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -42,7 +42,7 @@ services:
             - USER_ID=${PROXYLITE_USER_ID:-}
         platform: linux/amd64
         profiles:
-          - ${PROXYLITE:-DISABLED}
+            - ${PROXYLITE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -57,7 +57,7 @@ services:
         environment:
             - EARNFM_TOKEN=${EARNFM_TOKEN:-}
         profiles:
-          - ${EARNFM:-DISABLED}
+            - ${EARNFM:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -74,7 +74,7 @@ services:
             BITPING_EMAIL: ${BITPING_EMAIL:-}
             BITPING_PASSWORD: ${BITPING_PASSWORD:-}
         profiles:
-          - ${BITPING:-DISABLED}
+            - ${BITPING:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -91,7 +91,7 @@ services:
         environment:
             - TOKEN=${GAGANODE_TOKEN:-}
         profiles:
-          - ${GAGANODE:-DISABLED}
+            - ${GAGANODE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -107,7 +107,7 @@ services:
             - EMAIL=${BEARSHARE_EMAIL:-}
             - PASSWORD=${BEARSHARE_PASSWORD:-}
         profiles:
-          - ${BEARSHARE:-DISABLED}
+            - ${BEARSHARE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8

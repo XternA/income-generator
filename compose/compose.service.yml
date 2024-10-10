@@ -7,7 +7,7 @@ services:
             - EMAIL=${HONEYGAIN_EMAIL:-}
             - PASSWORD=${HONEYGAIN_PASSWORD:-}
         profiles:
-          - ${HONEYGAIN_SERVICE:-DISABLED}
+            - ${HONEYGAIN_SERVICE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -23,7 +23,7 @@ services:
             - EMAIL=${BEARSHARE_EMAIL:-}
             - PASSWORD=${BEARSHARE_PASSWORD:-}
         profiles:
-          - ${BEARSHARE_SERVICE:-DISABLED}
+            - ${BEARSHARE_SERVICE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -39,7 +39,7 @@ services:
             - EMAIL=${PACKETSHARE_EMAIL:-}
             - PASSWORD=${PACKETSHARE_PASSWORD:-}
         profiles:
-          - ${PACKETSHARE_SERVICE:-DISABLED}
+            - ${PACKETSHARE_SERVICE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
