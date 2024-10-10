@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if [ $(uname) = 'Linux' ]; then
+    SED_INPLACE="sed -i"
+elif [ $(uname) = 'Darwin' ]; then
+    SED_INPLACE="sed -i .bak"
+fi
+
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
 TUNNEL_FILE="$COMPOSE_DIR/compose.proxy.yml"
 
@@ -74,7 +80,7 @@ install_proxy_instance() {
                 exit 0
                 ;;
             *)
-                printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -92,7 +98,7 @@ install_proxy_instance() {
     install_count=1
     while IFS= read -r proxy_url; do
         echo "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
-        display_proxy_info $proxy_url
+        display_proxy_info "$proxy_url"
         echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
 
         echo "$APP_DATA" | while read -r name; do
@@ -106,25 +112,25 @@ install_proxy_instance() {
                         new_app_name="${app_name}-$((new_app_name + 1))"
 
                         # Update existing service and container names
-                        sed -i "s/^\([[:space:]]*\)${app_name}-[0-9]*:/\1${new_app_name}:/" "$compose_file"
-                        sed -i "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}-[0-9]*\b/\1container_name: ${new_app_name}/" "$compose_file"
+                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}-[0-9]*:/\1${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}-[0-9]*\b/\1container_name: ${new_app_name}/" "$compose_file"
 
                         # Update proxy network
                         if grep -q "^\([[:space:]]*\)network_mode:" "$compose_file"; then
-                            sed -i "s/^\([[:space:]]*\)network_mode:.*$/\1network_mode: \"container:tun2socks-${install_count}\"/" "$compose_file"
+                            $SED_INPLACE "s/^\([[:space:]]*\)network_mode:.*$/\1network_mode: \"container:tun2socks-${install_count}\"/" "$compose_file"
                         else
-                            sed -i "/^\([[:space:]]*\)profiles:/a\        network_mode: \"container:tun2socks-${install_count}\"" "$compose_file"
+                            $SED_INPLACE "/^\([[:space:]]*\)profiles:/a\        network_mode: \"container:tun2socks-${install_count}\"" "$compose_file"
                         fi
                     else
                         new_app_name="${app_name}-${install_count}"
 
                         # Update service and container names
-                        sed -i "s/^\([[:space:]]*\)${app_name}:/\1${new_app_name}:/" "$compose_file"
-                        sed -i "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}/\1container_name: ${new_app_name}/" "$compose_file"
+                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}:/\1${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}/\1container_name: ${new_app_name}/" "$compose_file"
 
                         # Replace DNS with proxy network
                         if ! grep -q "^\([[:space:]]*\)network_mode:" "$compose_file"; then
-                            sed -i "/^\([[:space:]]*\)dns:/,/^\([[:space:]]*\)- 8.8.8.8$/c\        network_mode: \"container:tun2socks-${install_count}\"" "$compose_file"
+                            $SED_INPLACE "/^\([[:space:]]*\)dns:/,/^\([[:space:]]*\)- 8.8.8.8$/c\        network_mode: \"container:tun2socks-${install_count}\"" "$compose_file"
                         fi
                     fi
                 fi
@@ -134,12 +140,12 @@ install_proxy_instance() {
         if grep -q "^\([[:space:]]*\)tun2socks-[0-9]*:" "$TUNNEL_FILE"; then
             new_name=$(grep "^\([[:space:]]*\)tun2socks-[0-9]*:" "$TUNNEL_FILE" | sed -n 's/.*-\([0-9]\+\):.*/\1/p' | sort -n | tail -n 1)
             new_name="tun2socks-$((new_name + 1))"
-            sed -i "s/^\([[:space:]]*\)tun2socks-[0-9]*:/\1${new_name}:/" "$TUNNEL_FILE"
-            sed -i "s/^\([[:space:]]*\)container_name:[[:space:]]*tun2socks-[0-9]*\b/\1container_name: ${new_name}/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/^\([[:space:]]*\)tun2socks-[0-9]*:/\1${new_name}:/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*tun2socks-[0-9]*\b/\1container_name: ${new_name}/" "$TUNNEL_FILE"
         else
             new_name="tun2socks-${install_count}"
-            sed -i "s/^\([[:space:]]*\)tun2socks:/\1${new_name}:/" "$TUNNEL_FILE"
-            sed -i "s/^\([[:space:]]*\)container_name:[[:space:]]*tun2socks/\1container_name: ${new_name}/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/^\([[:space:]]*\)tun2socks:/\1${new_name}:/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*tun2socks/\1container_name: ${new_name}/" "$TUNNEL_FILE"
         fi
 
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
@@ -170,7 +176,7 @@ remove_proxy_instance() {
                 exit 0
                 ;;
             *)
-                printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
