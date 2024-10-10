@@ -7,7 +7,6 @@ export YELLOW='\033[1;93m'
 export PINK='\033[1;95m'
 export NC='\033[0m'
 
-export CONTAINER_ALIAS="docker"
 export ROOT_DIR=$(pwd)
 export ENV_FILE="$ROOT_DIR/.env"
 export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"

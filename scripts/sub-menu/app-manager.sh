@@ -236,11 +236,11 @@ install_applications() {
 
         echo "$install_type\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
-        $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $compose_files pull
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
         echo
         $CONTAINER_ALIAS container prune -f
         echo
-        $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
 
@@ -266,11 +266,11 @@ reinstall_applications() {
             [Yy])
                 display_banner
                 echo "Redeploying last application install state...\n"
-                $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
                 echo
                 $CONTAINER_ALIAS container prune -f
                 echo
-                $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
                 printf "\nPress Enter to continue..."; read input
                 break
                 ;;
@@ -293,7 +293,7 @@ reinstall_applications() {
 start_applications() {
     display_banner
     echo "Starting applications...\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
 }
@@ -306,7 +306,7 @@ start_application() {
 stop_applications() {
     display_banner
     echo "Stopping applications...\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
 }
@@ -319,7 +319,7 @@ stop_application() {
 remove_applications() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
     $CONTAINER_ALIAS container prune -f
     echo "\nAll installed applications and volumes removed."
@@ -335,8 +335,8 @@ show_applications() {
     display_banner
     echo "Installed Containers:\n"
 
-    standard_apps="$CONTAINER_ALIAS compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
-    proxy_apps="$CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
+    standard_apps="$CONTAINER_COMPOSE $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
+    proxy_apps="$CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
 
     has_standard_apps="$($CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=compose' | head -n 1)"
     has_proxy_apps="$($CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=igm-proxy' | head -n 1)"

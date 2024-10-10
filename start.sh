@@ -3,6 +3,7 @@
 . scripts/shared-component.sh
 sh scripts/init.sh
 
+. scripts/container/container-config.sh
 . scripts/sub-menu/app-manager.sh
 
 SYS_INFO=$($SYS_INFO)

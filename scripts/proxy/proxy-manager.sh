@@ -92,7 +92,7 @@ install_proxy_instance() {
 
     display_banner
     echo "Pulling latest image...\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE pull
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE pull
     echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
@@ -149,7 +149,7 @@ install_proxy_instance() {
         fi
 
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
-        $CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
+        $CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"
