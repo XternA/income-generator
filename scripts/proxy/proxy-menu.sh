@@ -18,12 +18,12 @@ setup_proxy() {
         echo "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
         printf "\nPress Enter to continue..."; read input
         nano "$PROXY_FILE"
+        [ -f "$PROXY_FILE" ] && [ "$(tail -c 1 "$PROXY_FILE")" != "" ] && echo "" >> "$PROXY_FILE"
     fi
 }
 
 view_proxy() {
     display_banner
-
     if [ ! -e "$PROXY_FILE" ]; then
         echo "Proxy file doesn't exist.\nSetup proxy entries first."
         printf "\nPress Enter to continue..."; read input
@@ -32,6 +32,45 @@ view_proxy() {
         printf "\nPress Enter to continue..."; read input
     else
         $VIEW_CONFIG "$PROXY_FILE" "PROXY"
+    fi
+}
+
+reset_proxy() {
+    display_banner
+    if [ ! -e "$PROXY_FILE" ]; then
+        echo "Proxy file doesn't exist."
+        printf "\nPress Enter to continue..."; read input
+    else
+        still_has_apps="$CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a -q"
+        if [ ! -z "$($still_has_apps -q)" ]; then
+            echo "Proxy application still active."
+            echo "\nRemove existing applications first."
+            printf "\nPress Enter to continue..."; read input
+        else
+            while true; do
+                display_banner
+                echo "All proxy entries will be removed.\n"
+                read -p "Do you want to continue? (Y/N): " input
+
+                case $input in
+                    "")
+                        break ;;
+                    [yY])
+                        display_banner
+                        echo "All proxy entries removed."
+                        rm -f "$PROXY_FILE"
+                        printf "\nPress Enter to continue..."; read input
+                        break
+                        ;;
+                    [nN])
+                        break ;;
+                    *)
+                        echo "\nInvalid option. Please enter 'Y' or 'N'."
+                        printf "\nPress Enter to continue..."; read input
+                        ;;
+                esac
+            done
+        fi
     fi
 }
 
@@ -46,8 +85,9 @@ main_menu() {
         echo "1. Setup Proxies"
         echo "2. Install Proxy Applications"
         echo "3. Remove Proxy Applications"
-        echo "4. View Proxies"
-        echo "5. Show Installed Applications"
+        echo "4. Show Installed Applications"
+        echo "5. View Proxies"
+        echo "6. Reset Proxies"
         echo "0. Quit"
         echo
         read -p "Select an option $options: " choice
@@ -57,8 +97,9 @@ main_menu() {
             1) setup_proxy ;;
             2) sh "scripts/proxy/proxy-manager.sh" install ;;
             3) sh "scripts/proxy/proxy-manager.sh" remove ;;
-            4) view_proxy ;;
-            5) show_applications proxy ;;
+            4) show_applications proxy ;;
+            5) view_proxy ;;
+            6) reset_proxy ;;
             *)
                 echo "\nInvalid option. Please select a valid option $options."
                 printf "\nPress Enter to continue..."; read input
