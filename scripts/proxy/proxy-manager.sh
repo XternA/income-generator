@@ -40,6 +40,27 @@ display_info() {
     printf "\nDo you want to proceed? (Y/N): "; read input
 }
 
+display_proxy_info() {
+    local proxy_url="$1"
+    local protocol_name
+    local protocol="${proxy_url%%://*}"
+    local host_port="${proxy_url#*://}"
+    host_port="${host_port#*@}"  # Remove credentials
+    host_port="${host_port%%[/?]*}"  # Remove anything after port or ? (for Relay)
+
+    case "$protocol" in
+        http) protocol_name="HTTP" ;;
+        socks5) protocol_name="Socks5" ;;
+        socks4) protocol_name="Socks4" ;;
+        ss) protocol_name="Shadowsocks" ;;
+        relay) protocol_name="Relay" ;;
+        *) protocol_name="Unknown" ;;
+    esac
+
+    echo "Proxy Address:  ${RED}$host_port${NC}"
+    echo "Proxy Protocol: ${RED}$protocol_name${NC}"
+}
+
 install_proxy_instance() {
     while true; do
         display_info installed
@@ -69,20 +90,14 @@ install_proxy_instance() {
     echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
-    while IFS= read -r proxy; do
-        if echo "$proxy" | grep -Eq '^(socks5|socks4|https|http)://'; then
-            PROXY="$proxy"
-        else
-            PROXY="${DEFAULT_PROTOCOL}${proxy}"
-        fi
-
+    while IFS= read -r proxy_url; do
         echo "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
-        echo "Proxy Address: ${RED}$(echo $PROXY | cut -d'@' -f2)${NC}"
-        echo "PROXY=$PROXY" > "$ENV_PROXY_FILE"
+        display_proxy_info $proxy_url
+        echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
 
         echo "$APP_DATA" | while read -r name; do
             app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
-            echo "  ${GREEN}->${NC} ${app_name}-${install_count}"
+            echo " ${GREEN}->${NC} ${app_name}-${install_count}"
 
             for compose_file in $COMPOSE_FILES; do
                 if [ "$compose_file" != "-f" ]; then
@@ -171,7 +186,7 @@ remove_proxy_instance() {
         echo "$APP_DATA" | while read -r name; do
             app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
             app_name="${app_name}-${install_count}"
-            echo "  ${GREEN}->${NC} $app_name"
+            echo " ${GREEN}->${NC} $app_name"
             $CONTAINER_ALIAS rm -f "$app_name" > /dev/null 2>&1
         done
 
@@ -184,17 +199,38 @@ remove_proxy_instance() {
     printf "\nPress Enter to continue..."; read input
 }
 
+check_proxy_file() {
+    if [ ! -e "$PROXY_FILE" ]; then
+        echo "Proxy file doesn't exist.\nSetup proxy entries first."
+        printf "\nPress Enter to continue..."; read input
+        return
+    elif [ ! -s "$PROXY_FILE" ]; then
+        echo "Proxy file is empty. Add entries first."
+        printf "\nPress Enter to continue..."; read input
+        return
+    fi
+
+    # Ensure proxy entries are valid
+    awk -v red="$RED" -v yellow="$YELLOW" -v reset="$NC" '
+    {
+        if ($0 !~ /^(socks5|socks4|http|ss|relay):\/\//) {
+            printf "Found missing or invalid schema on line %s%d%s.\n", red, NR, reset
+            print "Ensure proxy entries are correct."
+            printf "\nSupported schema: %ssocks5|socks4|http|shadowsocks|relay%s\n", yellow, reset
+            exit 1
+        }
+    }
+    ' "$PROXY_FILE"
+
+    if [ $? -eq 1 ]; then
+        printf "\nPress Enter to continue..."; read input
+        exit 1
+    fi
+}
+
 # Main script
 display_banner
-if [ ! -e "$PROXY_FILE" ]; then
-    echo "Proxy file doesn't exist.\nSetup proxy entries first."
-    printf "\nPress Enter to continue..."; read input
-    return
-elif [ ! -s "$PROXY_FILE" ]; then
-    echo "Proxy file is empty. Add entries first."
-    printf "\nPress Enter to continue..."; read input
-    return
-fi
+check_proxy_file
 
 APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
 TOTAL_PROXIES=$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")
