@@ -83,13 +83,14 @@ main_menu() {
         TOTAL_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
         echo "Available Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
-        options="(1-5)"
+        options="(1-7)"
         echo "1. Setup Proxies"
-        echo "2. Install Proxy Applications"
-        echo "3. Remove Proxy Applications"
-        echo "4. Show Installed Applications"
-        echo "5. View Proxies"
-        echo "6. Reset Proxies"
+        echo "2. Select Applications"
+        echo "3. Install Proxy Applications"
+        echo "4. Remove Proxy Applications"
+        echo "5. Show Installed Applications"
+        echo "6. View Proxies"
+        echo "7. Reset Proxies"
         echo "0. Quit"
         echo
         read -p "Select an option $options: " choice
@@ -97,11 +98,12 @@ main_menu() {
         case $choice in
             0) display_banner Proxy; echo "Quitting..."; sleep 0.62; clear; break ;;
             1) setup_proxy ;;
-            2) sh "scripts/proxy/proxy-manager.sh" install ;;
-            3) sh "scripts/proxy/proxy-manager.sh" remove ;;
-            4) show_applications proxy ;;
-            5) view_proxy ;;
-            6) reset_proxy ;;
+            2) $APP_SELECTION proxy ;;
+            3) sh "scripts/proxy/proxy-manager.sh" install ;;
+            4) sh "scripts/proxy/proxy-manager.sh" remove ;;
+            5) show_applications proxy ;;
+            6) view_proxy ;;
+            7) reset_proxy ;;
             *)
                 echo "\nInvalid option. Please select a valid option $options."
                 printf "\nPress Enter to continue..."; read input

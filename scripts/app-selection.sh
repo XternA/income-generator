@@ -17,8 +17,12 @@ choose_application_type() {
         field="is_enabled"
         app_type="App"
         action="application"
-        switch_type="services"
-        shortcut="s"
+        if [ "$1" = "proxy" ]; then
+            switch_type=""
+        else
+            switch_type="services"
+            shortcut="s"
+        fi
     fi
 
     display_table_choice "$field" "$app_type" "$action" "$shortcut" "$switch_type"
@@ -56,7 +60,7 @@ display_table_choice() {
         echo "\nOptions:"
         echo "  ${GREEN}e${NC} = ${GREEN}enable all${NC}"
         echo "  ${RED}d${NC} = ${RED}disable all${NC}"
-        echo "  ${YELLOW}${shortcut}${NC} = ${YELLOW}select ${switch_type}${NC}"
+        [ ! -z "$switch_type" ] && echo "  ${YELLOW}${shortcut}${NC} = ${YELLOW}select ${switch_type}${NC}"
         echo "  ${BLUE}0${NC} = ${BLUE}exit${NC}"
 
         printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} $application (1-%s): " "$(echo "$app_data" | wc -l | xargs)"
@@ -89,12 +93,17 @@ display_table_choice() {
                 mv "$temp_file" "$JSON_FILE"
                 ;;
             a|s)
-                if [ "$choice" = "s" ]; then
-                    choose_application_type service
+                if [ -z "$switch_type" ]; then
+                    echo "\nInvalid option! Please select a valid option."
+                    printf "\nPress Enter to continue..."; read input
                 else
-                    choose_application_type
+                    if [ "$choice" = "s" ]; then
+                        choose_application_type service
+                    else
+                        choose_application_type
+                    fi
+                    return
                 fi
-                return
                 ;;
             0)
                 export_selection
