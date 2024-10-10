@@ -149,8 +149,7 @@ install_proxy_instance() {
         fi
 
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
-        $CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
-        $CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d > /dev/null 2>&1
+        $CONTAINER_ALIAS compose -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"
