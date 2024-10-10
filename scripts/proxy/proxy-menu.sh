@@ -31,7 +31,7 @@ view_proxy() {
         echo "Proxy file is empty.\nAdd proxy entries first."
         printf "\nPress Enter to continue..."; read input
     else
-        $VIEW_CONFIG "$PROXY_FILE"
+        $VIEW_CONFIG "$PROXY_FILE" "PROXY"
     fi
 }
 

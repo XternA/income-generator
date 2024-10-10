@@ -14,7 +14,11 @@ else
     RESET='\x1b[0m'    # Reset
 
     echo "${YELLOW}---------[ START OF $TYPE ]---------\n${RED}"
-    cat "$FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/" -e "s/^##.*/${COMMENT}&${RESET}/"
+    if [ "$TYPE" = "PROXY" ]; then
+        cat "$FILE"
+    else
+        cat "$FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/" -e "s/^##.*/${COMMENT}&${RESET}/"
+    fi
     echo "${YELLOW}\n----------[ END OF $TYPE ]----------${NC}"
 fi
 
