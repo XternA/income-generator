@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HAS_PROXY_APPS="$CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=igm-proxy' | head -n 1 > /dev/null 2>&1"
+HAS_PROXY_APPS="$CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=igm-proxy' | head -n 1"
 
 display_banner() {
     clear
@@ -10,9 +10,7 @@ display_banner() {
 
 setup_proxy() {
     display_banner
-    eval "$HAS_PROXY_APPS"
-
-    if [ $? -eq 0 ]; then
+    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
         echo "Proxy application still active."
         echo "\nRemove existing applications first before editing."
         printf "\nPress Enter to continue..."; read input
@@ -43,8 +41,7 @@ reset_proxy() {
         echo "Proxy file doesn't exist."
         printf "\nPress Enter to continue..."; read input
     else
-        eval "$HAS_PROXY_APPS"
-        if [ $? -eq 0 ]; then
+        if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
             echo "Proxy application still active."
             echo "\nRemove existing applications first."
             printf "\nPress Enter to continue..."; read input

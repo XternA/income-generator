@@ -3,7 +3,7 @@
 if [ $(uname) = 'Linux' ]; then
     SED_INPLACE="sed -i"
 elif [ $(uname) = 'Darwin' ]; then
-    SED_INPLACE="sed -i .bak"
+    SED_INPLACE="sed -i .bk"
 fi
 
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
@@ -95,6 +95,7 @@ install_proxy_instance() {
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE pull
     echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
+    proxy_app_name="tun2socks"
     install_count=1
     while IFS= read -r proxy_url; do
         echo "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
@@ -107,56 +108,53 @@ install_proxy_instance() {
 
             for compose_file in $COMPOSE_FILES; do
                 if [ "$compose_file" != "-f" ]; then
-                    if grep -q "^\([[:space:]]*\)${app_name}-[0-9]*:" "$compose_file"; then
-                        new_app_name=$(grep "^\([[:space:]]*\)${app_name}-[0-9]*:" "$compose_file" | sed -n 's/.*-\([0-9]\+\):.*/\1/p' | sort -n | tail -n 1)
-                        new_app_name="${app_name}-$((new_app_name + 1))"
+                    new_app_name="${app_name}-${install_count}"
 
-                        # Update existing service and container names
-                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}-[0-9]*:/\1${new_app_name}:/" "$compose_file"
-                        $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}-[0-9]*\b/\1container_name: ${new_app_name}/" "$compose_file"
+                    # Update containers already containing digit
+                    if grep -q "${app_name}-[0-9]:" "$compose_file"; then
+                        $SED_INPLACE "s/${app_name}-[0-9]:/${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/container_name: ${app_name}-[0-9]/container_name: ${new_app_name}/" "$compose_file"
 
                         # Update proxy network
-                        if grep -q "^\([[:space:]]*\)network_mode:" "$compose_file"; then
-                            $SED_INPLACE "s/^\([[:space:]]*\)network_mode:.*$/\1network_mode: \"container:tun2socks-${install_count}\"/" "$compose_file"
-                        else
-                            $SED_INPLACE "/^\([[:space:]]*\)profiles:/a\        network_mode: \"container:tun2socks-${install_count}\"" "$compose_file"
-                        fi
+                        $SED_INPLACE "s/${proxy_app_name}-[0-9]/${proxy_app_name}-${install_count}/" "$compose_file"
                     else
-                        new_app_name="${app_name}-${install_count}"
 
-                        # Update service and container names
-                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}:/\1${new_app_name}:/" "$compose_file"
-                        $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*${app_name}/\1container_name: ${new_app_name}/" "$compose_file"
+                        $SED_INPLACE "s/${app_name}:/${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/container_name: ${app_name}/container_name: ${new_app_name}/" "$compose_file"
 
                         # Replace DNS with proxy network
-                        if ! grep -q "^\([[:space:]]*\)network_mode:" "$compose_file"; then
-                            $SED_INPLACE "/^\([[:space:]]*\)dns:/,/^\([[:space:]]*\)- 8.8.8.8$/c\        network_mode: \"container:tun2socks-${install_count}\"" "$compose_file"
-                        fi
+                        $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
+                        $SED_INPLACE "s/dns:/network_mode: \"container:${proxy_app_name}-${install_count}\"/" "$compose_file"
+                        $SED_INPLACE "/network_mode: bridge$/d" "$compose_file"
                     fi
                 fi
             done
         done
 
-        if grep -q "^\([[:space:]]*\)tun2socks-[0-9]*:" "$TUNNEL_FILE"; then
-            new_name=$(grep "^\([[:space:]]*\)tun2socks-[0-9]*:" "$TUNNEL_FILE" | sed -n 's/.*-\([0-9]\+\):.*/\1/p' | sort -n | tail -n 1)
-            new_name="tun2socks-$((new_name + 1))"
-            $SED_INPLACE "s/^\([[:space:]]*\)tun2socks-[0-9]*:/\1${new_name}:/" "$TUNNEL_FILE"
-            $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*tun2socks-[0-9]*\b/\1container_name: ${new_name}/" "$TUNNEL_FILE"
+        new_proxy_name="$proxy_app_name-${install_count}"
+        if grep -q "${proxy_app_name}-[0-9]:" "$TUNNEL_FILE"; then
+            $SED_INPLACE "s/${proxy_app_name}-[0-9]:/${new_proxy_name}:/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/container_name: ${proxy_app_name}-[0-9]/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
         else
-            new_name="tun2socks-${install_count}"
-            $SED_INPLACE "s/^\([[:space:]]*\)tun2socks:/\1${new_name}:/" "$TUNNEL_FILE"
-            $SED_INPLACE "s/^\([[:space:]]*\)container_name:[[:space:]]*tun2socks/\1container_name: ${new_name}/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/${proxy_app_name}:/${new_proxy_name}:/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/container_name: ${proxy_app_name}/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
         fi
 
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
+        $CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
+        $CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d > /dev/null 2>&1
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"
 
-    for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && mv "$compose_file.bak" "$compose_file"; done
-    mv "$TUNNEL_FILE.bak" "$TUNNEL_FILE"
-    rm -f $ENV_PROXY_FILE
+    for compose_file in $COMPOSE_FILES; do
+        if [ "$compose_file" != "-f" ]; then
+            mv "${compose_file}.bak" "$compose_file"
+            rm -f "${compose_file}.bk"
+        fi
+    done
+    mv "${TUNNEL_FILE}.bak" "$TUNNEL_FILE"
+    rm -f "$ENV_PROXY_FILE ${TUNNEL_FILE}.bk"
 
     echo "Proxy application install complete."
     printf "\nPress Enter to continue..."; read input
