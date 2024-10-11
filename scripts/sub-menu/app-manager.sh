@@ -351,7 +351,6 @@ show_applications() {
                 echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
                 $proxy_apps
             fi
-            break
             ;;
         proxy)
             if [ -z "$has_proxy_apps" ]; then
@@ -359,7 +358,6 @@ show_applications() {
             else
                 $proxy_apps
             fi
-            break
             ;;
         app)
             if [ -z "$has_standard_apps" ]; then
@@ -367,7 +365,6 @@ show_applications() {
             else
                 $standard_apps
             fi
-            break
             ;;
         *)
             echo "igm: '$1' is not a valid command. See 'igm help'."
