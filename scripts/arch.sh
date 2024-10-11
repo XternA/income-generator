@@ -14,11 +14,11 @@ fi
 case $ARCH in
     "armv7l")
         ARCH="arm32v7"
-        DISPLAY_ARCH="$ARCH ($RAW_ARCH)"
+        DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
         ;;
-    "aarch64")
+    "arm64"|"aarch64")
         ARCH="arm64v8"
-        DISPLAY_ARCH="$ARCH ($RAW_ARCH)"
+        DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
         ;;
     *)
         ARCH="latest"
