@@ -18,3 +18,8 @@ services:
         cpus: $ALT_MIN_CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "5k"
+                max-file: "1"
