@@ -3,6 +3,8 @@ services:
         container_name: watchtower
         image: containrrr/watchtower
         restart: always
+        labels:
+            - project=standard
         command: >
             --cleanup
             --no-startup-message

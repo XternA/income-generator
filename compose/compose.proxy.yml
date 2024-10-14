@@ -3,6 +3,8 @@ services:
         container_name: tun2socks
         image: xjasonlyu/tun2socks
         restart: always
+        labels:
+            - project=proxy
         environment:
             - LOGLEVEL=info
             - PROXY=${PROXY_URL:-}

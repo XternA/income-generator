@@ -3,6 +3,8 @@ services:
         container_name: repocket
         image: repocket/repocket
         restart: always
+        labels:
+            - project=standard
         environment:
             - RP_EMAIL=${REPOCKET_EMAIL:-}
             - RP_API_KEY=${REPOCKET_API_KEY:-}
@@ -25,6 +27,8 @@ services:
         container_name: proxyrack
         image: proxyrack/pop
         restart: always
+        labels:
+            - project=standard
         environment:
             - api_key=${PROXYRACK_API_KEY:-}
             - device_name=${DEVICE_ID:-}
@@ -48,6 +52,8 @@ services:
         container_name: proxylite
         image: proxylite/proxyservice
         restart: always
+        labels:
+            - project=standard
         environment:
             - USER_ID=${PROXYLITE_USER_ID:-}
         platform: linux/amd64
@@ -69,6 +75,8 @@ services:
         container_name: earnfm
         image: earnfm/earnfm-client
         restart: always
+        labels:
+            - project=standard
         environment:
             - EARNFM_TOKEN=${EARNFM_TOKEN:-}
         profiles:
@@ -89,6 +97,8 @@ services:
         container_name: bitping
         image: bitping/bitpingd
         restart: always
+        labels:
+            - project=standard
         hostname: $DEVICE_ID
         environment:
             BITPING_EMAIL: ${BITPING_EMAIL:-}
@@ -113,6 +123,8 @@ services:
         container_name: gaga-node
         image: xterna/gaga-node
         restart: always
+        labels:
+            - project=standard
         environment:
             - TOKEN=${GAGANODE_TOKEN:-}
         profiles:
@@ -133,6 +145,8 @@ services:
         container_name: bearshare
         image: xterna/bearshare
         restart: always
+        labels:
+            - project=standard
         environment:
             - EMAIL=${BEARSHARE_EMAIL:-}
             - PASSWORD=${BEARSHARE_PASSWORD:-}

@@ -3,6 +3,8 @@ services:
         container_name: honeygain
         image: honeygain/honeygain
         restart: always
+        labels:
+            - project=standard
         command: >
             -tou-accept
             -email ${HONEYGAIN_EMAIL:-}
@@ -26,6 +28,8 @@ services:
         container_name: pawns
         image: iproyal/pawns-cli
         restart: always
+        labels:
+            - project=standard
         command: >
             -accept-tos
             -email=${PAWNS_EMAIL:-}
@@ -50,6 +54,8 @@ services:
         container_name: packetshare
         image: packetshare/packetshare
         restart: always
+        labels:
+            - project=standard
         command: >
             -accept-tos
             -email=${PACKETSHARE_EMAIL:-}

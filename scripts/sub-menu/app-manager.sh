@@ -335,35 +335,36 @@ show_applications() {
     display_banner
     echo "Installed Containers:\n"
 
-    standard_apps="$CONTAINER_COMPOSE $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
-    proxy_apps="$CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a"
-
-    has_standard_apps="$($CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=compose' | head -n 1)"
-    has_proxy_apps="$($CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=igm-proxy' | head -n 1)"
+    has_apps() {
+        $CONTAINER_ALIAS ps -a -q -f "label=project=${1}" | head -n 1
+    }
+    show_apps() {
+        $CONTAINER_ALIAS ps -a -f "label=project=${1}"
+    }
 
     case "$1" in
         "")
-            if [ ! -z "$has_standard_apps" ]; then
-                [ "$has_proxy_apps" ] && echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
-                $standard_apps
+            if [ ! -z "$(has_apps 'standard')" ]; then
+                echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
+                show_apps "standard"
             fi
-            if [ ! -z "$has_proxy_apps" ]; then
+            if [ ! -z "$(has_apps 'proxy')" ]; then
                 echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
-                $proxy_apps
+                show_apps "proxy"
             fi
             ;;
         proxy)
-            if [ -z "$has_proxy_apps" ]; then
+            if [ -z "$(has_apps 'proxy')" ]; then
                 echo "No installed proxy applications."
             else
-                $proxy_apps
+                show_apps "proxy"
             fi
             ;;
         app)
-            if [ -z "$has_standard_apps" ]; then
+            if [ -z "$(has_apps 'standard')" ]; then
                 echo "No installed applications."
             else
-                $standard_apps
+                show_apps "standard"
             fi
             ;;
         *)

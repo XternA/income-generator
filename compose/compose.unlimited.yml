@@ -3,6 +3,8 @@ services:
         container_name: peer2profit
         image: xterna/peer2profit
         restart: always
+        labels:
+            - project=standard
         environment:
             - P2P_EMAIL=${P2PROFIT_EMAIL:-}
         platform: linux/amd64
@@ -24,6 +26,8 @@ services:
         container_name: traffmonetizer
         image: traffmonetizer/cli_v2:$ARCH
         restart: always
+        labels:
+            - project=standard
         command: >
             start accept
             --token ${TRAFFMONETIZER_TOKEN:-}
@@ -46,6 +50,8 @@ services:
         container_name: myst
         image: mysteriumnetwork/myst
         restart: always
+        labels:
+            - project=standard
         cap_add:
             - NET_ADMIN
         command: service --agreed-terms-and-conditions

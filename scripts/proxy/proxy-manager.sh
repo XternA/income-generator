@@ -118,9 +118,9 @@ install_proxy_instance() {
                         # Update proxy network
                         $SED_INPLACE "s/${proxy_app_name}-[0-9]/${proxy_app_name}-${install_count}/" "$compose_file"
                     else
-
                         $SED_INPLACE "s/${app_name}:/${new_app_name}:/" "$compose_file"
                         $SED_INPLACE "s/container_name: ${app_name}/container_name: ${new_app_name}/" "$compose_file"
+                        $SED_INPLACE "s/project=standard/project=proxy/" "$compose_file"
 
                         # Replace DNS with proxy network
                         $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
@@ -140,9 +140,11 @@ install_proxy_instance() {
             $SED_INPLACE "s/container_name: ${proxy_app_name}/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
         fi
 
+        echo
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p igm-proxy $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d > /dev/null 2>&1
+        $CONTAINER_COMPOSE -p tunnel-${install_count} $LOADED_ENV_FILES -f $TUNNEL_FILE up --force-recreate --build -d
+        sleep 1
+        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"
