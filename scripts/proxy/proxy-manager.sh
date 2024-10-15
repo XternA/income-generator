@@ -174,7 +174,8 @@ install_proxy_instance() {
 }
 
 remove_proxy_instance() {
-    if [ -z $(eval "$HAS_PROXY_APPS") ]; then
+    has_proxy_apps="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
+    if [ -z $(eval "$has_proxy_apps") ]; then
         display_banner
         echo "No installed proxy applications."
         printf "\nPress Enter to continue..."; read input
