@@ -174,6 +174,13 @@ install_proxy_instance() {
 }
 
 remove_proxy_instance() {
+    if [ -z $(eval "$HAS_PROXY_APPS") ]; then
+        display_banner
+        echo "No installed proxy applications."
+        printf "\nPress Enter to continue..."; read input
+        return
+    fi
+
     while true; do
         display_info removed
 
@@ -205,7 +212,8 @@ remove_proxy_instance() {
             else
                  app_name=$(echo "$alias" | tr '[:upper:]' '[:lower:]')
             fi
-            echo " ${GREEN}->${NC} ${app_name}-${install_count}"
+            app_name="${app_name}-${install_count}"
+            echo " ${GREEN}->${NC} $app_name"
             $CONTAINER_ALIAS rm -f "$app_name" > /dev/null 2>&1
         done
 
