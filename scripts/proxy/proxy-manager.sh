@@ -167,7 +167,7 @@ install_proxy_instance() {
         fi
     done
     mv "${TUNNEL_FILE}.bak" "$TUNNEL_FILE"
-    rm -f "$ENV_PROXY_FILE ${TUNNEL_FILE}.bk"
+    rm -f "${TUNNEL_FILE}.bk" "$ENV_PROXY_FILE"
 
     echo "Proxy application install complete."
     printf "\nPress Enter to continue..."; read input
