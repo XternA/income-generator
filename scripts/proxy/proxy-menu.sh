@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HAS_PROXY_APPS="$CONTAINER_ALIAS ps -q -f 'label=com.docker.compose.project=igm-proxy' | head -n 1"
+HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
 
 display_banner() {
     clear

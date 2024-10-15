@@ -102,8 +102,12 @@ install_proxy_instance() {
         display_proxy_info "$proxy_url"
         echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
 
-        echo "$APP_DATA" | while read -r name; do
-            app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+        echo "$APP_DATA" | while read -r name alias; do
+            if [ "$alias" = null ]; then
+                app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+            else
+                 app_name=$(echo "$alias" | tr '[:upper:]' '[:lower:]')
+            fi
             echo " ${GREEN}->${NC} ${app_name}-${install_count}"
 
             for compose_file in $COMPOSE_FILES; do
@@ -142,7 +146,7 @@ install_proxy_instance() {
 
         echo
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p tunnel-${install_count} $LOADED_ENV_FILES -f $TUNNEL_FILE up --force-recreate --build -d
+        $CONTAINER_COMPOSE -p tunnel-${install_count} $LOADED_ENV_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
         sleep 1
         $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d
         install_count=$((install_count + 1))
@@ -188,10 +192,13 @@ remove_proxy_instance() {
     while test "$install_count" -le "$TOTAL_PROXIES"; do
         echo "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
 
-        echo "$APP_DATA" | while read -r name; do
-            app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
-            app_name="${app_name}-${install_count}"
-            echo " ${GREEN}->${NC} $app_name"
+        echo "$APP_DATA" | while read -r name alias; do
+            if [ "$alias" = null ]; then
+                app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+            else
+                 app_name=$(echo "$alias" | tr '[:upper:]' '[:lower:]')
+            fi
+            echo " ${GREEN}->${NC} ${app_name}-${install_count}"
             $CONTAINER_ALIAS rm -f "$app_name" > /dev/null 2>&1
         done
 
@@ -237,7 +244,7 @@ check_proxy_file() {
 display_banner
 check_proxy_file
 
-APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name)"' "$JSON_FILE")
+APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name) \(.alias)"' "$JSON_FILE")
 TOTAL_PROXIES=$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")
 
 case "$1" in
