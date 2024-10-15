@@ -8,6 +8,7 @@ fi
 
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
 TUNNEL_FILE="$COMPOSE_DIR/compose.proxy.yml"
+PROXY_APP_NAME="tun2socks"
 
 LOADED_ENV_FILES="
 --env-file $ENV_FILE
@@ -31,7 +32,10 @@ display_banner() {
 
 display_info() {
     display_banner
-    echo "The following proxy applications will be $1.\n"
+    local type="$1"
+    local is_install="${2-false}"
+
+    echo "The following proxy applications will be $type.\n"
     echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     printf "%-4s %-21s\n" "No." "Name"
@@ -43,6 +47,7 @@ display_info() {
         counter++
     }'
 
+    [ "$is_install" = "true" ] && echo "\nOption:\n  ${RED}a = select applications${NC}"
     printf "\nDo you want to proceed? (Y/N): "; read input
 }
 
@@ -69,9 +74,12 @@ display_proxy_info() {
 
 install_proxy_instance() {
     while true; do
-        display_info installed
+        display_info installed true
 
         case "$input" in
+            a)
+                $APP_SELECTION
+                ;;
             [Yy])
                 break
                 ;;
@@ -95,7 +103,6 @@ install_proxy_instance() {
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE pull
     echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
-    proxy_app_name="tun2socks"
     install_count=1
     while IFS= read -r proxy_url; do
         echo "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
@@ -120,7 +127,7 @@ install_proxy_instance() {
                         $SED_INPLACE "s/container_name: ${app_name}-[0-9]/container_name: ${new_app_name}/" "$compose_file"
 
                         # Update proxy network
-                        $SED_INPLACE "s/${proxy_app_name}-[0-9]/${proxy_app_name}-${install_count}/" "$compose_file"
+                        $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
                     else
                         $SED_INPLACE "s/${app_name}:/${new_app_name}:/" "$compose_file"
                         $SED_INPLACE "s/container_name: ${app_name}/container_name: ${new_app_name}/" "$compose_file"
@@ -128,20 +135,20 @@ install_proxy_instance() {
 
                         # Replace DNS with proxy network
                         $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
-                        $SED_INPLACE "s/dns:/network_mode: \"container:${proxy_app_name}-${install_count}\"/" "$compose_file"
+                        $SED_INPLACE "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" "$compose_file"
                         $SED_INPLACE "/network_mode: bridge$/d" "$compose_file"
                     fi
                 fi
             done
         done
 
-        new_proxy_name="$proxy_app_name-${install_count}"
-        if grep -q "${proxy_app_name}-[0-9]:" "$TUNNEL_FILE"; then
-            $SED_INPLACE "s/${proxy_app_name}-[0-9]:/${new_proxy_name}:/" "$TUNNEL_FILE"
-            $SED_INPLACE "s/container_name: ${proxy_app_name}-[0-9]/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
+        new_proxy_name="$PROXY_APP_NAME-${install_count}"
+        if grep -q "${PROXY_APP_NAME}-[0-9]:" "$TUNNEL_FILE"; then
+            $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]:/${new_proxy_name}:/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}-[0-9]/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
         else
-            $SED_INPLACE "s/${proxy_app_name}:/${new_proxy_name}:/" "$TUNNEL_FILE"
-            $SED_INPLACE "s/container_name: ${proxy_app_name}/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/${PROXY_APP_NAME}:/${new_proxy_name}:/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
         fi
 
         echo
@@ -202,7 +209,7 @@ remove_proxy_instance() {
             $CONTAINER_ALIAS rm -f "$app_name" > /dev/null 2>&1
         done
 
-        $CONTAINER_ALIAS rm -f tun2socks-${install_count} > /dev/null 2>&1
+        $CONTAINER_ALIAS rm -f ${PROXY_APP_NAME}-${install_count} > /dev/null 2>&1
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"
