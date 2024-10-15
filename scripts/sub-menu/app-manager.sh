@@ -1,11 +1,5 @@
 #!/bin/sh
 
-LOADED_ENV_FILES="
---env-file $ENV_FILE
---env-file $ENV_SYSTEM_FILE
---env-file $ENV_DEPLOY_FILE
-"
-
 ALL_COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.yml
 -f $COMPOSE_DIR/compose.unlimited.yml
@@ -236,11 +230,11 @@ install_applications() {
 
         echo "$install_type\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
-        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
+        $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $compose_files pull
         echo
         $CONTAINER_ALIAS container prune -f
         echo
-        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
+        $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
 
@@ -266,11 +260,11 @@ reinstall_applications() {
             [Yy])
                 display_banner
                 echo "Redeploying last application install state...\n"
-                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
+                $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
                 echo
                 $CONTAINER_ALIAS container prune -f
                 echo
-                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
                 printf "\nPress Enter to continue..."; read input
                 break
                 ;;
@@ -293,7 +287,7 @@ reinstall_applications() {
 start_applications() {
     display_banner
     echo "Starting applications...\n"
-    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
+    $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
 }
@@ -306,7 +300,7 @@ start_application() {
 stop_applications() {
     display_banner
     echo "Stopping applications...\n"
-    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
+    $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
 }
@@ -319,7 +313,7 @@ stop_application() {
 remove_applications() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
-    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
     $CONTAINER_ALIAS container prune -f
     echo "\nAll installed applications and volumes removed."

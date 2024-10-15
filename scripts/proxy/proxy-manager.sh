@@ -7,13 +7,12 @@ elif [ $(uname) = 'Darwin' ]; then
 fi
 
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
-TUNNEL_FILE="$COMPOSE_DIR/compose.proxy.yml"
+TUNNEL_COMPOSE_FILE="$COMPOSE_DIR/compose.proxy.yml"
 PROXY_APP_NAME="tun2socks"
+CONTAINER_UPDATER="sh $ROOT_DIR/scripts/proxy/container-updater.sh"
 
 LOADED_ENV_FILES="
---env-file $ENV_FILE
---env-file $ENV_SYSTEM_FILE
---env-file $ENV_DEPLOY_FILE
+$DEFAULT_ENV_FILES
 --env-file $ENV_PROXY_FILE
 "
 
@@ -96,11 +95,11 @@ install_proxy_instance() {
     > "$ENV_PROXY_FILE"
 
     for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && cp "$compose_file" "$compose_file.bak"; done
-    cp "$TUNNEL_FILE" "$TUNNEL_FILE.bak"
+    cp "$TUNNEL_COMPOSE_FILE" "$TUNNEL_COMPOSE_FILE.bak"
 
     display_banner
     echo "Pulling latest image...\n"
-    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_FILE pull
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_COMPOSE_FILE pull
     echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
@@ -143,22 +142,24 @@ install_proxy_instance() {
         done
 
         new_proxy_name="$PROXY_APP_NAME-${install_count}"
-        if grep -q "${PROXY_APP_NAME}-[0-9]:" "$TUNNEL_FILE"; then
-            $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]:/${new_proxy_name}:/" "$TUNNEL_FILE"
-            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}-[0-9]/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
+        if grep -q "${PROXY_APP_NAME}-[0-9]:" "$TUNNEL_COMPOSE_FILE"; then
+            $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]:/${new_proxy_name}:/" "$TUNNEL_COMPOSE_FILE"
+            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}-[0-9]/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
         else
-            $SED_INPLACE "s/${PROXY_APP_NAME}:/${new_proxy_name}:/" "$TUNNEL_FILE"
-            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}/container_name: ${new_proxy_name}/" "$TUNNEL_FILE"
+            $SED_INPLACE "s/${PROXY_APP_NAME}:/${new_proxy_name}:/" "$TUNNEL_COMPOSE_FILE"
+            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
         fi
 
         echo
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p tunnel-${install_count} $LOADED_ENV_FILES -f $TUNNEL_FILE up --force-recreate --build -d > /dev/null 2>&1
+        $CONTAINER_COMPOSE -p tunnel-${install_count} $LOADED_ENV_FILES -f $TUNNEL_COMPOSE_FILE up --force-recreate --build -d > /dev/null 2>&1
         sleep 1
         $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"
+
+    eval $CONTAINER_UPDATER deploy
 
     for compose_file in $COMPOSE_FILES; do
         if [ "$compose_file" != "-f" ]; then
@@ -166,8 +167,8 @@ install_proxy_instance() {
             rm -f "${compose_file}.bk"
         fi
     done
-    mv "${TUNNEL_FILE}.bak" "$TUNNEL_FILE"
-    rm -f "${TUNNEL_FILE}.bk" "$ENV_PROXY_FILE"
+    mv "${TUNNEL_COMPOSE_FILE}.bak" "$TUNNEL_COMPOSE_FILE"
+    rm -f "${TUNNEL_COMPOSE_FILE}.bk" "$ENV_PROXY_FILE"
 
     echo "Proxy application install complete."
     printf "\nPress Enter to continue..."; read input
@@ -222,6 +223,8 @@ remove_proxy_instance() {
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"
+
+    $CONTAINER_UPDATER restore
 
     echo "Proxy application uninstall complete."
     printf "\nPress Enter to continue..."; read input

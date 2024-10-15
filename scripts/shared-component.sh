@@ -15,6 +15,13 @@ export JSON_FILE="$ROOT_DIR/apps.json"
 export COMPOSE_DIR="$ROOT_DIR/compose"
 export PROXY_FILE="$ROOT_DIR/proxies.txt"
 
+# Shared system files
+export DEFAULT_ENV_FILES="
+--env-file $ENV_FILE
+--env-file $ENV_SYSTEM_FILE
+--env-file $ENV_DEPLOY_FILE
+"
+
 # Declared util component ----------------
 export SYS_INFO="sh scripts/arch.sh"
 export ENCRYPTOR="sh scripts/encryptor.sh"
