@@ -1,15 +1,9 @@
 #!/bin/sh
 
-if [ $(uname) = 'Linux' ]; then
-    SED_INPLACE="sed -i"
-elif [ $(uname) = 'Darwin' ]; then
-    SED_INPLACE="sed -i .bk"
-fi
-
+PROXY_APP_NAME="tun2socks"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
 TUNNEL_COMPOSE_FILE="$COMPOSE_DIR/compose.proxy.yml"
-PROXY_APP_NAME="tun2socks"
-CONTAINER_UPDATER="sh $ROOT_DIR/scripts/proxy/container-updater.sh"
+WATCHTOWER="sh $ROOT_DIR/scripts/container/watchtower.sh"
 
 LOADED_ENV_FILES="
 $DEFAULT_ENV_FILES
@@ -159,7 +153,7 @@ install_proxy_instance() {
         echo
     done < "$PROXY_FILE"
 
-    eval $CONTAINER_UPDATER deploy
+    $WATCHTOWER deploy
 
     for compose_file in $COMPOSE_FILES; do
         if [ "$compose_file" != "-f" ]; then
@@ -224,7 +218,7 @@ remove_proxy_instance() {
         echo
     done < "$PROXY_FILE"
 
-    $CONTAINER_UPDATER restore
+    $WATCHTOWER restore
 
     echo "Proxy application uninstall complete."
     printf "\nPress Enter to continue..."; read input
@@ -262,6 +256,12 @@ check_proxy_file() {
 # Main script
 display_banner
 check_proxy_file
+
+if [ $(uname) = 'Linux' ]; then
+    SED_INPLACE="sed -i"
+elif [ $(uname) = 'Darwin' ]; then
+    SED_INPLACE="sed -i .bk"
+fi
 
 APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name) \(.alias)"' "$JSON_FILE")
 TOTAL_PROXIES=$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")
