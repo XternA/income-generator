@@ -23,10 +23,15 @@ display_banner() {
     echo "${GREEN}----------------------------------------${NC}\n"
 }
 
+read_app_data() {
+    APP_DATA="jq -r '.[] | select(.is_enabled == true) | \"\(.name) \(.alias)\"' \"$JSON_FILE\""
+    echo "$(eval $APP_DATA)"
+}
+
 display_info() {
     display_banner
     local type="$1"
-    local is_install="${2-false}"
+    local is_install="${2-true}"
 
     echo "The following proxy applications will be $type.\n"
     echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
@@ -67,11 +72,12 @@ display_proxy_info() {
 
 install_proxy_instance() {
     while true; do
-        display_info installed true
+        display_info installed
 
         case "$input" in
             a)
-                $APP_SELECTION
+                $APP_SELECTION proxy
+                APP_DATA="$(eval read_app_data)"
                 ;;
             [Yy])
                 break
@@ -263,8 +269,8 @@ elif [ $(uname) = 'Darwin' ]; then
     SED_INPLACE="sed -i .bk"
 fi
 
-APP_DATA=$(jq -r '.[] | select(.is_enabled == true) | "\(.name) \(.alias)"' "$JSON_FILE")
-TOTAL_PROXIES=$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")
+APP_DATA="$(eval read_app_data)"
+TOTAL_PROXIES="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")"
 
 case "$1" in
     install) install_proxy_instance ;;
