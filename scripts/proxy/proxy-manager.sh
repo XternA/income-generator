@@ -127,6 +127,7 @@ install_proxy_instance() {
 
                         # Update proxy network
                         $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
+                        continue
                     else
                         $SED_INPLACE "s/${app_name}:/${new_app_name}:/" "$compose_file"
                         $SED_INPLACE "s/container_name: ${app_name}/container_name: ${new_app_name}/" "$compose_file"
@@ -136,6 +137,7 @@ install_proxy_instance() {
                         $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
                         $SED_INPLACE "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" "$compose_file"
                         $SED_INPLACE "/network_mode: bridge$/d" "$compose_file"
+                        continue
                     fi
                 fi
             done
@@ -184,7 +186,7 @@ remove_proxy_instance() {
     fi
 
     while true; do
-        display_info removed
+        display_info removed false
 
         case "$input" in
             [Yy])

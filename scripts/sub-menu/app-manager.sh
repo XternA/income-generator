@@ -280,7 +280,7 @@ reinstall_applications() {
                 $CONTAINER_ALIAS container prune -f
                 echo
                 $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
-                $WATCHTOWER restore_only
+                [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
                 printf "\nPress Enter to continue..."; read input
                 break

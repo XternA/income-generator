@@ -5,12 +5,12 @@ COMMAND="$CONTAINER_COMPOSE $DEFAULT_ENV_FILES -f $WATCHTOWER_COMPOSE up --force
 WATCHTOWER_ALIAS="watchtower"
 
 modify_watchtower() {
-    cp "$WATCHTOWER_COMPOSE" "$WATCHTOWER_COMPOSE.bak"
+    cp "$WATCHTOWER_COMPOSE" "$WATCHTOWER_COMPOSE.bak" > /dev/null 2>&1
     awk '/--rolling-restart/ { next } { print }' "$WATCHTOWER_COMPOSE" > temp && mv temp "$WATCHTOWER_COMPOSE"
 }
 
 restore_watchtower() {
-    mv "${WATCHTOWER_COMPOSE}.bak" "$WATCHTOWER_COMPOSE"
+    mv "${WATCHTOWER_COMPOSE}.bak" "$WATCHTOWER_COMPOSE" > /dev/null 2>&1
 }
 
 deploy_for_proxy() {
