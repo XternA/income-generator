@@ -37,8 +37,7 @@ display_table_choice() {
 
     while true; do
         display_banner
-        json_content=$(cat "$JSON_FILE")
-        app_data=$(echo "$json_content" | jq -r ".[] | select(has(\"$field_name\")) | \"\(.name) \(.${field_name})\"")
+        app_data=$(cat "$JSON_FILE" | jq -r ".[] | select(has(\"$field_name\")) | \"\(.name) \(.${field_name})\"")
 
         echo "${RED}Disabled${NC} ${application}s will not be deployed.\n"
 
@@ -118,46 +117,51 @@ display_table_choice() {
 }
 
 export_selection() {
-    json_content=$(cat "$JSON_FILE")
-    app_data=$(echo "$json_content" | jq -r '.[] | "\(.name) \(.is_enabled | if . == true then "ENABLED" else "DISABLED" end) \(.service_enabled)"')
+    jq -r '.[] |
+        "\(.name) " +
+        (if .is_enabled then "ENABLED" else "DISABLED" end) + " " +
+        (if .service_enabled != null then
+            if .service_enabled then "ENABLED" else "DISABLED" end
+        else
+            "null"
+        end)
+    ' "$JSON_FILE" | {
+        : > "$TARGET_DEPLOY_FILE"  # Empty file
 
-    > "$ENV_DEPLOY_FILE" # Empty file
+        while IFS=' ' read -r name is_enabled service_enabled; do
+            echo "$name=$is_enabled" >> "$TARGET_DEPLOY_FILE"
 
-    echo "$app_data" | while IFS=' ' read -r name is_enabled service_enabled; do
-        echo "$name=$is_enabled" >> "$ENV_DEPLOY_FILE"
-
-        if [ "$service_enabled" != "null" ]; then
-            if [ "$service_enabled" = "true" ]; then
-                service_enabled="ENABLED"
-            else
-                service_enabled="DISABLED"
-            fi
-            echo "${name}_SERVICE=$service_enabled" >> "$ENV_DEPLOY_FILE"
-        fi
-    done
+            [ "$service_enabled" != "null" ] && echo "${name}_SERVICE=$service_enabled" >> "$TARGET_DEPLOY_FILE"
+        done
+    }
 }
 
 import_selection() {
-    [ -f "$ENV_DEPLOY_FILE" ] || return
+    [ -f "$TARGET_DEPLOY_FILE" ] || return
 
-    jq_filter="map("
+    jq_filter="."
     while IFS='=' read -r name is_enabled; do
         app_enabled="false"
-            [ "$is_enabled" = "ENABLED" ] && app_enabled="true"
+        [ "$is_enabled" = "ENABLED" ] && app_enabled="true"
 
         if [ "${name#*_SERVICE}" != "$name" ]; then
-            jq_filter="$jq_filter if .name == \"${name%_SERVICE}\" then .service_enabled = $app_enabled else . end |"
+            jq_filter="$jq_filter | (.[] | select(.name == \"${name%_SERVICE}\").service_enabled) = $app_enabled"
         else
-            jq_filter="$jq_filter if .name == \"$name\" then .is_enabled = $app_enabled else . end |"
+            jq_filter="$jq_filter | (.[] | select(.name == \"$name\").is_enabled) = $app_enabled"
         fi
-    done < "$ENV_DEPLOY_FILE"
+    done < "$TARGET_DEPLOY_FILE"
 
-    jq_filter="${jq_filter%|}" # Remove trailing pipe
-    jq --indent 4 "$jq_filter)" "$JSON_FILE" > "$JSON_FILE.tmp"
+    jq --indent 4 "${jq_filter%|}" "$JSON_FILE" > "$JSON_FILE.tmp"
     mv "$JSON_FILE.tmp" "$JSON_FILE"
 }
 
 parse_cmd_arg() {
+    if [ "$2" = "proxy" ]; then
+        TARGET_DEPLOY_FILE="$ENV_DEPLOY_PROXY_FILE"
+    else
+        TARGET_DEPLOY_FILE="$ENV_DEPLOY_FILE"
+    fi
+
     if [ "$1" = "--default" ]; then
         updated_json_content=$(jq --indent 4 '
             map(
@@ -176,30 +180,30 @@ parse_cmd_arg() {
         export_selection
         exit 0
     elif [ "$1" = "--save" ]; then
-        ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.save"
+        TARGET_DEPLOY_FILE="$TARGET_DEPLOY_FILE.save"
         export_selection
         exit 0
     elif [ "$1" = "--backup" ]; then
-        ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.backup"
+        TARGET_DEPLOY_FILE="$TARGET_DEPLOY_FILE.backup"
         export_selection
         echo "\nBackup current app state successfully."
         exit 0
     elif [ "$1" = "--restore" ]; then
         save_state=$([ "$2" = "redeploy" ] && echo true || echo false)
 
-        tmp=$ENV_DEPLOY_FILE
+        tmp=$TARGET_DEPLOY_FILE
         if [ $save_state = "true" ]; then
             restore_type="save state"
-            ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.save"
+            TARGET_DEPLOY_FILE="$TARGET_DEPLOY_FILE.save"
         else
             restore_type="backup"
-            ENV_DEPLOY_FILE="$ENV_DEPLOY_FILE.backup"
+            TARGET_DEPLOY_FILE="$TARGET_DEPLOY_FILE.backup"
         fi
 
-        if [ -f "$ENV_DEPLOY_FILE" ]; then
+        if [ -f "$TARGET_DEPLOY_FILE" ]; then
             import_selection
-            [ $save_state = "false" ] && rm -f "$ENV_DEPLOY_FILE"
-            ENV_DEPLOY_FILE=$tmp
+            [ $save_state = "false" ] && rm -f "$TARGET_DEPLOY_FILE"
+            TARGET_DEPLOY_FILE=$tmp
             export_selection
             echo "\nSuccessfully re-applied app's enabled/disabled state from ${restore_type}."
         else

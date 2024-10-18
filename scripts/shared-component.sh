@@ -11,6 +11,7 @@ export ROOT_DIR=$(pwd)
 export ENV_FILE="$ROOT_DIR/.env"
 export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"
 export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
+export ENV_DEPLOY_PROXY_FILE="$ROOT_DIR/.env.deploy.proxy"
 export JSON_FILE="$ROOT_DIR/apps.json"
 export COMPOSE_DIR="$ROOT_DIR/compose"
 export PROXY_FILE="$ROOT_DIR/proxies.txt"
