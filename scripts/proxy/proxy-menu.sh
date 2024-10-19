@@ -41,11 +41,13 @@ install_proxy_app() {
         echo "\nRemove existing applications first."
         printf "\nPress Enter to continue..."; read input
     else
+        $APP_SELECTION --import proxy
         sh "scripts/proxy/proxy-manager.sh" install
     fi
 }
 
 remove_proxy_app() {
+    $APP_SELECTION --import proxy
     sh "scripts/proxy/proxy-manager.sh" remove
 }
 
