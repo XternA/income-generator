@@ -249,7 +249,10 @@ check_proxy_file() {
         if ($0 !~ /^(socks5|socks4|http|ss|relay):\/\//) {
             printf "Found missing or invalid schema on line %s%d%s.\n", red, NR, reset
             print "Ensure proxy entries are correct."
-            printf "\nSupported schema: %ssocks5|socks4|http|shadowsocks|relay%s\n", yellow, reset
+            printf "\nSupported schema & format entry:\n"
+            printf "\n  %ssocks5|socks4|http|shadowsocks|relay%s \n\n", yellow, reset
+            printf "  %s->%s protocol://username:password@proxy_url:proxy_port\n", red, reset
+            printf "  %s->%s protocol://proxy_url:proxy_port\n", red, reset
             exit 1
         }
     }
