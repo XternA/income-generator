@@ -136,8 +136,6 @@ main_menu() {
 }
 
 # Main script
-$APP_SELECTION --import proxy
-
 case "$1" in
     setup) setup_proxy ;;
     app) select_proxy_app ;;

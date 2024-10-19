@@ -334,6 +334,17 @@ main_menu() {
 # Main script
 trap '$POST_OPS; clear; exit 0' INT
 $DECRYPT_CRED
+
+if [ "$1" = "proxy" ]; then
+    if [ ! -f "$ENV_DEPLOY_PROXY_FILE" ]; then
+        $APP_SELECTION --default proxy
+    else
+        $APP_SELECTION --import proxy
+    fi
+else
+    $APP_SELECTION --import
+fi
+
 case "$1" in
     "")
         main_menu
@@ -374,7 +385,6 @@ case "$1" in
         echo
         ;;
     proxy)
-        [ ! -f "$ENV_DEPLOY_PROXY_FILE" ] && $APP_SELECTION --default proxy
         proxy_menu="scripts/proxy/proxy-menu.sh"
         case "$2" in
             "") . "$proxy_menu" ;;
