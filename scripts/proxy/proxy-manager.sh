@@ -236,11 +236,11 @@ check_proxy_file() {
     if [ ! -e "$PROXY_FILE" ]; then
         echo "Proxy file doesn't exist.\nSetup proxy entries first."
         printf "\nPress Enter to continue..."; read input
-        return
+        exit 0
     elif [ ! -s "$PROXY_FILE" ]; then
         echo "Proxy file is empty. Add entries first."
         printf "\nPress Enter to continue..."; read input
-        return
+        exit 0
     fi
 
     # Ensure proxy entries are valid
