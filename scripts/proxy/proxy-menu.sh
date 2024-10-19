@@ -29,7 +29,6 @@ select_proxy_app() {
         echo "\nRemove existing applications first."
         printf "\nPress Enter to continue..."; read input
     else
-        $APP_SELECTION --import proxy
         $APP_SELECTION proxy proxy
     fi
 }
@@ -41,13 +40,11 @@ install_proxy_app() {
         echo "\nRemove existing applications first."
         printf "\nPress Enter to continue..."; read input
     else
-        $APP_SELECTION --import proxy
         sh "scripts/proxy/proxy-manager.sh" install
     fi
 }
 
 remove_proxy_app() {
-    $APP_SELECTION --import proxy
     sh "scripts/proxy/proxy-manager.sh" remove
 }
 
@@ -139,8 +136,11 @@ main_menu() {
 }
 
 # Main script
+$APP_SELECTION --import proxy
+
 case "$1" in
     setup) setup_proxy ;;
+    app) select_proxy_app ;;
     install) install_proxy_app ;;
     remove) remove_proxy_app ;;
     reset) reset_proxy ;;

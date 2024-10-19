@@ -360,6 +360,7 @@ case "$1" in
         echo "\n[${BLUE}Proxy${NC}]"
         echo "  igm proxy                Launch the proxy tool menu."
         echo "  igm proxy setup          Setup and define list of proxy entries."
+        echo "  igm proxy app            Enable or disable proxy applications for deployment."
         echo "  igm proxy install        Install selected proxy applications."
         echo "  igm proxy remove         Remove all currently deployed proxy applications."
         echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
@@ -377,7 +378,7 @@ case "$1" in
         proxy_menu="scripts/proxy/proxy-menu.sh"
         case "$2" in
             "") . "$proxy_menu" ;;
-            setup|reset|install|remove)
+            setup|app|install|remove|reset)
                 sh "$proxy_menu" "$2"
                 clear
                 ;;
