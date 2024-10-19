@@ -22,6 +22,33 @@ setup_proxy() {
     fi
 }
 
+select_proxy_app() {
+    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+        display_banner
+        echo "Proxy application still active."
+        echo "\nRemove existing applications first."
+        printf "\nPress Enter to continue..."; read input
+    else
+        $APP_SELECTION --import proxy
+        $APP_SELECTION proxy proxy
+    fi
+}
+
+install_proxy_app() {
+    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+        display_banner
+        echo "Proxy application still active."
+        echo "\nRemove existing applications first."
+        printf "\nPress Enter to continue..."; read input
+    else
+        sh "scripts/proxy/proxy-manager.sh" install
+    fi
+}
+
+remove_proxy_app() {
+    sh "scripts/proxy/proxy-manager.sh" remove
+}
+
 view_proxy() {
     display_banner
     if [ ! -e "$PROXY_FILE" ]; then
@@ -95,9 +122,9 @@ main_menu() {
         case $choice in
             0) display_banner Proxy; echo "Quitting..."; sleep 0.62; clear; break ;;
             1) setup_proxy ;;
-            2) $APP_SELECTION proxy ;;
-            3) sh "scripts/proxy/proxy-manager.sh" install ;;
-            4) sh "scripts/proxy/proxy-manager.sh" remove ;;
+            2) select_proxy_app ;;
+            3) install_proxy_app ;;
+            4) remove_proxy_app ;;
             5) show_applications proxy ;;
             6) view_proxy ;;
             7) reset_proxy ;;
@@ -112,6 +139,8 @@ main_menu() {
 # Main script
 case "$1" in
     setup) setup_proxy ;;
+    install) install_proxy_app ;;
+    remove) remove_proxy_app ;;
     reset) reset_proxy ;;
     *) main_menu ;;
 esac

@@ -260,7 +260,7 @@ option_9() {
                 done
 
                 display_banner
-                rm -rf .env .env.system .env.deploy.save
+                rm -rf "$ENV_FILE" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE"
                 sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 $APP_SELECTION --default
@@ -373,16 +373,12 @@ case "$1" in
         echo
         ;;
     proxy)
+        [ ! -f "$ENV_DEPLOY_PROXY_FILE" ] && $APP_SELECTION --default proxy
         proxy_menu="scripts/proxy/proxy-menu.sh"
         case "$2" in
-            "")
-                . "$proxy_menu" ;;
-            setup|reset)
+            "") . "$proxy_menu" ;;
+            setup|reset|install|remove)
                 sh "$proxy_menu" "$2"
-                clear
-                ;;
-            install|remove)
-                sh "scripts/proxy/proxy-manager.sh" "$2"
                 clear
                 ;;
             *)
@@ -426,6 +422,7 @@ case "$1" in
         clear
         ;;
     app|service)
+        $APP_SELECTION --import
         $APP_SELECTION "$1"
         clear
         ;;

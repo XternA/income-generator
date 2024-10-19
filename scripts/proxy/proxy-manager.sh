@@ -76,7 +76,7 @@ install_proxy_instance() {
 
         case "$input" in
             a)
-                $APP_SELECTION proxy
+                $APP_SELECTION proxy proxy
                 APP_DATA="$(eval read_app_data)"
                 ;;
             [Yy])
@@ -271,6 +271,7 @@ elif [ $(uname) = 'Darwin' ]; then
     SED_INPLACE="sed -i .bk"
 fi
 
+$APP_SELECTION --import proxy
 APP_DATA="$(eval read_app_data)"
 TOTAL_PROXIES="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")"
 
