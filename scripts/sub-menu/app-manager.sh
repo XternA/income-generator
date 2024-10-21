@@ -2,6 +2,11 @@
 
 WATCHTOWER="sh $ROOT_DIR/scripts/container/watchtower.sh"
 
+LOADED_ENV_FILES="
+$SYSTEM_ENV_FILES
+--env-file $ENV_DEPLOY_FILE
+"
+
 APP_COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.unlimited.yml
 -f $COMPOSE_DIR/compose.hosting.yml
@@ -240,11 +245,11 @@ install_applications() {
         proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
         [ "$proxy_is_active" ] && $WATCHTOWER modify_only
         
-        $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $compose_files pull
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
         echo
         $CONTAINER_ALIAS container prune -f
         echo
-        $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
         $WATCHTOWER restore_only
@@ -275,11 +280,11 @@ reinstall_applications() {
                 proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
                 [ "$proxy_is_active" ] && $WATCHTOWER modify_only
 
-                $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
                 echo
                 $CONTAINER_ALIAS container prune -f
                 echo
-                $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
                 [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
                 printf "\nPress Enter to continue..."; read input
@@ -304,7 +309,7 @@ reinstall_applications() {
 start_applications() {
     display_banner
     echo "Starting applications...\n"
-    $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
 }
@@ -322,7 +327,7 @@ stop_applications() {
     proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
     [ "$proxy_is_active" ] && compose_files=$APP_COMPOSE_FILES
 
-    $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
 }
@@ -335,7 +340,7 @@ stop_application() {
 remove_applications() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
-    $CONTAINER_COMPOSE $DEFAULT_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
 
     proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"

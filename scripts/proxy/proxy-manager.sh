@@ -6,7 +6,8 @@ TUNNEL_COMPOSE_FILE="$COMPOSE_DIR/compose.proxy.yml"
 WATCHTOWER="sh $ROOT_DIR/scripts/container/watchtower.sh"
 
 LOADED_ENV_FILES="
-$DEFAULT_ENV_FILES
+$SYSTEM_ENV_FILES
+--env-file $ENV_DEPLOY_PROXY_FILE
 --env-file $ENV_PROXY_FILE
 "
 
@@ -127,6 +128,9 @@ install_proxy_instance() {
 
                         # Update proxy network
                         $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
+
+                        # Update depends on
+                        $SED_INPLACE "s/- ${PROXY_APP_NAME}-[0-9]:/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
                         continue
                     else
                         $SED_INPLACE "s/${app_name}:/${new_app_name}:/" "$compose_file"
@@ -137,6 +141,11 @@ install_proxy_instance() {
                         $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
                         $SED_INPLACE "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" "$compose_file"
                         $SED_INPLACE "/network_mode: bridge$/d" "$compose_file"
+
+                        # Add depends on service
+                        if ! grep -q "depends_on:" "$compose_file"; then
+                            $SED_INPLACE "/restart:/a \        depends_on:\n            - ${PROXY_APP_NAME}-${install_count}" "$compose_file"
+                        fi
                         continue
                     fi
                 fi
@@ -154,9 +163,7 @@ install_proxy_instance() {
 
         echo
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p tunnel-${install_count} $LOADED_ENV_FILES -f $TUNNEL_COMPOSE_FILE up --force-recreate --build -d > /dev/null 2>&1
-        sleep 1
-        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES up --force-recreate --build -d
+        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d
         install_count=$((install_count + 1))
         echo
     done < "$PROXY_FILE"

@@ -17,10 +17,9 @@ export COMPOSE_DIR="$ROOT_DIR/compose"
 export PROXY_FILE="$ROOT_DIR/proxies.txt"
 
 # Shared system files
-export DEFAULT_ENV_FILES="
+export SYSTEM_ENV_FILES="
 --env-file $ENV_FILE
 --env-file $ENV_SYSTEM_FILE
---env-file $ENV_DEPLOY_FILE
 "
 
 # Declared util component ----------------

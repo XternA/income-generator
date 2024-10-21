@@ -1,7 +1,7 @@
 #!/bin/sh
 
 WATCHTOWER_COMPOSE="$COMPOSE_DIR/compose.yml"
-COMMAND="$CONTAINER_COMPOSE $DEFAULT_ENV_FILES -f $WATCHTOWER_COMPOSE up --force-recreate --build -d"
+COMMAND="$CONTAINER_COMPOSE $SYSTEM_ENV_FILES -f $WATCHTOWER_COMPOSE up --force-recreate --build -d"
 WATCHTOWER_ALIAS="watchtower"
 
 modify_watchtower() {
