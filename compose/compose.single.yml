@@ -3,24 +3,33 @@ services:
         container_name: honeygain
         image: honeygain/honeygain
         restart: always
+        labels:
+            - project=standard
         command: >
             -tou-accept
             -email ${HONEYGAIN_EMAIL:-}
             -pass ${HONEYGAIN_PASSWORD:-}
             -device ${DEVICE_ID:-}
         profiles:
-          - ${HONEYGAIN:-DISABLED}
+            - ${HONEYGAIN:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     pawns:
         container_name: pawns
         image: iproyal/pawns-cli
         restart: always
+        labels:
+            - project=standard
         command: >
             -accept-tos
             -email=${PAWNS_EMAIL:-}
@@ -28,27 +37,39 @@ services:
             -device-name=${DEVICE_ID:-}
             -device-id=${DEVICE_ID:-}
         profiles:
-          - ${PAWNS:-DISABLED}
+            - ${PAWNS:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     packetshare:
         container_name: packetshare
         image: packetshare/packetshare
         restart: always
+        labels:
+            - project=standard
         command: >
             -accept-tos
             -email=${PACKETSHARE_EMAIL:-}
             -password=${PACKETSHARE_PASSWORD:-}
         profiles:
-          - ${PACKETSHARE:-DISABLED}
+            - ${PACKETSHARE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"

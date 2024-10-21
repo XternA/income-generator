@@ -3,12 +3,13 @@
  </h1>
 
 <h4 align="center">
-[ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update ]
+[ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update | Multi-Proxy ]
 </h4>
 
 <div align="center">
 
-[![GitHub Release Date](https://img.shields.io/github/release-date/XternA/income-generator?style=&label=Release%20Date)](https://github.com/XternA/income-generator/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/XternA/income-generator?style=&label=Latest%20Release)](https://github.com/XternA/income-generator/releases)
+[![Static Badge](https://img.shields.io/badge/License-purple?style=flat&logo=github)](https://github.com/XternA/income-generator?tab=License-1-ov-file)
 [![GitHub Release](https://img.shields.io/github/v/release/XternA/income-generator?sort=date&display_name=release&style=flat&label=Version)](https://github.com/XternA/income-generator/releases/latest)
 [![GitHub Repo stars](https://img.shields.io/github/stars/XternA/income-generator?style=flat&logo=github&label=Stars&color=orange)](https://github.com/XternA/income-generator)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=flat&logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=32DCQ65QM5FNE)
@@ -25,7 +26,6 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 📖 It's' strongly recommended to refer to the [**Wiki**](../../wiki) for in-depth details and instructions.
 
 ## Key Features ✨
-- **Easy To Use** - All-in-one solution for managing the stack. Docker installation, start/stop/remove.
 - **Multi-platform** - Deploy across different OS.
 - **Global Access** - Access the tool anywhere, just type `igm`.
 - **Auto update** - Ensures applications always running up-to-date.
@@ -36,6 +36,7 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 - **Selective Apps** - Enable or disable the application of your choice to deploy and earn.
 - **Quick Actions** -  CLI commands for common operations without launching the tool.
 - **Auto Claim** - Comes with service applications that auto claims rewards for supported applications.
+- **Multi-Proxy** - Spawn and deploy multiple proxy instances based on proxy entries.
 
 ## Getting Started 🚥
 ### Prerequisite 📦

@@ -3,6 +3,8 @@ services:
         container_name: watchtower
         image: containrrr/watchtower
         restart: always
+        labels:
+            - project=standard
         command: >
             --cleanup
             --no-startup-message
@@ -19,3 +21,8 @@ services:
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"

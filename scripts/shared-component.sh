@@ -7,11 +7,20 @@ export YELLOW='\033[1;93m'
 export PINK='\033[1;95m'
 export NC='\033[0m'
 
-ROOT_DIR=$(pwd)
+export ROOT_DIR=$(pwd)
 export ENV_FILE="$ROOT_DIR/.env"
 export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"
 export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
+export ENV_DEPLOY_PROXY_FILE="$ROOT_DIR/.env.deploy.proxy"
 export JSON_FILE="$ROOT_DIR/apps.json"
+export COMPOSE_DIR="$ROOT_DIR/compose"
+export PROXY_FILE="$ROOT_DIR/proxies.txt"
+
+# Shared system files
+export SYSTEM_ENV_FILES="
+--env-file $ENV_FILE
+--env-file $ENV_SYSTEM_FILE
+"
 
 # Declared util component ----------------
 export SYS_INFO="sh scripts/arch.sh"
