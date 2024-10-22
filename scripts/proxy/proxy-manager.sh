@@ -283,8 +283,8 @@ check_proxy_file() {
             print "Ensure proxy entries are correct."
             printf "\nSupported schema & format entry:\n"
             printf "\n  %ssocks5|socks4|http|shadowsocks|relay%s \n\n", yellow, reset
-            printf "  %s->%s protocol://username:password@proxy_url:proxy_port\n", red, reset
-            printf "  %s->%s protocol://proxy_url:proxy_port\n", red, reset
+            printf "  %s->%s protocol://user:password@ip:port\n", red, reset
+            printf "  %s->%s protocol://ip:port\n", red, reset
             exit 1
         }
     }
