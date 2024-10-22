@@ -113,10 +113,10 @@ if [ ! "$has_docker" ]; then
     esac
     if [ "$(uname)" = 'Linux' ]; then
         sudo usermod -aG docker "$(whoami)"
+        newgrp docker
     fi
-    echo
-    echo "Docker has been installed successfully."
-    echo "\nRestart if docker doesn't start properly."
+    echo "\nDocker has been installed successfully."
+    echo "\nRestart host if docker doesn't start."
 else
     echo "Docker is already installed."
 fi

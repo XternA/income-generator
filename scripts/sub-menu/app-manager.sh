@@ -1,16 +1,23 @@
 #!/bin/sh
 
-CONTAINER_ALIAS="docker"
-LOADED_ENV_FILES="--env-file $ENV_FILE --env-file $ENV_SYSTEM_FILE --env-file $ENV_DEPLOY_FILE"
+WATCHTOWER="sh $ROOT_DIR/scripts/container/watchtower.sh"
 
-COMPOSE="$(pwd)/compose"
+LOADED_ENV_FILES="
+$SYSTEM_ENV_FILES
+--env-file $ENV_DEPLOY_FILE
+"
+
+APP_COMPOSE_FILES="
+-f $COMPOSE_DIR/compose.unlimited.yml
+-f $COMPOSE_DIR/compose.hosting.yml
+-f $COMPOSE_DIR/compose.local.yml
+-f $COMPOSE_DIR/compose.single.yml
+-f $COMPOSE_DIR/compose.service.yml
+"
+
 ALL_COMPOSE_FILES="
--f $COMPOSE/compose.yml
--f $COMPOSE/compose.unlimited.yml
--f $COMPOSE/compose.hosting.yml
--f $COMPOSE/compose.local.yml
--f $COMPOSE/compose.single.yml
--f $COMPOSE/compose.service.yml
+-f $COMPOSE_DIR/compose.yml
+$APP_COMPOSE_FILES
 "
 
 display_install_info() {
@@ -197,19 +204,19 @@ install_applications() {
                 ;;
             3)
                 install_type="Installing only applications supporting VPS/Hosting..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml"
                 ;;
             4)
                 install_type="Installing all applications, excluding single instances only..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml -f $COMPOSE/compose.hosting.yml -f $COMPOSE/compose.local.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml -f $COMPOSE_DIR/compose.local.yml"
                 ;;
             5)
                 install_type="Installing only applications with unlimited install count..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.unlimited.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml"
                 ;;
             6)
                 install_type="Installing all available services application..."
-                compose_files="-f $COMPOSE/compose.yml -f $COMPOSE/compose.service.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.service.yml"
                 ;;
             0)
                 break
@@ -234,13 +241,18 @@ install_applications() {
 
         echo "$install_type\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
-        $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $compose_files pull
+
+        proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+        [ "$proxy_is_active" ] && $WATCHTOWER modify_only
+        
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
         echo
         $CONTAINER_ALIAS container prune -f
         echo
-        $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
+        $WATCHTOWER restore_only
 
         printf "\nPress Enter to continue..."; read input
     done
@@ -264,11 +276,17 @@ reinstall_applications() {
             [Yy])
                 display_banner
                 echo "Redeploying last application install state...\n"
-                $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
+
+                proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+                [ "$proxy_is_active" ] && $WATCHTOWER modify_only
+
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
                 echo
                 $CONTAINER_ALIAS container prune -f
                 echo
-                $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                [ "$proxy_is_active" ] && $WATCHTOWER restore_only
+
                 printf "\nPress Enter to continue..."; read input
                 break
                 ;;
@@ -291,7 +309,7 @@ reinstall_applications() {
 start_applications() {
     display_banner
     echo "Starting applications...\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
     printf "\nPress Enter to continue..."; read input
 }
@@ -304,7 +322,12 @@ start_application() {
 stop_applications() {
     display_banner
     echo "Stopping applications...\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES stop
+
+    compose_files=$ALL_COMPOSE_FILES
+    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+    [ "$proxy_is_active" ] && compose_files=$APP_COMPOSE_FILES
+
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
     echo "\nAll running applications stopped."
     printf "\nPress Enter to continue..."; read input
 }
@@ -317,8 +340,12 @@ stop_application() {
 remove_applications() {
     display_banner
     echo "Stopping and removing applications and volumes...\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
+
+    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+    [ "$proxy_is_active" ] && $WATCHTOWER deploy
+
     $CONTAINER_ALIAS container prune -f
     echo "\nAll installed applications and volumes removed."
     printf "\nPress Enter to continue..."; read input
@@ -332,6 +359,46 @@ remove_application() {
 show_applications() {
     display_banner
     echo "Installed Containers:\n"
-    $CONTAINER_ALIAS compose $LOADED_ENV_FILES $ALL_COMPOSE_FILES ps -a
+
+    has_apps() {
+        $CONTAINER_ALIAS ps -a -q -f "label=project=${1}" | head -n 1
+    }
+    show_apps() {
+        $CONTAINER_ALIAS ps -a -f "label=project=${1}"
+    }
+
+    case "$1" in
+        "")
+            if [ -z "$(has_apps 'standard')" ] && [ -z "$(has_apps 'proxy')" ]; then
+                echo "No installed applications."
+            else
+                if [ ! -z "$(has_apps 'standard')" ]; then
+                    echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
+                    show_apps "standard"
+                fi
+                if [ ! -z "$(has_apps 'proxy')" ]; then
+                    echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
+                    show_apps "proxy"
+                fi
+            fi
+            ;;
+        proxy)
+            if [ -z "$(has_apps 'proxy')" ]; then
+                echo "No installed proxy applications."
+            else
+                show_apps "proxy"
+            fi
+            ;;
+        app)
+            if [ -z "$(has_apps 'standard')" ]; then
+                echo "No installed applications."
+            else
+                show_apps "standard"
+            fi
+            ;;
+        *)
+            echo "igm: '$1' is not a valid command. See 'igm help'."
+            ;;
+    esac
     printf "\nPress Enter to continue..."; read input
 }

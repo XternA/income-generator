@@ -3,44 +3,60 @@ services:
         container_name: peer2profit
         image: xterna/peer2profit
         restart: always
+        labels:
+            - project=standard
         environment:
             - P2P_EMAIL=${P2PROFIT_EMAIL:-}
         platform: linux/amd64
         profiles:
-          - ${PEER2PROFIT:-DISABLED}
+            - ${PEER2PROFIT:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     traffmonetizer:
-        container_name: tm
+        container_name: traffmonetizer
         image: traffmonetizer/cli_v2:$ARCH
         restart: always
+        labels:
+            - project=standard
         command: >
             start accept
             --token ${TRAFFMONETIZER_TOKEN:-}
             --device-name ${DEVICE_ID:-}
         profiles:
-          - ${TRAFFMONETIZER:-DISABLED}
+            - ${TRAFFMONETIZER:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     mysterium:
         container_name: myst
         image: mysteriumnetwork/myst
         restart: always
+        labels:
+            - project=standard
         cap_add:
             - NET_ADMIN
         command: service --agreed-terms-and-conditions
         profiles:
-          - ${MYSTERIUM:-DISABLED}
+            - ${MYSTERIUM:-DISABLED}
         ports:
             - 4449:4449
         dns:
@@ -51,3 +67,8 @@ services:
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"

@@ -3,6 +3,7 @@
 . scripts/shared-component.sh
 sh scripts/init.sh
 
+. scripts/container/container-config.sh
 . scripts/sub-menu/app-manager.sh
 
 SYS_INFO=$($SYS_INFO)
@@ -46,7 +47,7 @@ option_2() {
                 ;;
             3)
                 display_banner
-                echo "Using nano editor. After making changes press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
+                echo "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
                 printf "\nPress Enter to continue..."; read input
                 nano .env
                 ;;
@@ -259,7 +260,7 @@ option_9() {
                 done
 
                 display_banner
-                rm -rf .env .env.system .env.deploy.save
+                rm -rf "$ENV_FILE" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE"
                 sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 $APP_SELECTION --default
@@ -333,10 +334,8 @@ main_menu() {
 # Main script
 trap '$POST_OPS; clear; exit 0' INT
 $DECRYPT_CRED
+
 case "$1" in
-    "")
-        main_menu
-        ;;
     -h|--help|help)
         display_banner
         echo "Quick action menu of common operations.\n"
@@ -345,24 +344,47 @@ case "$1" in
         echo "Usage: igm [option] [arg]"
 
         echo "\n[${BLUE}General${NC}]"
-        echo "  igm                  Launch the Income Generator tool."
-        echo "  igm help             Display this help usage guide."
+        echo "  igm                      Launch the Income Generator tool."
+        echo "  igm help                 Display this help usage guide."
 
         echo "\n[${BLUE}Manage${NC}]"
-        echo "  igm start  [name]    Start one or all currently deployed applications."
-        echo "  igm stop   [name]    Stop one or all currently deployed running applications."
-        echo "  igm remove [name]    Stop and remove one or all currently deployed applications."
-        echo "  igm show             Show list of installed and running applications."
-        echo "  igm deploy           Launch the install manager for deploying applications."
-        echo "  igm redeploy         Redeploy the last installed application state."
+        echo "  igm start  [name]        Start one or all currently deployed applications."
+        echo "  igm stop   [name]        Stop one or all currently deployed running applications."
+        echo "  igm remove [name]        Stop and remove one or all currently deployed applications."
+        echo "  igm show   [app|proxy]   Show list of installed and running applications."
+        echo "  igm deploy               Launch the install manager for deploying applications."
+        echo "  igm redeploy             Redeploy the last installed application state."
+
+        echo "\n[${BLUE}Proxy${NC}]"
+        echo "  igm proxy                Launch the proxy tool menu."
+        echo "  igm proxy setup          Setup and define list of proxy entries."
+        echo "  igm proxy app            Enable or disable proxy applications for deployment."
+        echo "  igm proxy install        Install selected proxy applications."
+        echo "  igm proxy remove         Remove all currently deployed proxy applications."
+        echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
 
         echo "\n[${BLUE}Configuration${NC}]"
-        echo "  igm app|service      Enable or disable applications/services for deployment."
-        echo "  igm setup            Setup credentials for applications to be deployed."
-        echo "  igm view             View all configured application credentials."
-        echo "  igm edit             Edit configured credentials and config file directly."
-        echo "  igm limit            Set the application resource limits."
+        echo "  igm app|service          Enable or disable applications/services for deployment."
+        echo "  igm setup                Setup credentials for applications to be deployed."
+        echo "  igm view                 View all configured application credentials."
+        echo "  igm edit                 Edit configured credentials and config file directly."
+        echo "  igm limit                Set the application resource limits."
         echo
+        ;;
+    "")
+        $APP_SELECTION --import
+        main_menu
+        ;;
+    proxy)
+        case "$2" in
+            ""|setup|app|install|remove|reset)
+                set -- "$2"
+                . scripts/proxy/proxy-menu.sh
+                clear
+                ;;
+            *)
+                echo "igm proxy: '$2' is not a valid command. See 'igm help'." ;;
+        esac
         ;;
     start)
         if [ -n "$2" ]; then
@@ -389,23 +411,27 @@ case "$1" in
         fi
         ;;
     show)
-        show_applications
+        show_applications "$2"
         clear
         ;;
     deploy)
+        $APP_SELECTION --import
         install_applications quick_menu
         clear
         ;;
     redeploy)
+        $APP_SELECTION --import
         reinstall_applications
         clear
         ;;
     app|service)
+        $APP_SELECTION --import
         $APP_SELECTION "$1"
         clear
         ;;
     setup)
         display_banner
+        $APP_SELECTION --import
         $APP_CONFIG
         clear
         ;;

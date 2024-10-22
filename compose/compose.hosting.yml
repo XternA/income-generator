@@ -3,78 +3,108 @@ services:
         container_name: repocket
         image: repocket/repocket
         restart: always
+        labels:
+            - project=standard
         environment:
             - RP_EMAIL=${REPOCKET_EMAIL:-}
             - RP_API_KEY=${REPOCKET_API_KEY:-}
         platform: linux/amd64
         profiles:
-          - ${REPOCKET:-DISABLED}
+            - ${REPOCKET:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     proxyrack:
         container_name: proxyrack
         image: proxyrack/pop
         restart: always
+        labels:
+            - project=standard
         environment:
             - api_key=${PROXYRACK_API_KEY:-}
             - device_name=${DEVICE_ID:-}
             - UUID=${PROXYRACK_UUID:-}
         platform: linux/amd64
         profiles:
-          - ${PROXYRACK:-DISABLED}
+            - ${PROXYRACK:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     proxylite:
         container_name: proxylite
         image: proxylite/proxyservice
         restart: always
+        labels:
+            - project=standard
         environment:
             - USER_ID=${PROXYLITE_USER_ID:-}
         platform: linux/amd64
         profiles:
-          - ${PROXYLITE:-DISABLED}
+            - ${PROXYLITE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     earnfm:
         container_name: earnfm
         image: earnfm/earnfm-client
         restart: always
+        labels:
+            - project=standard
         environment:
             - EARNFM_TOKEN=${EARNFM_TOKEN:-}
         profiles:
-          - ${EARNFM:-DISABLED}
+            - ${EARNFM:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     bitping:
         container_name: bitping
         image: bitping/bitpingd
         restart: always
+        labels:
+            - project=standard
         hostname: $DEVICE_ID
         environment:
             BITPING_EMAIL: ${BITPING_EMAIL:-}
             BITPING_PASSWORD: ${BITPING_PASSWORD:-}
         profiles:
-          - ${BITPING:-DISABLED}
+            - ${BITPING:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -83,37 +113,56 @@ services:
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     gaga-node:
         container_name: gaga-node
         image: xterna/gaga-node
         restart: always
+        labels:
+            - project=standard
         environment:
             - TOKEN=${GAGANODE_TOKEN:-}
         profiles:
-          - ${GAGANODE:-DISABLED}
+            - ${GAGANODE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     bearshare:
         container_name: bearshare
         image: xterna/bearshare
         restart: always
+        labels:
+            - project=standard
         environment:
             - EMAIL=${BEARSHARE_EMAIL:-}
             - PASSWORD=${BEARSHARE_PASSWORD:-}
         profiles:
-          - ${BEARSHARE:-DISABLED}
+            - ${BEARSHARE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
 volumes:
     bitping-data:

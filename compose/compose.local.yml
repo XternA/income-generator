@@ -3,12 +3,14 @@ services:
         container_name: earnapp
         image: madereddy/earnapp
         restart: always
+        labels:
+            - project=standard
         environment:
             - EARNAPP_UUID=${EARNAPP_DEVICE_UUID:-}
             - EARNAPP_TERM=yes
         platform: linux/amd64
         profiles:
-          - ${EARNAPP:-DISABLED}
+            - ${EARNAPP:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -17,33 +19,47 @@ services:
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     packetstream:
         container_name: packetstream
         image: packetstream/psclient
         restart: always
+        labels:
+            - project=standard
         environment:
             - CID=${PACKETSTREAM_CID:-}
         profiles:
-          - ${PACKETSTREAM:-DISABLED}
+            - ${PACKETSTREAM:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     speedshare:
         container_name: speedshare
         image: mrcolorrain/speedshare
         restart: always
+        labels:
+            - project=standard
         hostname: $DEVICE_ID
         environment:
             - CODE=${SPEEDSHARE_AUTH_CODE:-}
             - SPEEDSHARE_UUID=${SPEEDSHARE_UUID:-}
         platform: linux/amd64
         profiles:
-          - ${SPEEDSHARE:-DISABLED}
+            - ${SPEEDSHARE:-DISABLED}
         network_mode: bridge
         dns:
             - 1.1.1.1
@@ -51,53 +67,79 @@ services:
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     spide:
         container_name: spide
         image: xterna/spide-network
         restart: always
+        labels:
+            - project=standard
         environment:
             - ID=${SPIDE_MACHINE_ID:-}
         profiles:
-          - ${SPIDE:-DISABLED}
+            - ${SPIDE:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     grass:
         container_name: grass
         image: mrcolorrain/grass
         restart: always
+        labels:
+            - project=standard
         hostname: $DEVICE_ID
         environment:
             - GRASS_USER=${GRASS_EMAIL:-}
             - GRASS_PASS=${GRASS_PASSWORD:-}
         profiles:
-          - ${GRASS:-DISABLED}
+            - ${GRASS:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
     nodepay:
         container_name: nodepay
         image: kellphy/nodepay
         restart: always
+        labels:
+            - project=standard
         environment:
             - NP_COOKIE=${NODEPAY_COOKIE:-}
         profiles:
-          - ${NODEPAY:-DISABLED}
+            - ${NODEPAY:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
 
 volumes:
     earnapp-data:
