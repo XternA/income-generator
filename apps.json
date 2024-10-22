@@ -25,8 +25,7 @@
         "url": "https://bit.ly/3x7CquB",
         "description": " There is no website and this uses Telegram. You will need Telegram to interact with the site directly after logging in with the bot.",
         "properties": [
-            "P2PROFIT_EMAIL",
-            "P2PROFIT_ID"
+            "P2PROFIT_EMAIL"
         ],
         "is_enabled": true
     },
