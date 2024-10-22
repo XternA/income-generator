@@ -335,20 +335,7 @@ main_menu() {
 trap '$POST_OPS; clear; exit 0' INT
 $DECRYPT_CRED
 
-if [ "$1" = "proxy" ]; then
-    if [ ! -f "$ENV_DEPLOY_PROXY_FILE" ]; then
-        $APP_SELECTION --default proxy
-    else
-        $APP_SELECTION --import proxy
-    fi
-else
-    $APP_SELECTION --import
-fi
-
 case "$1" in
-    "")
-        main_menu
-        ;;
     -h|--help|help)
         display_banner
         echo "Quick action menu of common operations.\n"
@@ -384,12 +371,15 @@ case "$1" in
         echo "  igm limit                Set the application resource limits."
         echo
         ;;
+    "")
+        $APP_SELECTION --import
+        main_menu
+        ;;
     proxy)
-        proxy_menu="scripts/proxy/proxy-menu.sh"
         case "$2" in
-            "") . "$proxy_menu" ;;
-            setup|app|install|remove|reset)
-                sh "$proxy_menu" "$2"
+            ""|setup|app|install|remove|reset)
+                set -- "$2"
+                . scripts/proxy/proxy-menu.sh
                 clear
                 ;;
             *)
@@ -425,10 +415,12 @@ case "$1" in
         clear
         ;;
     deploy)
+        $APP_SELECTION --import
         install_applications quick_menu
         clear
         ;;
     redeploy)
+        $APP_SELECTION --import
         reinstall_applications
         clear
         ;;
@@ -439,6 +431,7 @@ case "$1" in
         ;;
     setup)
         display_banner
+        $APP_SELECTION --import
         $APP_CONFIG
         clear
         ;;

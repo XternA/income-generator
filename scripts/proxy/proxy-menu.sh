@@ -136,6 +136,12 @@ main_menu() {
 }
 
 # Main script
+if [ ! -f "$ENV_DEPLOY_PROXY_FILE" ]; then
+    $APP_SELECTION --default proxy
+else
+    $APP_SELECTION --import proxy
+fi
+
 case "$1" in
     setup) setup_proxy ;;
     app) select_proxy_app ;;
