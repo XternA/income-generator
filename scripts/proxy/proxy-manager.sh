@@ -144,7 +144,10 @@ install_proxy_instance() {
 
                         # Add depends on service
                         if ! grep -q "depends_on:" "$compose_file"; then
-                            $SED_INPLACE "/restart:/a \        depends_on:\n            - ${PROXY_APP_NAME}-${install_count}" "$compose_file"
+                            awk '/restart:/ {
+                                print $0 "\n        depends_on:\n            - '"${PROXY_APP_NAME}-${install_count}"'"
+                                next
+                            } 1' "$compose_file" > tmp && mv tmp "$compose_file"
                         fi
                         continue
                     fi
