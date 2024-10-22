@@ -25,7 +25,7 @@ display_banner() {
 }
 
 read_app_data() {
-    APP_DATA="jq -r '.[] | select(.is_enabled == true) | \"\(.name) \(.alias)\"' \"$JSON_FILE\""
+    APP_DATA="jq -r '.[] | select(.is_enabled == true) | \"\(.name) \(.alias) \(.is_enabled)\"' \"$JSON_FILE\""
     echo "$(eval $APP_DATA)"
 }
 
@@ -33,21 +33,35 @@ display_info() {
     display_banner
     local type="$1"
     local is_install="${2-true}"
+    can_install="true"
 
-    echo "The following proxy applications will be $type.\n"
-    echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
+    has_apps_services="$(echo "$APP_DATA" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')"
 
-    printf "%-4s %-21s\n" "No." "Name"
-    printf "%-4s %-21s\n" "---" "--------------------"
-    printf "%s\n" "$APP_DATA" | awk -v GREEN="$GREEN" -v NC="$NC" '
-    BEGIN { counter = 1 }
-    {
-        printf "%-4s %s%-21s%s\n", counter, GREEN, $1, NC
-        counter++
-    }'
+    if [ -z "$has_apps_services" ] && [ "$is_install" = "true" ]; then
+        echo "No applications selected to install."
+        can_install="false"
+    else
+        echo "The following proxy applications will be $type.\n"
+        echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
+
+        printf "%-4s %-21s\n" "No." "Name"
+        printf "%-4s %-21s\n" "---" "--------------------"
+        printf "%s\n" "$APP_DATA" | awk -v GREEN="$GREEN" -v NC="$NC" '
+        BEGIN { counter = 1 }
+        {
+            printf "%-4s %s%-21s%s\n", counter, GREEN, $1, NC
+            counter++
+        }'
+    fi
 
     [ "$is_install" = "true" ] && echo "\nOption:\n  ${RED}a = select applications${NC}"
-    printf "\nDo you want to proceed? (Y/N): "; read input
+
+    if [ "$can_install" = "false" ]; then
+        printf "\nSelect applications or press Enter to return: "
+    else
+        printf "\nDo you want to proceed? (Y/N): "
+    fi
+    read -r input
 }
 
 display_proxy_info() {
@@ -76,16 +90,24 @@ install_proxy_instance() {
         display_info installed
 
         case "$input" in
+            "")
+                [ "$can_install" = "false" ] && exit 0
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
+                ;;
             a)
                 $APP_SELECTION proxy proxy
                 APP_DATA="$(eval read_app_data)"
                 ;;
             [Yy])
-                break
+                [ "$can_install" = "true" ] && break
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                 ;;
             [Nn])
-                clear
-                exit 0
+                if [ "$can_install" = "true" ]; then
+                    clear
+                    exit 0
+                fi
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                 ;;
             *)
                 printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
@@ -109,7 +131,7 @@ install_proxy_instance() {
         display_proxy_info "$proxy_url"
         echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
 
-        echo "$APP_DATA" | while read -r name alias; do
+        echo "$APP_DATA" | while read -r name alias is_enabled; do
             if [ "$alias" = null ]; then
                 app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
             else
@@ -220,7 +242,7 @@ remove_proxy_instance() {
     while test "$install_count" -le "$TOTAL_PROXIES"; do
         echo "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
 
-        echo "$APP_DATA" | while read -r name alias; do
+        echo "$APP_DATA" | while read -r name alias is_enabled; do
             if [ "$alias" = null ]; then
                 app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
             else
