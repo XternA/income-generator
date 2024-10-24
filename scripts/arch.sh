@@ -5,19 +5,13 @@ OS="$(uname -s)"
 RAW_ARCH="$(uname -m)"
 ARCH=$RAW_ARCH
 
-if [ $(uname) = 'Linux' ]; then
-    SED_INPLACE="sed -i"
-elif [ $(uname) = 'Darwin' ]; then
-    SED_INPLACE="sed -i .bak"
-fi
-
 case $ARCH in
-    "armv7l")
-        ARCH="arm32v7"
+    arm64|aarch64)
+        ARCH="arm64v8"
         DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
         ;;
-    "arm64"|"aarch64")
-        ARCH="arm64v8"
+    armv7l)
+        ARCH="arm32v7"
         DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
         ;;
     *)

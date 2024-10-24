@@ -143,13 +143,13 @@ services:
 
     bearshare:
         container_name: bearshare
-        image: xterna/bearshare
+        image: bearshare/bearshare${BEARSHARE_TAG:-}
         restart: always
         labels:
             - project=standard
-        environment:
-            - EMAIL=${BEARSHARE_EMAIL:-}
-            - PASSWORD=${BEARSHARE_PASSWORD:-}
+        command: >
+            -email=${BEARSHARE_EMAIL:-}
+            -password=${BEARSHARE_PASSWORD:-}
         profiles:
             - ${BEARSHARE:-DISABLED}
         dns:

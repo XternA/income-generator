@@ -1,14 +1,13 @@
 services:
     earnapp:
         container_name: earnapp
-        image: madereddy/earnapp
+        image: fazalfarhan01/earnapp:lite
         restart: always
         labels:
             - project=standard
         environment:
             - EARNAPP_UUID=${EARNAPP_DEVICE_UUID:-}
             - EARNAPP_TERM=yes
-        platform: linux/amd64
         profiles:
             - ${EARNAPP:-DISABLED}
         dns:

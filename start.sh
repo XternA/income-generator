@@ -5,6 +5,7 @@ sh scripts/init.sh
 
 . scripts/container/container-config.sh
 . scripts/sub-menu/app-manager.sh
+. scripts/arch-image-tag.sh
 
 SYS_INFO=$($SYS_INFO)
 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
@@ -92,10 +93,8 @@ option_7() {
                     case $yn in
                         [Yy]*)
                             display_banner
-                            echo "Removing orphaned applications..."
-                            docker system prune -a -f
-                            echo "\nRemoving orphaned volumes..."
-                            docker volume prune -a -f
+                            echo "Removing orphaned applications, volumes and downloaded images...\n"
+                            $CONTAINER_ALIAS system prune -a -f --volumes
                             echo "\nCleanup completed."
                             printf "\nPress Enter to continue..."; read input
                             break
@@ -113,14 +112,14 @@ option_7() {
             2)
                 display_banner
                 echo "Installing Docker...\n"
-                sh scripts/docker-install.sh
+                sh scripts/$CONTAINER_ALIAS-install.sh
                 sh scripts/emulation-layer.sh --add
                 printf "\nPress Enter to continue..."; read input
                 ;;
             3)
                 display_banner
                 echo "Uninstalling Docker...\n"
-                sh scripts/docker-uninstall.sh
+                sh scripts/$CONTAINER_ALIAS-uninstall.sh
                 sh scripts/emulation-layer.sh --remove
                 printf "\nPress Enter to continue..."; read input
                 ;;
@@ -354,6 +353,7 @@ case "$1" in
         echo "  igm show   [app|proxy]   Show list of installed and running applications."
         echo "  igm deploy               Launch the install manager for deploying applications."
         echo "  igm redeploy             Redeploy the last installed application state."
+        echo "  igm clean                Cleanup orphaned applications, volumes and downloaded images."
 
         echo "\n[${BLUE}Proxy${NC}]"
         echo "  igm proxy                Launch the proxy tool menu."
@@ -423,6 +423,11 @@ case "$1" in
         $APP_SELECTION --import
         reinstall_applications
         clear
+        ;;
+    clean)
+        display_banner
+        echo "Cleaning up orphaned applications, volumes and images...\n"
+        $CONTAINER_ALIAS system prune -a -f --volumes
         ;;
     app|service)
         $APP_SELECTION --import

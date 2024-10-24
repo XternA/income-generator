@@ -3,11 +3,9 @@
 if [ $(uname) = 'Linux' ]; then
     DIR_STR="/data"
     DIR_ESCAPED="\/data"
-    SED_INPLACE="sed -i"
 elif [ $(uname) = 'Darwin' ]; then
     DIR_STR="/usr/local/data"
     DIR_ESCAPED="\/usr\/local\/data"
-    SED_INPLACE="sed -i .bak"
 fi
 
 if [ -f "$ENV_SYSTEM_FILE" ]; then
