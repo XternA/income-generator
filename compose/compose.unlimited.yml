@@ -24,7 +24,7 @@ services:
 
     traffmonetizer:
         container_name: traffmonetizer
-        image: traffmonetizer/cli_v2:$ARCH
+        image: traffmonetizer/cli_v2${TRAFFMONETIZER_TAG:-}
         restart: always
         labels:
             - project=standard

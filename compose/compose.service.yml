@@ -1,7 +1,7 @@
 services:
     honeygain-pot:
         container_name: honeygain-pot
-        image: ghcr.io/xterna/honeygain-pot
+        image: ghcr.io/xterna/honeygain-pot${HONEYGAIN_SERVICE_TAG:-}
         restart: always
         labels:
             - project=standard

@@ -1,10 +1,9 @@
 #!/bin/sh
 
-if [ $(uname) = 'Linux' ]; then
-    OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
-elif [ $(uname) = 'Darwin' ]; then
-    OS='darwin'
-fi
+case $(uname) in
+    Linux) OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"') ;;
+    Darwin) OS='darwin' ;;
+esac
 
 if ! command -v jq > /dev/null 2>&1; then
     echo "jq is not installed, attempting to install..."

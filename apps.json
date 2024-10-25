@@ -18,7 +18,10 @@
             "HONEYGAIN_PASSWORD"
         ],
         "is_enabled": true,
-        "service_enabled": true
+        "service_enabled": true,
+        "service_tag": {
+            "arm32": "arm32v7"
+        }
     },
     {
         "name": "PEER2PROFIT",
@@ -36,7 +39,11 @@
         "properties": [
             "TRAFFMONETIZER_TOKEN"
         ],
-        "is_enabled": true
+        "is_enabled": true,
+        "image_tag": {
+            "arm64": "arm64v8",
+            "arm32": "arm32v7"
+        }
     },
     {
         "name": "PAWNS",
@@ -170,7 +177,10 @@
             "BEARSHARE_PASSWORD"
         ],
         "is_enabled": true,
-        "service_enabled": true
+        "service_enabled": true,
+        "image_tag": {
+            "arm64": "latest-arm"
+        }
     },
     {
         "name": "PACKETSHARE",

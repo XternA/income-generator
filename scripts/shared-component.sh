@@ -12,6 +12,7 @@ export ENV_FILE="$ROOT_DIR/.env"
 export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"
 export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
 export ENV_DEPLOY_PROXY_FILE="$ROOT_DIR/.env.deploy.proxy"
+export ENV_IMAGE_TAG_FILE="$ROOT_DIR/.env.image.tag"
 export JSON_FILE="$ROOT_DIR/apps.json"
 export COMPOSE_DIR="$ROOT_DIR/compose"
 export PROXY_FILE="$ROOT_DIR/proxies.txt"
@@ -20,6 +21,7 @@ export PROXY_FILE="$ROOT_DIR/proxies.txt"
 export SYSTEM_ENV_FILES="
 --env-file $ENV_FILE
 --env-file $ENV_SYSTEM_FILE
+--env-file $ENV_IMAGE_TAG_FILE
 "
 
 # Declared util component ----------------
@@ -37,3 +39,9 @@ export VIEW_CONFIG="sh scripts/config-viewer.sh"
 # Declared quick util operation ----------------
 export ENCRYPT_CRED="$ENCRYPTOR -es $ENV_FILE"
 export DECRYPT_CRED="$ENCRYPTOR -ds $ENV_FILE"
+
+# Declare tool alias ----------------
+case "$(uname)" in
+    Linux) export SED_INPLACE="sed -i" ;;
+    Darwin) export SED_INPLACE="sed -i .bk" ;;
+esac

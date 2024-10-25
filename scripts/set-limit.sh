@@ -2,15 +2,7 @@
 
 DEFAULT_RESOURCE_LIMIT="min"
 
-if [ $(uname) = 'Linux' ]; then
-    SED_INPLACE="sed -i"
-elif [ $(uname) = 'Darwin' ]; then
-    SED_INPLACE="sed -i .bak"
-fi
-
-if [ ! -f "$ENV_SYSTEM_FILE" ]; then
-    echo "RESOURCE_LIMIT=$DEFAULT_RESOURCE_LIMIT" > "$ENV_SYSTEM_FILE"
-fi
+[ ! -f "$ENV_SYSTEM_FILE" ] && echo "RESOURCE_LIMIT=$DEFAULT_RESOURCE_LIMIT" > "$ENV_SYSTEM_FILE"
 
 if [ $# -eq 0 ]; then
     if grep -q "^RESOURCE_LIMIT=" "$ENV_SYSTEM_FILE"; then

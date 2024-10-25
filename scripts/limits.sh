@@ -5,12 +5,10 @@ LIMIT_TYPE=${1:-min}
 if [ $(uname) = 'Linux' ]; then
     CPU_CORES=$(nproc)
     TOTAL_RAM=$(free -k | awk '/^Mem:/{print $2}')
-    SED_INPLACE="sed -i"
 elif [ $(uname) = 'Darwin' ]; then
     CPU_CORES=$(sysctl -n hw.physicalcpu)
     TOTAL_RAM=$(sysctl -n hw.memsize)
     TOTAL_RAM=$((TOTAL_RAM / 1050))
-    SED_INPLACE="sed -i .bak"
 fi
 TOTAL_RAM_MB=$((TOTAL_RAM / 1024))
 

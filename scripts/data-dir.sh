@@ -1,14 +1,15 @@
 #!/bin/sh
 
-if [ $(uname) = 'Linux' ]; then
-    DIR_STR="/data"
-    DIR_ESCAPED="\/data"
-    SED_INPLACE="sed -i"
-elif [ $(uname) = 'Darwin' ]; then
-    DIR_STR="/usr/local/data"
-    DIR_ESCAPED="\/usr\/local\/data"
-    SED_INPLACE="sed -i .bak"
-fi
+case "$(uname)" in
+    Linux)
+        DIR_STR="/data"
+        DIR_ESCAPED="\/data"
+        ;;
+    Darwin)
+        DIR_STR="/usr/local/data"
+        DIR_ESCAPED="\/usr\/local\/data"
+        ;;
+esac
 
 if [ -f "$ENV_SYSTEM_FILE" ]; then
     if grep -q "^DATA_DIR=" "$ENV_SYSTEM_FILE"; then
