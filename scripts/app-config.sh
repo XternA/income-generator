@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. scripts/util/uuid-generator.sh
+
 FILE_CHANGED='.app_marker'
 trap 'rm -f $FILE_CHANGED' INT
 
@@ -32,28 +34,10 @@ input_new_value() {
     [ -n "$input" ] && write_entry
 }
 
-generate_uuid() {
-    if [ "$denoter" = "#" ]; then
-        if [ "$(uname)" = 'Darwin' ]; then
-            input=$(echo "sdk-node-")$(head -c 1024 /dev/urandom | md5)
-        else
-            input=$(echo -n "sdk-node-")$(head -c 1024 /dev/urandom | md5sum | tr -d ' -')
-        fi
-    elif [ "$denoter" = "*" ]; then
-        if [ "$(uname)" = 'Darwin' ]; then
-            input=$(uuidgen)
-        else
-            input=$(cat /proc/sys/kernel/random/uuid)
-        fi
-    elif [ "$denoter" = "&" ]; then
-        input=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-f0-9' | dd bs=1 count=32 2>/dev/null)
-    fi
-    write_entry
-}
-
 process_new_entry() {
     if [ "$entry" != "$entry_name" ]; then
-        generate_uuid
+        input="$(generate_uuid $denoter)"
+        write_entry
         echo "A new UUID has been auto-generated for $RED$entry_name$NC: $YELLOW$input$NC\n"
         [ "$registration" != null ] && echo "${YELLOW}$registration$input${NC}\n"
         echo "Press Enter to continue..."; read -r input < /dev/tty
