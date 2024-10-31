@@ -32,23 +32,25 @@ generate_uuid_files() {
 }
 
 view_proxy_uuids() {
-    for file in "${PROXY_FOLDER}"/*; do
-        if [ -f "$file" ]; then
-            filename="${file##*/}"
-            uuid="${filename%%.*}" # Remove extension
+    echo "Running Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
-            echo "[ ${BLUE}${uuid}${NC} ]"
-            counter=0
-            while IFS= read -r line; do
-                if [ $(( counter % 2 )) -eq 0 ]; then
-                    echo "${YELLOW}$line"
-                else
-                    echo "${RED}$line"
-                fi
-                counter=$((counter + 1))
-            done < "$file"
-            echo "$NC"
-        fi
+    for file in "$PROXY_FOLDER"/*; do
+        [ -f "$file" ] || continue
+
+        filename="${file##*/}"
+        app_name="${filename%%.*}" # Remove extension
+        description=$(jq -r --arg name "${app_name}" '.[] | select(.name == $name and .proxy_uuid != null) | .proxy_uuid.description' "$JSON_FILE")
+
+        echo "[ ${RED}${app_name}${NC} ]${NC}"
+        [ "$description" != null ] && echo " ${GREEN}->${NC} $description\n"
+
+        counter=0
+        while IFS= read -r line; do
+            [ $counter -lt $TOTAL_PROXIES ] || continue # List in-use ID's corresponding to proxy count
+            [ $(( counter % 2 )) -eq 0 ] && echo "${YELLOW}$line" || echo "${BLUE}$line"
+            counter=$((counter + 1))
+        done < "$file"
+        echo "$NC"
     done
 }
 

@@ -104,8 +104,8 @@ view_uuids() {
     proxy_dir="${ROOT_DIR}/proxy_uuid"
 
     if [ -d "$proxy_dir" ]; then
-        echo "Extra proxy UUIDs may need to be manually registered."
-        echo "Refer to each application's dashboard to register entry.\n"
+        echo "Multi-UUID applications with instruction need to be registered."
+        echo "Unregisted IDs will not count towards earnings.\n"
 
         . "scripts/proxy/proxy-uuid-generator.sh"
         view_proxy_uuids
