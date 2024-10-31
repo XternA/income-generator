@@ -1,3 +1,4 @@
 .env
 .env.*
 proxies.txt
+proxy_uuid/*
