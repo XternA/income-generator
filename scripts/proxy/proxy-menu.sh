@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. "scripts/proxy/proxy-uuid-generator.sh"
-
 HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
 
 display_banner() {
@@ -109,6 +107,7 @@ view_uuids() {
         echo "Extra proxy UUIDs may need to be manually registered."
         echo "Refer to each application's dashboard to register entry.\n"
 
+        . "scripts/proxy/proxy-uuid-generator.sh"
         view_proxy_uuids
         printf "Press Enter to continue..."; read input
     else
