@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. "scripts/proxy/proxy-uuid-generator.sh"
+
 HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
 
 display_banner() {
@@ -99,6 +101,23 @@ reset_proxy() {
     fi
 }
 
+view_uuids() {
+    display_banner
+    proxy_dir="${ROOT_DIR}/proxy_uuid"
+
+    if [ -d "$proxy_dir" ]; then
+        echo "Extra proxy UUIDs may need to be manually registered."
+        echo "Refer to each application's dashboard to register entry.\n"
+
+        view_proxy_uuids
+        printf "Press Enter to continue..."; read input
+    else
+        echo "Extra application UUIDs is auto geenrated during installtion.\n"
+        echo "After installing, check here to view the corresponding UUIDs."
+        printf "\nPress Enter to continue..."; read input
+    fi
+}
+
 main_menu() {
     while true; do
         display_banner
@@ -106,7 +125,7 @@ main_menu() {
         TOTAL_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
         echo "Available Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
-        options="(1-7)"
+        options="(1-8)"
         echo "1. Setup Proxies"
         echo "2. Select Applications"
         echo "3. Install Proxy Applications"
@@ -114,6 +133,7 @@ main_menu() {
         echo "5. Show Installed Applications"
         echo "6. View Proxies"
         echo "7. Reset Proxies"
+        echo "8. View UUIDs"
         echo "0. Quit"
         echo
         read -p "Select an option $options: " choice
@@ -127,6 +147,7 @@ main_menu() {
             5) show_applications proxy ;;
             6) view_proxy ;;
             7) reset_proxy ;;
+            8) view_uuids ;;
             *)
                 echo "\nInvalid option. Please select a valid option $options."
                 printf "\nPress Enter to continue..."; read input
@@ -148,5 +169,6 @@ case "$1" in
     install) install_proxy_app ;;
     remove) remove_proxy_app ;;
     reset) reset_proxy ;;
+    id) view_uuids ;;
     *) main_menu ;;
 esac

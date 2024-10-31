@@ -2,13 +2,13 @@
 
 . "${ROOT_DIR}/scripts/util/uuid-generator.sh"
 
+PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
 TOTAL_PROXIES="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")"
 
-generate_uuid_file() {
+generate_uuid_files() {
     app_data="jq -r '.[] | select(.is_enabled == true and .proxy_uuid != null) | \"\(.name) \(.proxy_uuid)\"' \"$JSON_FILE\""
-    folder_dir="${ROOT_DIR}/proxy_uuid"
 
-    [ -n "$folder_dir" ] && mkdir -p "$folder_dir"
+    [ -n "$PROXY_FOLDER" ] && mkdir -p "$PROXY_FOLDER"
 
     counter=2 # Start from two as standard will already count as one UUID.
     while true; do
@@ -16,7 +16,7 @@ generate_uuid_file() {
             requires_uuid=$(echo "$proxy_uuid" | jq -r '.requires_uuid')
             uuid_type=$(echo "$proxy_uuid" | jq -r '.uuid_type')
 
-            proxy_file="${folder_dir}/${name}.uuid"
+            proxy_file="${PROXY_FOLDER}/${name}.uuid"
             uuid="$(generate_uuid "$uuid_type")"
 
             if [ -f "$proxy_file" ]; then
@@ -28,5 +28,26 @@ generate_uuid_file() {
         done
 
         [ "$counter" -ge "$TOTAL_PROXIES" ] && break || counter=$((counter + 1))
+    done
+}
+
+view_proxy_uuids() {
+    for file in "${PROXY_FOLDER}"/*; do
+        if [ -f "$file" ]; then
+            filename="${file##*/}"
+            uuid="${filename%%.*}" # Remove extension
+
+            echo "[ ${BLUE}${uuid}${NC} ]"
+            counter=0
+            while IFS= read -r line; do
+                if [ $(( counter % 2 )) -eq 0 ]; then
+                    echo "${YELLOW}$line"
+                else
+                    echo "${RED}$line"
+                fi
+                counter=$((counter + 1))
+            done < "$file"
+            echo "$NC"
+        fi
     done
 }
