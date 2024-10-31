@@ -32,6 +32,24 @@ generate_uuid_files() {
 }
 
 view_proxy_uuids() {
+    if [ "$1" = "all" ]; then
+        for file in "$PROXY_FOLDER"/*; do
+            [ -f "$file" ] || continue
+
+            filename="${file##*/}"
+            app_name="${filename%%.*}" # Remove extension
+
+            echo "[ ${RED}${app_name}${NC} ]${NC}"
+            counter=0
+            while IFS= read -r line; do
+                [ $(( counter % 2 )) -eq 0 ] && echo "${YELLOW}$line" || echo "${BLUE}$line"
+                counter=$((counter + 1))
+            done < "$file"
+            echo "$NC"
+        done
+        return
+    fi
+
     echo "Running Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
     for file in "$PROXY_FOLDER"/*; do
