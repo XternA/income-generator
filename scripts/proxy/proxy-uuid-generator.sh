@@ -10,7 +10,7 @@ generate_uuid_files() {
 
     [ -n "$PROXY_FOLDER" ] && mkdir -p "$PROXY_FOLDER"
 
-    counter=2 # Start from two as standard will already count as one UUID.
+    counter=1
     while true; do
         echo "$(eval $app_data)" | while read -r name proxy_uuid; do
             requires_uuid=$(echo "$proxy_uuid" | jq -r '.requires_uuid')
@@ -50,4 +50,9 @@ view_proxy_uuids() {
             echo "$NC"
         fi
     done
+}
+
+get_proxy_file() {
+    local app_name="$1"
+    [ -f "${PROXY_FOLDER}/${app_name}.uuid" ] && echo "${PROXY_FOLDER}/${app_name}.uuid"
 }
