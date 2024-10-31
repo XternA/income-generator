@@ -10,7 +10,7 @@ generate_uuid() {
     fi
 
     case "$denoter" in
-        "#") echo "sdk-node-${uuid}" ;;
+        "#") echo "sdk-node-$(echo "$uuid" | tr -d '-')" ;;
         "*") echo "$uuid" ;;
         "&") echo "$uuid" | tr -d '-' ;;
     esac
