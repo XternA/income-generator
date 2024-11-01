@@ -99,7 +99,6 @@ services:
         restart: always
         labels:
             - project=standard
-        hostname: $DEVICE_ID
         environment:
             BITPING_EMAIL: ${BITPING_EMAIL:-}
             BITPING_PASSWORD: ${BITPING_PASSWORD:-}
