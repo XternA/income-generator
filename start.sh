@@ -32,7 +32,7 @@ option_2() {
         echo "3. Edit config file"
         echo "4. Enable or disable applications"
         echo "5. Backup & restore config"
-        echo "0. Back to Main Menu"
+        echo "0. Return to Main Menu"
         echo
         read -p "Select an option $options: " option
 
@@ -77,7 +77,7 @@ option_7() {
         echo "1. Docker Housekeeping"
         echo "2. Install Docker"
         echo "3. Uninstall Docker"
-        echo "0. Back to Main Menu"
+        echo "0. Return to Main Menu"
         echo
         read -p "Select an option $options: " option
 
@@ -362,6 +362,7 @@ case "$1" in
         echo "  igm proxy install        Install selected proxy applications."
         echo "  igm proxy remove         Remove all currently deployed proxy applications."
         echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
+        echo "  igm proxy id             Show instructions and active applications with multi-UUIDs."
 
         echo "\n[${BLUE}Configuration${NC}]"
         echo "  igm app|service          Enable or disable applications/services for deployment."
@@ -377,7 +378,7 @@ case "$1" in
         ;;
     proxy)
         case "$2" in
-            ""|setup|app|install|remove|reset)
+            ""|setup|app|install|remove|reset|id)
                 set -- "$2"
                 . scripts/proxy/proxy-menu.sh
                 clear
