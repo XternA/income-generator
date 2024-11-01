@@ -362,7 +362,7 @@ case "$1" in
         echo "  igm proxy install        Install selected proxy applications."
         echo "  igm proxy remove         Remove all currently deployed proxy applications."
         echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
-        echo "  igm proxy id             Show instructions and active applications with multi-UUIDs."
+        echo "  igm proxy id             Show active applications with multi-UUIDs and instructions."
 
         echo "\n[${BLUE}Configuration${NC}]"
         echo "  igm app|service          Enable or disable applications/services for deployment."
