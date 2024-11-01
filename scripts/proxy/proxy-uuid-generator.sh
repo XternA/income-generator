@@ -68,7 +68,8 @@ view_proxy_uuids() {
             counter=0
             while IFS= read -r line; do
                 [ $counter -lt $TOTAL_PROXIES ] || continue # List in-use ID's corresponding to proxy count
-                [ $(( counter % 2 )) -eq 0 ] && echo " -> ${YELLOW}$line" || echo " -> ${BLUE}$line"
+                [ $(( counter % 2 )) -eq 0 ] && echo " ${GREEN}-> ${YELLOW}$line${NC}" || echo " ${GREEN}-> ${BLUE}$line${NC}"
+
                 counter=$((counter + 1))
             done < "$file"
             echo "$NC"
