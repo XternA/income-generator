@@ -52,6 +52,30 @@ view_proxy_uuids() {
 
     echo "Running Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
+    if [ "$1" = "active" ]; then
+        app_data=$(jq -r '.[] | select(.is_enabled == true and .proxy_uuid != null) | "\(.name) \(.proxy_uuid.description)"' "$JSON_FILE")
+
+        [ -z "$app_data" ] && echo "No active application with multi-UUID currently in use.\n" && return
+
+        echo "$app_data" | while read -r name description; do
+            file="${PROXY_FOLDER}/${name}.uuid"
+
+            [ -f "$file" ] || continue
+
+            echo "[ ${GREEN}${name}${NC} ]${NC}"
+            [ "$description" != null ] && echo "${PINK}$description${NC}\n"
+
+            counter=0
+            while IFS= read -r line; do
+                [ $counter -lt $TOTAL_PROXIES ] || continue # List in-use ID's corresponding to proxy count
+                [ $(( counter % 2 )) -eq 0 ] && echo " -> ${YELLOW}$line" || echo " -> ${BLUE}$line"
+                counter=$((counter + 1))
+            done < "$file"
+            echo "$NC"
+        done
+        return
+    fi
+
     for file in "$PROXY_FOLDER"/*; do
         [ -f "$file" ] || continue
 
