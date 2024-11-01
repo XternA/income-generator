@@ -59,13 +59,13 @@ view_proxy_uuids() {
         app_name="${filename%%.*}" # Remove extension
         description=$(jq -r --arg name "${app_name}" '.[] | select(.name == $name and .proxy_uuid != null) | .proxy_uuid.description' "$JSON_FILE")
 
-        echo "[ ${RED}${app_name}${NC} ]${NC}"
-        [ "$description" != null ] && echo " ${GREEN}->${NC} $description\n"
+        echo "[ ${GREEN}${app_name}${NC} ]${NC}"
+        [ "$description" != null ] && echo "${PINK}$description${NC}\n"
 
         counter=0
         while IFS= read -r line; do
             [ $counter -lt $TOTAL_PROXIES ] || continue # List in-use ID's corresponding to proxy count
-            [ $(( counter % 2 )) -eq 0 ] && echo "${YELLOW}$line" || echo "${BLUE}$line"
+            [ $(( counter % 2 )) -eq 0 ] && echo " -> ${YELLOW}$line" || echo " -> ${BLUE}$line"
             counter=$((counter + 1))
         done < "$file"
         echo "$NC"
