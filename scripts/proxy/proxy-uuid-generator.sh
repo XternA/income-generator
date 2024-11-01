@@ -50,7 +50,7 @@ view_proxy_uuids() {
         return
     fi
 
-    echo "Running Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
+    echo "Active Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
     if [ "$1" = "active" ]; then
         app_data=$(jq -r '.[] | select(.is_enabled == true and .proxy_uuid != null) | "\(.name) \(.proxy_uuid.description)"' "$JSON_FILE")

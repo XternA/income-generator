@@ -237,6 +237,8 @@ view_uuids() {
         echo "Multi-UUID applications with instruction need to be registered."
         echo "Unregisted IDs will not count towards earnings.\n"
 
+        echo "Deployed applications with in-use unqiue UUIDs are shown here.\n"
+
         view_proxy_uuids active
         printf "Press Enter to continue..."; read input
     else
