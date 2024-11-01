@@ -25,7 +25,7 @@ display_banner() {
 }
 
 read_app_data() {
-    APP_DATA="jq -r '.[] | select(.is_enabled == true) | \"\(.name) \(.alias) \(.is_enabled)\"' \"$JSON_FILE\""
+    APP_DATA="jq -r '.[] | select(.is_enabled == true) | \"\(.name) \(.alias) \(.is_enabled) \(.proxy_uuid)\"' \"$JSON_FILE\""
     echo "$(eval $APP_DATA)"
 }
 
@@ -85,6 +85,21 @@ display_proxy_info() {
     echo "Proxy Protocol: ${RED}$protocol_name${NC}"
 }
 
+update_app_uuid() {
+    local app_name="$1"
+    local index="$2"
+
+    if [ "$proxy_uuid" != null ]; then
+        proxy_file="$(get_proxy_file "$app_name")"
+        uuid="$(awk "NR == $index { print; exit }" $proxy_file)"
+
+        id_name_type=$(echo "$proxy_uuid" | jq -r '.name_type')
+        key_name="${app_name}_${id_name_type}"
+
+        $SED_INPLACE "s/^${key_name}=[^ ]*/${key_name}=${uuid}/" "$ENV_FILE"
+    fi
+}
+
 install_proxy_instance() {
     while true; do
         display_info installed
@@ -99,7 +114,11 @@ install_proxy_instance() {
                 APP_DATA="$(eval read_app_data)"
                 ;;
             [Yy])
-                [ "$can_install" = "true" ] && break
+                if [ "$can_install" = "true" ]; then
+                    . "scripts/proxy/proxy-uuid-generator.sh"
+                    generate_uuid_files
+                    break
+                fi
                 printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                 ;;
             [Nn])
@@ -119,6 +138,7 @@ install_proxy_instance() {
 
     for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && cp "$compose_file" "$compose_file.bak"; done
     cp "$TUNNEL_COMPOSE_FILE" "$TUNNEL_COMPOSE_FILE.bak"
+    cp "$ENV_FILE" "$ENV_FILE.bak"
 
     display_banner
     echo "Pulling latest image...\n"
@@ -131,7 +151,7 @@ install_proxy_instance() {
         display_proxy_info "$proxy_url"
         echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
 
-        echo "$APP_DATA" | while read -r name alias is_enabled; do
+        echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
             if [ "$alias" = null ]; then
                 app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
             else
@@ -145,7 +165,7 @@ install_proxy_instance() {
 
                     # Update containers already containing digit
                     if grep -q "${app_name}-[0-9]:" "$compose_file"; then
-                        $SED_INPLACE "s/${app_name}-[0-9]:/${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/^\(\s*\)${app_name}-[0-9]:\s*/\1${new_app_name}:/" "$compose_file"
                         $SED_INPLACE "s/container_name: ${app_name}-[0-9]/container_name: ${new_app_name}/" "$compose_file"
 
                         # Update proxy network
@@ -155,7 +175,7 @@ install_proxy_instance() {
                         $SED_INPLACE "s/- ${PROXY_APP_NAME}-[0-9]:/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
                         continue
                     else
-                        $SED_INPLACE "s/${app_name}:/${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/^\(\s*\)${app_name}:\s*/\1${new_app_name}:/" "$compose_file"
                         $SED_INPLACE "s/container_name: ${app_name}/container_name: ${new_app_name}/" "$compose_file"
                         $SED_INPLACE "s/project=standard/project=proxy/" "$compose_file"
 
@@ -175,6 +195,9 @@ install_proxy_instance() {
                     fi
                 fi
             done
+
+            # Update app config file UUID
+            update_app_uuid "$name" "$install_count"
         done
 
         new_proxy_name="$PROXY_APP_NAME-${install_count}"
@@ -202,6 +225,7 @@ install_proxy_instance() {
         fi
     done
     mv "${TUNNEL_COMPOSE_FILE}.bak" "$TUNNEL_COMPOSE_FILE"
+    mv "${ENV_FILE}.bak" "$ENV_FILE"
     rm -f "${TUNNEL_COMPOSE_FILE}.bk" "$ENV_PROXY_FILE"
 
     echo "Proxy application install complete."
@@ -242,7 +266,7 @@ remove_proxy_instance() {
     while test "$install_count" -le "$TOTAL_PROXIES"; do
         echo "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
 
-        echo "$APP_DATA" | while read -r name alias is_enabled; do
+        echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
             if [ "$alias" = null ]; then
                 app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
             else
@@ -259,6 +283,7 @@ remove_proxy_instance() {
     done < "$PROXY_FILE"
 
     $WATCHTOWER restore
+    $CONTAINER_ALIAS volume prune -a -f > /dev/null 2>&1
 
     echo "Proxy application uninstall complete."
     printf "\nPress Enter to continue..."; read input
