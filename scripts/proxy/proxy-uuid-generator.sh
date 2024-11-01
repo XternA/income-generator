@@ -2,7 +2,7 @@
 
 . "${ROOT_DIR}/scripts/util/uuid-generator.sh"
 
-PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
+export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
 TOTAL_PROXIES="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")"
 
 generate_uuid_files() {
