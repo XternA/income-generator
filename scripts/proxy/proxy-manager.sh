@@ -165,7 +165,7 @@ install_proxy_instance() {
 
                     # Update containers already containing digit
                     if grep -q "${app_name}-[0-9]:" "$compose_file"; then
-                        $SED_INPLACE "s/^\(\s*\)${app_name}-[0-9]:\s*/\1${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}-[0-9]:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
                         $SED_INPLACE "s/container_name: ${app_name}-[0-9]/container_name: ${new_app_name}/" "$compose_file"
 
                         # Update proxy network
@@ -175,7 +175,7 @@ install_proxy_instance() {
                         $SED_INPLACE "s/- ${PROXY_APP_NAME}-[0-9]:/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
                         continue
                     else
-                        $SED_INPLACE "s/^\(\s*\)${app_name}:\s*/\1${new_app_name}:/" "$compose_file"
+                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
                         $SED_INPLACE "s/container_name: ${app_name}/container_name: ${new_app_name}/" "$compose_file"
                         $SED_INPLACE "s/project=standard/project=proxy/" "$compose_file"
 
