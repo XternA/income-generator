@@ -255,7 +255,7 @@ main_menu() {
         TOTAL_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
         echo "Available Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
-        options="(1-8)"
+        options="(1-9)"
         echo "1. Setup Proxies"
         echo "2. Select Applications"
         echo "3. Install Proxy Applications"
