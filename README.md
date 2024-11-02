@@ -36,7 +36,7 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 - **Selective Apps** - Enable or disable the application of your choice to deploy and earn.
 - **Quick Actions** -  CLI commands for common operations without launching the tool.
 - **Auto Claim** - Comes with service applications that auto claims rewards for supported applications.
-- **Multi-Proxy** - Spawn and deploy multiple proxy instances based on proxy entries.
+- **Multi-Proxy** - Scale and deploy multiple proxy instances based on proxy entries automatically.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
