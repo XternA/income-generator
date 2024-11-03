@@ -43,7 +43,7 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 **The tool configures and runs everything in a containerized virtualized environment isolated from the host.**
 
 - A 64-bit machine. It is possible to run on a 32-bit machine, but expect performance or compatibility limitations.
-- A minimum of 4GB is recommended to ensure the most resource available and for future expansions.
+- A minimum of 4GB is recommended to ensure enough resource availability for scaling and future expansion.
 - ARM architecture devices, such as Raspberry Pi, Apple Silicon, etc, require  an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture applications on ARM. Automatically configured seamlessly through the tool.
 - On Windows, [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) is required.
 
@@ -89,16 +89,14 @@ Run the tool.
 igm
 ```
 
-### Register Applications
-Register an account for each application in the **[applications table](#app-compatibility-)**. Can also be done from the tool.
+## Account Registration 📋
+The application table provides the install specification for each applications.
 
-## App Compatibility 📋
-Using the table below, each app can identify its total install count per IP type. This indicates which stack option to run in the **'Install & Run Applications'** option of the tool.
+App registration can also be done in the tool via `Setup Configuration` process.
 
-Each app has been grouped in the install option. Therefore, whether it be residential or hosting already installed in the same network, you can install it on another device within the same network using the selective choice. The tool will install all the apps that meet the conditions below.
+- 📋 The provided registration links will entitle you to receive a bonus added to your account on registration. Additionally, it ensures you're registering at the correct site and showing your support for my work.
 
-- 📋 Register via the links below will entitle you to receive a bonus added to your account on registration. Additionally, it ensures you're registering at the correct site and showing your support for my work.
-- 🔐 If using social logins such as Google, be sure to set a password to the account as it will be required for authentication to the app later.
+- 🔐 If using social logins such as Google, set a password for the account so it can be used for app authentication.
 
 | Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
 | --- | :---: | :---: | :---: | :---: | :---: |
@@ -122,8 +120,20 @@ Each app has been grouped in the install option. Therefore, whether it be reside
 | **[BEARSHARE](https://bit.ly/4g7PmCs)**       | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
 | **[PACKETSHARE](https://bit.ly/47NcTVR)**     | :white_check_mark: | :x:                |Unlimited|1        | PayPal |
 
-## Tested Environments ✅
-The docker stack should work on anything that has docker installed. The tool has been tried and tested on the following environments:
+### Additional Applications
+These are applications currently without support via IGM. You can start running these alongside IGM to start earning until they become supported.
+
+| Application | Major Payout Type |
+| --- | :---: |
+| **[ByteLixir](https://bit.ly/48Aes9V)** | Crypto |
+| **[Wipter](https://bit.ly/3AtdSy7)** | Crypto |
+| **[UpRock](https://bit.ly/4efUcf5)** | Crypto |
+
+The applcations are usually a desktop GUI application.
+
+## Supported Environments ✅
+The tool has been tried and tested on the following environments and should be runnable if the host instances is capable of supporting container runtime such as Docker.
+
 | Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | Intel macOS (x86_64) | Apple Silicon (arm64) |
 | :---: | :---: | :---: | :---: | :---: |
 | :green_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
