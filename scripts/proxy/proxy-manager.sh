@@ -18,6 +18,8 @@ COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.single.yml
 "
 
+HOST="$(hostname)"
+
 display_banner() {
     clear
     echo "Income Generator Proxy Manager"
@@ -27,6 +29,16 @@ display_banner() {
 read_app_data() {
     APP_DATA="jq -r '.[] | select(.is_enabled == true) | \"\(.name) \(.alias) \(.is_enabled) \(.proxy_uuid)\"' \"$JSON_FILE\""
     echo "$(eval $APP_DATA)"
+}
+
+set_host_suffix() {
+    local suffix="${1:-}"
+
+    if grep -q "^DEVICE_ID=" "$ENV_SYSTEM_FILE"; then
+        $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=${HOST}${suffix}/" "$ENV_SYSTEM_FILE"
+    else
+        echo "DEVICE_ID=${HOST}${suffix}" >> "$ENV_SYSTEM_FILE"
+    fi
 }
 
 display_info() {
@@ -183,6 +195,7 @@ install_proxy_instance() {
                         $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
                         $SED_INPLACE "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" "$compose_file"
                         $SED_INPLACE "/network_mode: bridge$/d" "$compose_file"
+                        $SED_INPLACE "/hostname:*/d" "$compose_file"
 
                         # Add depends on service
                         if ! grep -q "depends_on:" "$compose_file"; then
@@ -210,6 +223,7 @@ install_proxy_instance() {
         fi
 
         echo
+        set_host_suffix "-${install_count}"
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
         $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d
         install_count=$((install_count + 1))
@@ -217,6 +231,7 @@ install_proxy_instance() {
     done < "$PROXY_FILE"
 
     $WATCHTOWER deploy
+    set_host_suffix
 
     for compose_file in $COMPOSE_FILES; do
         if [ "$compose_file" != "-f" ]; then

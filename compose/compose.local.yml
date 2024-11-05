@@ -3,6 +3,7 @@ services:
         container_name: earnapp
         image: fazalfarhan01/earnapp:lite
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -30,6 +31,7 @@ services:
         container_name: packetstream
         image: packetstream/psclient
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -52,16 +54,15 @@ services:
         container_name: speedshare
         image: mrcolorrain/speedshare
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
-        hostname: $DEVICE_ID
         environment:
             - CODE=${SPEEDSHARE_AUTH_CODE:-}
             - SPEEDSHARE_UUID=${SPEEDSHARE_UUID:-}
         platform: linux/amd64
         profiles:
             - ${SPEEDSHARE:-DISABLED}
-        network_mode: bridge
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -78,6 +79,7 @@ services:
         container_name: spide
         image: xterna/spide-network
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -100,6 +102,7 @@ services:
         container_name: grass
         image: mrcolorrain/grass
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -123,6 +126,7 @@ services:
         container_name: nodepay
         image: kellphy/nodepay
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:

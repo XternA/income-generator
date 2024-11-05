@@ -3,6 +3,7 @@ services:
         container_name: honeygain
         image: honeygain/honeygain
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         command: >
@@ -28,6 +29,7 @@ services:
         container_name: pawns
         image: iproyal/pawns-cli
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         command: >
@@ -54,6 +56,7 @@ services:
         container_name: packetshare
         image: packetshare/packetshare
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         command: >

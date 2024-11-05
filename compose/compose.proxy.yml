@@ -3,6 +3,7 @@ services:
         container_name: tun2socks
         image: xjasonlyu/tun2socks
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=proxy
         environment:
