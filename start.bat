@@ -11,6 +11,12 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+where winget >nul 2>&1
+if %errorlevel% neq 0 (
+    echo No git found on the system. Attempting to install git...
+    winget install -i Git.Git
+)
+
 where wsl >nul 2>&1
 if %errorlevel% neq 0 (
     echo No Windows Subsystem for Linux found on the system. Ensure WSL is enabled before proceeding.

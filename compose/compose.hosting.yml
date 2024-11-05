@@ -3,6 +3,7 @@ services:
         container_name: repocket
         image: repocket/repocket
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -27,6 +28,7 @@ services:
         container_name: proxyrack
         image: proxyrack/pop
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -52,6 +54,7 @@ services:
         container_name: proxylite
         image: proxylite/proxyservice
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -75,6 +78,7 @@ services:
         container_name: earnfm
         image: earnfm/earnfm-client
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -97,6 +101,7 @@ services:
         container_name: bitping
         image: bitping/bitpingd
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -122,6 +127,7 @@ services:
         container_name: gaga-node
         image: xterna/gaga-node
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -144,6 +150,7 @@ services:
         container_name: bearshare
         image: bearshare/bearshare${BEARSHARE_TAG:-}
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         command: >

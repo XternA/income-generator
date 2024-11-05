@@ -3,6 +3,7 @@ services:
         container_name: peer2profit
         image: xterna/peer2profit
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         environment:
@@ -26,6 +27,7 @@ services:
         container_name: traffmonetizer
         image: traffmonetizer/cli_v2${TRAFFMONETIZER_TAG:-}
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         command: >
@@ -50,6 +52,7 @@ services:
         container_name: myst
         image: mysteriumnetwork/myst
         restart: always
+        hostname: $DEVICE_ID
         labels:
             - project=standard
         cap_add:
