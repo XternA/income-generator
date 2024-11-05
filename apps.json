@@ -143,7 +143,7 @@
             "requires_uuid": true,
             "uuid_type": "&",
             "name_type": "MACHINE_ID",
-            "description": "These are machine ID, to regenerate the same device ID.\nRegister device ID from: docker logs spide-{number} 2>&1 | grep \"Device Key\""
+            "description": "These are machine ID, to regenerate the same device ID. Register device ID from: docker logs spide-{number} 2>&1 | grep \"Device Key\""
         }
     },
     {
