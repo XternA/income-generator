@@ -153,9 +153,7 @@ install_applications() {
         echo "1. Selective applications"
         echo "2. All applications including residential support"
         echo "3. Only applications with VPS/Hosting support"
-        echo "4. All applications with residential but exclude single install count"
-        echo "5. Only applications allowing unlimited install count"
-        echo "6. All available service applications"
+        echo "4. All service applications"
         echo "$exit_option"
         echo
         printf "Select an option %s: " "$options"
@@ -207,14 +205,6 @@ install_applications() {
                 compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml"
                 ;;
             4)
-                install_type="Installing all applications, excluding single instances only..."
-                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml -f $COMPOSE_DIR/compose.local.yml"
-                ;;
-            5)
-                install_type="Installing only applications with unlimited install count..."
-                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml"
-                ;;
-            6)
                 install_type="Installing all available services application..."
                 compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.service.yml"
                 ;;
@@ -360,37 +350,51 @@ show_applications() {
     display_banner
     echo "Installed Containers:\n"
 
+    local proxy_number="${2:-}"
+    local proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
+
     has_apps() {
-        $CONTAINER_ALIAS ps -a -q -f "label=project=${1}" | head -n 1
+        if [ ! -z "$proxy_number" ]; then
+            $CONTAINER_ALIAS ps -a -q -f "label=${proxy_project}" | head -n 1
+        else
+            $CONTAINER_ALIAS ps -a -q -f "label=project=${1}" | head -n 1
+        fi
     }
     show_apps() {
-        $CONTAINER_ALIAS ps -a -f "label=project=${1}"
+        if [ ! -z "$proxy_number" ]; then
+            $CONTAINER_ALIAS ps -a -f "label=${proxy_project}"
+        else
+            $CONTAINER_ALIAS ps -a -f "label=project=${1}"
+        fi
     }
+
+    standard_apps="has_apps 'standard'"
+    proxy_apps="has_apps 'proxy'"
 
     case "$1" in
         "")
-            if [ -z "$(has_apps 'standard')" ] && [ -z "$(has_apps 'proxy')" ]; then
+            if [ -z "$standard_apps" ] && [ -z "$proxy_apps" ]; then
                 echo "No installed applications."
             else
-                if [ ! -z "$(has_apps 'standard')" ]; then
+                if [ -n "$standard_apps" ]; then
                     echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
                     show_apps "standard"
                 fi
-                if [ ! -z "$(has_apps 'proxy')" ]; then
+                if [ -n "$proxy_apps" ]; then
                     echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
                     show_apps "proxy"
                 fi
             fi
             ;;
         proxy)
-            if [ -z "$(has_apps 'proxy')" ]; then
+            if [ -z "$proxy_apps" ]; then
                 echo "No installed proxy applications."
             else
                 show_apps "proxy"
             fi
             ;;
         app)
-            if [ -z "$(has_apps 'standard')" ]; then
+            if [ -z "$standard_apps" ]; then
                 echo "No installed applications."
             else
                 show_apps "standard"

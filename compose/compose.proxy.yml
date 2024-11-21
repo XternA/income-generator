@@ -12,17 +12,17 @@ services:
             - EXTRA_COMMANDS=ip rule add iif lo ipproto udp dport 53 lookup main;
         cap_add:
             - NET_ADMIN
-        network_mode: "bridge"
+        network_mode: bridge
         dns:
             - 1.1.1.1
             - 8.8.8.8
         volumes:
-            - '/dev/net/tun:/dev/net/tun'
+            - /dev/net/tun:/dev/net/tun
         cpus: $ALT_MIN_CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "5k"
-                max-file: "1"
+                max-size: 5k
+                max-file: 1

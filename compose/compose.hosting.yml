@@ -97,6 +97,34 @@ services:
                 max-size: "10k"
                 max-file: "1"
 
+    mysterium:
+        container_name: mysterium
+        image: mysteriumnetwork/myst
+        restart: always
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+        cap_add:
+            - NET_ADMIN
+        command: service --agreed-terms-and-conditions
+        profiles:
+            - ${MYSTERIUM:-DISABLED}
+        ports:
+            - 4449:4449
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        volumes:
+            - $DATA_DIR/mysterium-node:/var/lib/mysterium-node
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10k"
+                max-file: "1"
+
     bitping:
         container_name: bitping
         image: bitping/bitpingd
