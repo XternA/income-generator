@@ -35,7 +35,7 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 - **Resource Limit** - Easily apply resource limit based on system hardware dynamically.
 - **Selective Apps** - Enable or disable the application of your choice to deploy and earn.
 - **Quick Actions** -  CLI commands for common operations without launching the tool.
-- **Auto Claim** - Comes with service applications that auto claims rewards for supported applications.
+- **Auto Claim** - Auto claim daily rewards for supported applications with service apps.
 - **Multi-Proxy** - Scale and deploy multiple proxy instances based on proxy entries automatically.
 
 ## Getting Started 🚥
