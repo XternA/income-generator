@@ -165,36 +165,23 @@ install_proxy_instance() {
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
             if [ "$alias" = null ]; then
-                app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+                app_name=$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')
             else
-                 app_name=$(echo "$alias" | tr '[:upper:]' '[:lower:]')
+                app_name=$(printf '%s' "$alias" | tr '[:upper:]' '[:lower:]')
             fi
             echo " ${GREEN}->${NC} ${app_name}-${install_count}"
 
             for compose_file in $COMPOSE_FILES; do
                 if [ "$compose_file" != "-f" ]; then
-                    new_app_name="${app_name}-${install_count}"
+                    grep -q "$app_name" "$compose_file" || continue
 
-                    # Update containers already containing digit
-                    if grep -q "${app_name}-[0-9]:" "$compose_file"; then
-                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}-[0-9]:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
-                        $SED_INPLACE "s/container_name: ${app_name}-[0-9]/container_name: ${new_app_name}/" "$compose_file"
-
-                        # Update proxy network
-                        $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
-
-                        # Update depends on
-                        $SED_INPLACE "s/- ${PROXY_APP_NAME}-[0-9]:/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
-                        continue
-                    else
-                        $SED_INPLACE "s/^\([[:space:]]*\)${app_name}:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
-                        $SED_INPLACE "s/container_name: ${app_name}/container_name: ${new_app_name}/" "$compose_file"
+                    if ! grep -q "${app_name}-[0-9]:" "$compose_file"; then
+                        # Set project to proxy
                         $SED_INPLACE "s/project=standard/project=proxy/" "$compose_file"
 
                         # Replace DNS with proxy network
                         $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
                         $SED_INPLACE "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" "$compose_file"
-                        $SED_INPLACE "/network_mode: bridge$/d" "$compose_file"
                         $SED_INPLACE "/hostname:*/d" "$compose_file"
 
                         # Add depends on service
@@ -204,8 +191,15 @@ install_proxy_instance() {
                                 next
                             } 1' "$compose_file" > tmp && mv tmp "$compose_file"
                         fi
-                        continue
                     fi
+
+                    # Update container name
+                    new_app_name="${app_name}-${install_count}"
+                    $SED_INPLACE "s/^\([[:space:]]*\)${app_name}-\?[0-9]*:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
+                    $SED_INPLACE "s/container_name: ${app_name}-\?[0-9]*/container_name: ${new_app_name}/" "$compose_file"
+
+                    # Update proxy network and depends on
+                    $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
                 fi
             done
 
@@ -283,9 +277,9 @@ remove_proxy_instance() {
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
             if [ "$alias" = null ]; then
-                app_name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+                app_name=$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')
             else
-                 app_name=$(echo "$alias" | tr '[:upper:]' '[:lower:]')
+                app_name=$(printf '%s' "$alias" | tr '[:upper:]' '[:lower:]')
             fi
             app_name="${app_name}-${install_count}"
             echo " ${GREEN}->${NC} $app_name"

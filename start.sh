@@ -412,7 +412,7 @@ case "$1" in
         fi
         ;;
     show)
-        show_applications "$2"
+        show_applications "$2" "$3"
         clear
         ;;
     deploy)
