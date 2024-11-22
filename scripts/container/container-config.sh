@@ -16,12 +16,10 @@ register_compose() {
 register_runtime() {
     export CONTAINER_ALIAS="docker"
 
-    if [ "$(uname)" = "Linux" ]; then
-        if [ -n "$WSL_DISTRO_NAME" ]; then
-            export HAS_CONTAINER_RUNTIME="$(where.exe $CONTAINER_ALIAS 2> /dev/null >&1)"
-        else
-            export HAS_CONTAINER_RUNTIME="$(command -v $CONTAINER_ALIAS 2> /dev/null 1>&1)"
-        fi
+    if [ -n "$WSL_DISTRO_NAME" ]; then
+        export HAS_CONTAINER_RUNTIME="$(where.exe $CONTAINER_ALIAS 2> /dev/null >&1)"
+    else
+        export HAS_CONTAINER_RUNTIME="$(command -v $CONTAINER_ALIAS 2> /dev/null 1>&1)"
     fi
     register_compose
 }
