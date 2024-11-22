@@ -18,10 +18,10 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "10k"
-                max-file: "1"
+                max-size: 10k
+                max-file: 1
 
     bearshare-pot:
         container_name: bearshare-pot
@@ -42,10 +42,10 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "10k"
-                max-file: "1"
+                max-size: 10k
+                max-file: 1
 
     packetshare-pot:
         container_name: packetshare-pot
@@ -66,7 +66,7 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "10k"
-                max-file: "1"
+                max-size: 10k
+                max-file: 1

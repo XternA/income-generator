@@ -182,7 +182,7 @@ install_proxy_instance() {
                         # Replace DNS with proxy network
                         $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
                         $SED_INPLACE "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" "$compose_file"
-                        $SED_INPLACE "/hostname:*/d" "$compose_file"
+                        $SED_INPLACE "/hostname:/d" "$compose_file"
 
                         # Add depends on service
                         if ! grep -q "depends_on:" "$compose_file"; then

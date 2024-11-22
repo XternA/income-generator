@@ -25,7 +25,7 @@ BARE_MIN_RAM_LIMIT_MB=$((TOTAL_RAM_MB / 8))  # Use 12.5% of total RAM
 case $LIMIT_TYPE in
     base)
         CPU_LIMIT_STR="0.2"
-        RAM_LIMIT_MB="320"
+        RAM_LIMIT_MB="350"
         ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT
         ;;
     min)

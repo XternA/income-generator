@@ -140,6 +140,8 @@ install_applications() {
 
     while true; do
         display_banner
+        [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+
         options="(1-6)"
 
         if [ "$1" = "quick_menu" ]; then
@@ -249,6 +251,7 @@ install_applications() {
 }
 
 reinstall_applications() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     $APP_SELECTION --backup > /dev/null 2>&1
     $APP_SELECTION --restore redeploy > /dev/null 2>&1
 
@@ -298,6 +301,7 @@ reinstall_applications() {
 
 start_applications() {
     display_banner
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     echo "Starting applications...\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     echo "\nAll installed applications started."
@@ -305,12 +309,14 @@ start_applications() {
 }
 
 start_application() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     printf "Starting application "
     $CONTAINER_ALIAS start "$1"
 }
 
 stop_applications() {
     display_banner
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     echo "Stopping applications...\n"
 
     compose_files=$ALL_COMPOSE_FILES
@@ -323,12 +329,15 @@ stop_applications() {
 }
 
 stop_application() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     printf "Stopping application "
     $CONTAINER_ALIAS stop -t 6 "$1"
 }
 
 remove_applications() {
     display_banner
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+
     echo "Stopping and removing applications and volumes...\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
@@ -342,12 +351,15 @@ remove_applications() {
 }
 
 remove_application() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     printf "Removing application "
     $CONTAINER_ALIAS rm -f -v "$1"
 }
 
 show_applications() {
     display_banner
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+
     echo "Installed Containers:\n"
 
     local proxy_number="${2:-}"
@@ -368,36 +380,37 @@ show_applications() {
         fi
     }
 
-    standard_apps="has_apps 'standard'"
-    proxy_apps="has_apps 'proxy'"
-
     case "$1" in
         "")
-            if [ -z "$standard_apps" ] && [ -z "$proxy_apps" ]; then
+            if [ -z "$(has_apps standard)" ] && [ -z "$(has_apps proxy)" ]; then
                 echo "No installed applications."
             else
-                if [ -n "$standard_apps" ]; then
+                if [ -n "$(has_apps standard)" ]; then
                     echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
-                    show_apps "standard"
+                    show_apps standard
                 fi
-                if [ -n "$proxy_apps" ]; then
+                if [ -n "$(has_apps proxy)" ]; then
                     echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
-                    show_apps "proxy"
+                    show_apps proxy
                 fi
             fi
             ;;
         proxy)
-            if [ -z "$proxy_apps" ]; then
-                echo "No installed proxy applications."
+            if [ -z "$(has_apps proxy)" ]; then
+                if [ -n "$proxy_number" ]; then
+                    echo "No installed set ${RED}${proxy_number}${NC} proxy applications."
+                else
+                    echo "No installed proxy applications."
+                fi
             else
-                show_apps "proxy"
+                show_apps proxy
             fi
             ;;
         app)
-            if [ -z "$standard_apps" ]; then
+            if [ -z "$(has_apps standard)" ]; then
                 echo "No installed applications."
             else
-                show_apps "standard"
+                show_apps standard
             fi
             ;;
         *)
