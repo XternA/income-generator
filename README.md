@@ -143,7 +143,7 @@ The tool has been tried and tested on the following environments and should be r
 
 Your efforts and interest are well appreciated if you would like to contribute and improve the tool or compatibility and enable it widely available and easy to use.
 
-Even if you do not wish to contribute, you can still show your support by giving this project a star ⭐.
+Even if you do not wish to contribute, you can still show your support by giving this project a star ⭐ or sharing it with others.
 
 ### Donations 💸
 - **Bitcoin (BTC)** - `bc1qq993w3mxsf5aph5c362wjv3zaegk37tcvw7rl4`
