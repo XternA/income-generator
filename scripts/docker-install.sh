@@ -1,11 +1,8 @@
 #!/bin/sh
 
-has_docker=$(command -v docker 2> /dev/null 1>&1)
-
 if [ "$(uname)" = "Linux" ]; then
     if [ -n "$WSL_DISTRO_NAME" ]; then
         OS="wsl"
-        has_docker="$(where.exe docker 2> /dev/null >&1)"
     else
         OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
     fi
@@ -83,7 +80,7 @@ install_wsl() {
 }
 
 # -----[ Main ]----------------------------------------------------------
-if [ ! "$has_docker" ]; then
+if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
     case $OS in
         centos | rhel)
             install_centos

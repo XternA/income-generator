@@ -12,7 +12,7 @@ services:
             --include-stopped
             --include-restarting
             --revive-stopped
-            --interval "9000"
+            --interval 9000
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -22,7 +22,7 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "10k"
-                max-file: "1"
+                max-size: 10k
+                max-file: 1

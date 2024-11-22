@@ -36,8 +36,10 @@ select_proxy_app() {
 }
 
 install_proxy_app() {
+    display_banner
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+
     if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
-        display_banner
         echo "Proxy application still active."
         echo "\nRemove existing applications first."
         printf "\nPress Enter to continue..."; read input
@@ -47,6 +49,8 @@ install_proxy_app() {
 }
 
 remove_proxy_app() {
+    display_banner
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     sh "scripts/proxy/proxy-manager.sh" remove
 }
 

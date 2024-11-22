@@ -113,6 +113,7 @@ option_7() {
                 display_banner
                 echo "Installing Docker...\n"
                 sh scripts/$CONTAINER_ALIAS-install.sh
+                sh scripts/container/container-config.sh --register
                 sh scripts/emulation-layer.sh --add
                 printf "\nPress Enter to continue..."; read input
                 ;;
@@ -142,7 +143,7 @@ option_8() {
         echo "Pick a new resource limit utilization based on current hardware limits.\n"
         printf "%s\n" "$STATS"
         echo
-        echo "1. BASE   -->   320MB RAM"
+        echo "1. BASE   -->   350MB RAM"
         echo "2. MIN    -->   12.5% Total RAM"
         echo "3. LOW    -->   18.75% Total RAM"
         echo "4. MID    -->   25% Total RAM"

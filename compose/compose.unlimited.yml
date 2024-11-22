@@ -18,10 +18,10 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "10k"
-                max-file: "1"
+                max-size: 10k
+                max-file: 1
 
     traffmonetizer:
         container_name: traffmonetizer
@@ -43,7 +43,7 @@ services:
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
-            driver: "json-file"
+            driver: json-file
             options:
-                max-size: "10k"
-                max-file: "1"
+                max-size: 10k
+                max-file: 1
