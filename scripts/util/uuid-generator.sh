@@ -1,8 +1,6 @@
 #!/bin/sh
 
 generate_uuid() {
-    local denoter="$1"
-
     if [ "$(uname)" = "Darwin" ]; then
         uuid="$(uuidgen | tr 'A-Z' 'a-z')"
     else
