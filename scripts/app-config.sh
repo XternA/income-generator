@@ -92,7 +92,7 @@ process_entries() {
             if [ "$(echo "$config_entry" | jq -r '.properties | type')" = "array" ]; then
                 for entry in $properties; do
                     entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "*#&") # Remove surrounding quotes and denoters
-                    denoter=$(echo "$entry" | cut -c1)
+                    denoter=$(echo "${entry%${entry#?}}")
 
                     [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ] && is_update=true
 
