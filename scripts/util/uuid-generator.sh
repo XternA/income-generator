@@ -7,7 +7,7 @@ generate_uuid() {
         uuid="$(cat /proc/sys/kernel/random/uuid)"
     fi
 
-    case "$denoter" in
+    case "$1" in
         "#") echo "sdk-node-$(echo "$uuid" | tr -d '-')" ;;
         "*") echo "$uuid" ;;
         "&") echo "$uuid" | tr -d '-' ;;
