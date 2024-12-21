@@ -6,16 +6,13 @@ export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
 TOTAL_PROXIES="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")"
 
 generate_uuid_files() {
-    app_data="jq -r '.[] | select(.is_enabled == true and .proxy_uuid != null) | \"\(.name) \(.proxy_uuid)\"' \"$JSON_FILE\""
+    app_data="jq -r '.[] | select(.is_enabled == true and .uuid_type != null) | \"\(.name) \(.uuid_type)\"' \"$JSON_FILE\""
 
     [ -n "$PROXY_FOLDER" ] && mkdir -p "$PROXY_FOLDER"
 
     counter=1
     while true; do
-        echo "$(eval $app_data)" | while read -r name proxy_uuid; do
-            requires_uuid=$(echo "$proxy_uuid" | jq -r '.requires_uuid')
-            uuid_type=$(echo "$proxy_uuid" | jq -r '.uuid_type')
-
+        echo "$(eval $app_data)" | while read -r name uuid_type; do
             proxy_file="${PROXY_FOLDER}/${name}.uuid"
             uuid="$(generate_uuid "$uuid_type")"
 

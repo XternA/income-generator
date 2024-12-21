@@ -8,8 +8,8 @@ generate_uuid() {
     fi
 
     case "$1" in
-        "#") echo "sdk-node-$(echo "$uuid" | tr -d '-')" ;;
-        "*") echo "$uuid" ;;
-        "&") echo "$uuid" | tr -d '-' ;;
+        1) echo "sdk-node-$(echo "$uuid" | tr -d '-')" ;;
+        2) echo "$uuid" ;;
+        3) echo "$uuid" | tr -d '-' ;;
     esac
 }

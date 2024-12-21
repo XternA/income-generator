@@ -91,12 +91,13 @@ process_entries() {
             # Check if properties is an array before looping through it
             if [ "$(echo "$config_entry" | jq -r '.properties | type')" = "array" ]; then
                 for entry in $properties; do
-                    entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "*#&") # Remove surrounding quotes and denoters
-                    denoter=$(echo "${entry%${entry#?}}")
+                    entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "#") # Remove surrounding quotes and denoter
+                    require_uuid=$(echo "${entry%${entry#?}}")
 
                     [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ] && is_update=true
 
-                    if [ "$denoter" = "#" ] || [ "$denoter" = "*" ] || [ "$denoter" = "&" ]; then
+                    if [ "$require_uuid" = "#" ]; then
+                        denoter=$(echo "$config_entry" | jq -r '.uuid_type' | tr -d '\n')
                         process_uuid_user_choice
                     else
                         input_new_value
