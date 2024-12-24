@@ -3,38 +3,28 @@
 HOST="$(hostname)"
 OS="$(uname -s)"
 RAW_ARCH="$(uname -m)"
-ARCH=$RAW_ARCH
 
-case $ARCH in
+case $RAW_ARCH in
     arm64|aarch64)
         ARCH="arm64v8"
-        DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
         ;;
     armv7l)
         ARCH="arm32v7"
-        DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
         ;;
     *)
         ARCH="latest"
-        DISPLAY_ARCH=$RAW_ARCH
         ;;
 esac
+
+DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
 
 echo "Hostname:         $HOST"
 echo "Platform:         $OS"
 echo "Architecture:     $DISPLAY_ARCH\n"
 
 if [ -f "$ENV_SYSTEM_FILE" ]; then
-    if grep -q "^DEVICE_ID=" "$ENV_SYSTEM_FILE"; then
-        $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=$HOST/" "$ENV_SYSTEM_FILE"
-    else
-        echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
-    fi
-    if grep -q "^ARCH=" "$ENV_SYSTEM_FILE"; then
-        $SED_INPLACE "s/^ARCH=.*/ARCH=$ARCH/" "$ENV_SYSTEM_FILE"
-    else
-        echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
-    fi
+    $SED_INPLACE "/^DEVICE_ID=/c\DEVICE_ID=$HOST" "$ENV_SYSTEM_FILE" || echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
+    $SED_INPLACE "/^ARCH=/c\ARCH=$ARCH" "$ENV_SYSTEM_FILE" || echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
 else
     echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
     echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
