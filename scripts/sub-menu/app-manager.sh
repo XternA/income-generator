@@ -142,8 +142,6 @@ install_applications() {
         display_banner
         [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
-        options="(1-6)"
-
         if [ "$1" = "quick_menu" ]; then
             echo "How would you like to install?\n"
             exit_option="0. Exit"
@@ -152,9 +150,11 @@ install_applications() {
         fi
         is_selective=false
 
+        options="(1-4)"
+
         echo "1. Selective applications"
-        echo "2. All applications including residential support"
-        echo "3. Only applications with VPS/Hosting support"
+        echo "2. All applications available"
+        echo "3. Only VPS/Hosting applications"
         echo "4. All service applications"
         echo "$exit_option"
         echo

@@ -23,8 +23,8 @@ echo "Platform:         $OS"
 echo "Architecture:     $DISPLAY_ARCH\n"
 
 if [ -f "$ENV_SYSTEM_FILE" ]; then
-    $SED_INPLACE "/^DEVICE_ID=/c\DEVICE_ID=$HOST" "$ENV_SYSTEM_FILE" || echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
-    $SED_INPLACE "/^ARCH=/c\ARCH=$ARCH" "$ENV_SYSTEM_FILE" || echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
+    $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=$HOST/" "$ENV_SYSTEM_FILE" || echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
+    $SED_INPLACE "s/^ARCH=.*/ARCH=$ARCH/" "$ENV_SYSTEM_FILE" || echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
 else
     echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
     echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
