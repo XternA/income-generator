@@ -289,6 +289,29 @@ option_9() {
     done
 }
 
+tool_reset() {
+    while true; do
+        display_banner
+        read -p "Do you want to reset IGM system settings? (Y/N): " yn
+        case $yn in
+            [Yy]*)
+                display_banner
+                rm -rf .env.system
+                echo "IGM system setting has been reset."
+                printf "\nPress Enter to continue..."; read input
+                break
+                ;;
+            ''|[Nn]*)
+                break
+                ;;
+            *)
+                echo "\nPlease input yes (Y/y) or no (N/n)."
+                printf "\nPress Enter to continue..."; read input
+                ;;
+        esac
+    done
+}
+
 main_menu() {
     NEW_UPDATE=$($UPDATE_CHECKER)
 
@@ -376,6 +399,12 @@ case "$1" in
     "")
         $APP_SELECTION --import
         main_menu
+        ;;
+    tool)
+        if [ "$2" = "reset" ]; then
+            tool_reset
+            clear
+        fi
         ;;
     proxy)
         case "$2" in
