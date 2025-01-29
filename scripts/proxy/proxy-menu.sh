@@ -256,7 +256,7 @@ main_menu() {
     while true; do
         display_banner
 
-        TOTAL_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
+        TOTAL_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
         echo "Available Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
         options="(1-9)"

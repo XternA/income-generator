@@ -3,7 +3,7 @@
 . "${ROOT_DIR}/scripts/util/uuid-generator.sh"
 
 export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
-TOTAL_PROXIES="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")"
+TOTAL_PROXIES="$(awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE")"
 
 generate_uuid_files() {
     app_data="jq -r '.[] | select(.is_enabled == true and .uuid_type != null) | \"\(.name) \(.uuid_type)\"' \"$JSON_FILE\""

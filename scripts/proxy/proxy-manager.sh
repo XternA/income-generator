@@ -159,6 +159,8 @@ install_proxy_instance() {
 
     install_count=1
     while IFS= read -r proxy_url; do
+        [ "$(echo "$proxy_url" | cut -c1)" = "#" ] && continue # Skip entries not in use.
+
         echo "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
         display_proxy_info "$proxy_url"
         echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
@@ -273,6 +275,8 @@ remove_proxy_instance() {
 
     install_count=1
     while test "$install_count" -le "$TOTAL_PROXIES"; do
+        [ "$(echo "$proxy_url" | cut -c1)" = "#" ] && continue # Skip entries not in use.
+
         echo "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
@@ -311,7 +315,7 @@ check_proxy_file() {
 
     # Ensure proxy entries are valid
     awk -v red="$RED" -v yellow="$YELLOW" -v reset="$NC" '
-    {
+    /^[^#]/ {
         if ($0 !~ /^(socks5|socks4|http|ss|relay):\/\//) {
             printf "Found missing or invalid schema on line %s%d%s.\n", red, NR, reset
             print "Ensure proxy entries are correct."
@@ -335,7 +339,7 @@ display_banner
 check_proxy_file
 
 APP_DATA="$(eval read_app_data)"
-TOTAL_PROXIES="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$PROXY_FILE")"
+TOTAL_PROXIES="$(awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE")"
 
 case "$1" in
     install) install_proxy_instance ;;
