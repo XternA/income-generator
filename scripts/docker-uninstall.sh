@@ -39,7 +39,10 @@ remove_arch() {
 }
 
 remove_darwin() {
-    brew uninstall docker
+    brew uninstall --cask --force docker
+    brew uninstall --formula --force docker
+    brew cleanup
+    brew autoremove
 }
 
 remove_wsl() {
