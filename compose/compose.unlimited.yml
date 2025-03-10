@@ -6,6 +6,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - P2P_EMAIL=${P2PROFIT_EMAIL:-}
         platform: linux/amd64
@@ -30,6 +31,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         command: >
             start accept
             --token ${TRAFFMONETIZER_TOKEN:-}

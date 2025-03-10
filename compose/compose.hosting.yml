@@ -6,6 +6,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - RP_EMAIL=${REPOCKET_EMAIL:-}
             - RP_API_KEY=${REPOCKET_API_KEY:-}
@@ -31,6 +32,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - api_key=${PROXYRACK_API_KEY:-}
             - device_name=${DEVICE_ID:-}
@@ -57,6 +59,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - USER_ID=${PROXYLITE_USER_ID:-}
         platform: linux/amd64
@@ -81,6 +84,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - EARNFM_TOKEN=${EARNFM_TOKEN:-}
         profiles:
@@ -104,6 +108,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         cap_add:
             - NET_ADMIN
         command: service --agreed-terms-and-conditions
@@ -132,6 +137,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             BITPING_EMAIL: ${BITPING_EMAIL:-}
             BITPING_PASSWORD: ${BITPING_PASSWORD:-}
@@ -158,6 +164,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - TOKEN=${GAGANODE_TOKEN:-}
         profiles:
@@ -181,6 +188,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         command: >
             -email=${BEARSHARE_EMAIL:-}
             -password=${BEARSHARE_PASSWORD:-}

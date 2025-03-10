@@ -6,6 +6,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - EMAIL=${HONEYGAIN_EMAIL:-}
             - PASSWORD=${HONEYGAIN_PASSWORD:-}
@@ -30,6 +31,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - EMAIL=${BEARSHARE_EMAIL:-}
             - PASSWORD=${BEARSHARE_PASSWORD:-}
@@ -54,6 +56,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - EMAIL=${PACKETSHARE_EMAIL:-}
             - PASSWORD=${PACKETSHARE_PASSWORD:-}

@@ -6,6 +6,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - EARNAPP_UUID=${EARNAPP_DEVICE_UUID:-}
             - EARNAPP_TERM=yes
@@ -34,6 +35,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - CID=${PACKETSTREAM_CID:-}
         profiles:
@@ -57,6 +59,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - CODE=${SPEEDSHARE_AUTH_CODE:-}
             - SPEEDSHARE_UUID=${SPEEDSHARE_UUID:-}
@@ -82,6 +85,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - ID=${SPIDE_MACHINE_ID:-}
         profiles:
@@ -105,6 +109,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - USER_EMAIL=${GRASS_EMAIL:-}
             - USER_PASSWORD=${GRASS_PASSWORD:-}
@@ -129,6 +134,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - NP_COOKIE=${NODEPAY_COOKIE:-}
         profiles:
