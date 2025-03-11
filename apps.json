@@ -197,7 +197,7 @@
             "BEARSHARE_PASSWORD"
         ],
         "is_enabled": true,
-        "service_enabled": false,
+        "service_enabled": true,
         "image_tag": {
             "arm64": "latest-arm"
         }
@@ -212,5 +212,14 @@
         ],
         "is_enabled": true,
         "service_enabled": true
+    },
+    {
+        "name": "NETWORK3",
+        "url": "https://tinyurl.com/fe8knv3t",
+        "description": null,
+        "properties": [
+            "NETWORK3_EMAIL"
+        ],
+        "is_enabled": true
     }
 ]
