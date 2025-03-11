@@ -145,5 +145,35 @@ services:
                 max-size: 10k
                 max-file: 1
 
+    network3:
+        container_name: network3
+        image: aron666/network3-ai
+        restart: always
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+        cap_add:
+            - NET_ADMIN
+        environment:
+            - EMAIL=${NETWORK3_EMAIL:-}
+        profiles:
+            - ${NETWORK3:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        devices:
+            - /dev/net/tun
+        volumes:
+          - network3-data:/usr/local/etc/wireguard
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1
+
 volumes:
     earnapp-data:
+    network3-data:
