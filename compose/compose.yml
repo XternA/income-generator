@@ -1,6 +1,6 @@
 services:
-    watchtower:
-        container_name: watchtower
+    watchtower-igm:
+        container_name: watchtower-igm
         image: containrrr/watchtower
         restart: always
         labels:
@@ -13,6 +13,7 @@ services:
             --include-restarting
             --revive-stopped
             --interval 9000
+            --scope igm
         dns:
             - 1.1.1.1
             - 8.8.8.8

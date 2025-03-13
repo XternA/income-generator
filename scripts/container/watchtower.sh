@@ -2,7 +2,7 @@
 
 WATCHTOWER_COMPOSE="$COMPOSE_DIR/compose.yml"
 COMMAND="$CONTAINER_COMPOSE $SYSTEM_ENV_FILES -f $WATCHTOWER_COMPOSE up --force-recreate --build -d"
-WATCHTOWER_ALIAS="watchtower"
+WATCHTOWER_ALIAS="watchtower-igm"
 
 modify_watchtower() {
     cp "$WATCHTOWER_COMPOSE" "$WATCHTOWER_COMPOSE.bak" > /dev/null 2>&1

@@ -6,6 +6,7 @@ services:
         hostname: $DEVICE_ID
         labels:
             - project=proxy
+            - com.centurylinklabs.watchtower.scope=igm
         environment:
             - LOGLEVEL=info
             - PROXY=${PROXY_URL:-}
