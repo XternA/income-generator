@@ -15,7 +15,7 @@ else
 
     echo "${YELLOW}---------[ START OF $TYPE ]---------\n${RED}"
     if [ "$TYPE" = "PROXY" ]; then
-        cat "$FILE"
+        cat "$FILE" | sed -e "s/^#.*$/\x1b[90m&\x1b[0m/"
     else
         cat "$FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/" -e "s/^##.*/${COMMENT}&${RESET}/"
     fi
