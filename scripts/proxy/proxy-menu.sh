@@ -70,8 +70,8 @@ edit_proxy_file() {
             return
         fi
 
-        uuid_files="$(ls -1v "$PROXY_FOLDER" | sed 's/\.[^.]*$//')"
-        total_files="$(echo "$uuid_files" | wc -l)"
+        uuid_files="$(find "$PROXY_FOLDER" -maxdepth 1 -type f -printf '%f\n' | sed 's/\.[^.]*$//')"
+        total_files="$(printf '%s\n' "$uuid_files" | wc -l)"
         options="(1-${total_files})"
 
         echo "Current applications with multiple UUIDs.\n"
@@ -237,7 +237,7 @@ reset_proxy() {
 view_uuids() {
     display_banner
 
-    if [ -d "$PROXY_FOLDER" ]; then
+    if [ -d "$PROXY_FOLDER_ACTIVE" ]; then
         echo "Multi-UUID applications with instruction need to be registered."
         echo "Unregisted IDs will not count towards earnings.\n"
 

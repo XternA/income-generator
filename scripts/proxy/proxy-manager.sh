@@ -103,12 +103,13 @@ update_app_uuid() {
 
     if [ "$proxy_uuid" != null ]; then
         proxy_file="$(get_proxy_file "$app_name")"
-        uuid="$(awk "NR == $index { print; exit }" $proxy_file)"
+        uuid="$(awk "NR == $index { print; exit }" "$proxy_file")"
 
         id_name_type=$(echo "$proxy_uuid" | jq -r '.name_type')
         key_name="${app_name}_${id_name_type}"
 
         $SED_INPLACE "s/^${key_name}=[^ ]*/${key_name}=${uuid}/" "$ENV_FILE"
+        export_active_uuid "$uuid" "$app_name"
     fi
 }
 
@@ -158,8 +159,12 @@ install_proxy_instance() {
     echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
+    proxy_entry_pointer=1
     while IFS= read -r proxy_url; do
-        [ "$(echo "$proxy_url" | cut -c1)" = "#" ] && continue # Skip entries not in use.
+        if [ "$(echo "$proxy_url" | cut -c1)" = "#" ]; then
+            proxy_entry_pointer=$((proxy_entry_pointer + 1)) # Skip UUID entry position matching proxy entry.
+            continue # Skip entries not in use.
+        fi
 
         echo "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
         display_proxy_info "$proxy_url"
@@ -206,7 +211,7 @@ install_proxy_instance() {
             done
 
             # Update app config file UUID
-            update_app_uuid "$name" "$install_count"
+            update_app_uuid "$name" "$proxy_entry_pointer"
         done
 
         new_proxy_name="$PROXY_APP_NAME-${install_count}"
@@ -223,6 +228,7 @@ install_proxy_instance() {
         $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
         $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d
         install_count=$((install_count + 1))
+        proxy_entry_pointer=$((proxy_entry_pointer + 1))
         echo
     done < "$PROXY_FILE"
 
@@ -297,6 +303,7 @@ remove_proxy_instance() {
 
     $WATCHTOWER restore
     $CONTAINER_ALIAS volume prune -a -f > /dev/null 2>&1
+    rm -rf $PROXY_FOLDER_ACTIVE
 
     echo "Proxy application uninstall complete."
     printf "\nPress Enter to continue..."; read input
