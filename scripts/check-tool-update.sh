@@ -2,7 +2,7 @@
 
 case "$1" in
     --update)
-        echo "\nChecking and attempting to get latest updates...\n"
+        echo -e "\nChecking and attempting to get latest updates...\n"
         git fetch; git reset --hard; git pull
         ;;
     *)

@@ -8,9 +8,9 @@ add_cron_job() {
     if ! echo "$current_crontab" | grep -Fxq "$cron"; then
         (echo "$current_crontab"; echo "$cron") | crontab -
         ($command > /dev/null 2>&1)
-        echo "\nQEMU emulation layer added."
+        echo -e "\nQEMU emulation layer added."
     else
-        echo "\nQEMU emulation layer already exist."
+        echo -e "\nQEMU emulation layer already exist."
     fi
 }
 
@@ -18,7 +18,7 @@ remove_cron_job() {
     if echo "$current_crontab" | grep -Fxq "$cron"; then
         new_crontab=$(echo "$current_crontab" | grep -Fv "$cron")
         echo "$new_crontab" | crontab -
-        echo "\nQEMU emulation layer removed."
+        echo -e "\nQEMU emulation layer removed."
     fi
 }
 

@@ -16,7 +16,7 @@ fi
 display_banner() {
     clear
     echo "Backup & Restore Config Manager"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    echo -e "${GREEN}----------------------------------------${NC}\n"
 }
 
 backup_config() {
@@ -25,8 +25,8 @@ backup_config() {
             display_banner
             options="(1-3)"
 
-            echo "Backup file ${RED}$BACKUP_FILE${NC} already exists.\n"
-            echo "Choose an option:\n"
+            echo -e "Backup file ${RED}$BACKUP_FILE${NC} already exists.\n"
+            echo -e "Choose an option:\n"
             echo "1. View current backup file configuration"
             echo "2. View current in-use configuration"
             echo "3. Replace old backup with the current configurations"
@@ -45,9 +45,9 @@ backup_config() {
 
                     # TODO - Remove in future updates
                     if [ "$IS_OLD_CONFIG" = true ]; then
-                        echo "${YELLOW}---------[ START OF CONFIG ]---------\n${BLUE}"
+                        echo -e "${YELLOW}---------[ START OF CONFIG ]---------\n${BLUE}"
                         tail -n +14 $ENV_FILE
-                        echo "${YELLOW}\n----------[ END OF CONFIG ]----------${NC}"
+                        echo -e "${YELLOW}\n----------[ END OF CONFIG ]----------${NC}"
 
                         printf "\nPress Enter to continue..."; read input
                     else
@@ -97,7 +97,7 @@ backup_config() {
         cp -f "$ENV_FILE" "$BACKUP_FILE"
     fi
 
-    echo "Backup completed. Content has been saved to ${RED}$BACKUP_FILE${NC}."
+    echo -e "Backup completed. Content has been saved to ${RED}$BACKUP_FILE${NC}."
 }
 
 restore_config() {
@@ -123,7 +123,7 @@ restore_config() {
     else
         mv -f $BACKUP_FILE $ENV_FILE
     fi
-    echo "Restore completed. Content has been restored from ${RED}$BACKUP_FILE${NC}."
+    echo -e "Restore completed. Content has been restored from ${RED}$BACKUP_FILE${NC}."
 }
 
 remove_backup() {
@@ -132,7 +132,7 @@ remove_backup() {
         return
     fi
     rm -f $BACKUP_FILE
-    echo "Successfully removed backup config ${RED}$BACKUP_FILE${NC}."
+    echo -e "Successfully removed backup config ${RED}$BACKUP_FILE${NC}."
 }
 
 # Main script
@@ -142,7 +142,7 @@ while true; do
     display_banner
     options="(1-3)"
 
-    echo "What would you like to do?\n"
+    echo -e "What would you like to do?\n"
     echo "1. Backup config file"
     echo "2. Restore config file"
     echo "3. Delete backup file"
@@ -168,7 +168,7 @@ while true; do
             exit 0
             ;;
         *)
-            echo "\nInvalid option. Please select a valid option $options."
+            echo -e "\nInvalid option. Please select a valid option $options."
             ;;
     esac
     printf "\nPress Enter to continue..."; read input

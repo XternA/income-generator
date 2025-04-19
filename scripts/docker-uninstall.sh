@@ -47,7 +47,7 @@ remove_darwin() {
 
 remove_wsl() {
     echo "Uninstalling Docker via Winget is currently not supported as the uninstaller gets stuck. Use the standard Windows uninstall method instead."
-    echo "\nDocker is still installed."
+    echo -e "\nDocker is still installed."
     exit
 }
 

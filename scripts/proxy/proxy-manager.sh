@@ -23,7 +23,7 @@ HOST="$(hostname)"
 display_banner() {
     clear
     echo "Income Generator Proxy Manager"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    echo -e "${GREEN}----------------------------------------${NC}\n"
 }
 
 read_app_data() {
@@ -53,8 +53,8 @@ display_info() {
         echo "No applications selected to install."
         can_install="false"
     else
-        echo "The following proxy applications will be $type.\n"
-        echo "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
+        echo -e "The following proxy applications will be $type.\n"
+        echo -e "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
         printf "%-4s %-21s\n" "No." "Name"
         printf "%-4s %-21s\n" "---" "--------------------"
@@ -93,8 +93,8 @@ display_proxy_info() {
         *) protocol_name="Unknown" ;;
     esac
 
-    echo "Proxy Address:  ${RED}$host_port${NC}"
-    echo "Proxy Protocol: ${RED}$protocol_name${NC}"
+    echo -e "Proxy Address:  ${RED}$host_port${NC}"
+    echo -e "Proxy Protocol: ${RED}$protocol_name${NC}"
 }
 
 update_app_uuid() {
@@ -154,9 +154,9 @@ install_proxy_instance() {
     cp "$ENV_FILE" "$ENV_FILE.bak"
 
     display_banner
-    echo "Pulling latest image...\n"
+    echo -e "Pulling latest image...\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_COMPOSE_FILE pull
-    echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
+    echo -e "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
     proxy_entry_pointer=1
@@ -166,9 +166,9 @@ install_proxy_instance() {
             continue # Skip entries not in use.
         fi
 
-        echo "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
+        echo -e "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
         display_proxy_info "$proxy_url"
-        echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
+        echo -e "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
             if [ "$alias" = null ]; then
@@ -176,7 +176,7 @@ install_proxy_instance() {
             else
                 app_name=$(printf '%s' "$alias" | tr '[:upper:]' '[:lower:]')
             fi
-            echo " ${GREEN}->${NC} ${app_name}-${install_count}"
+            echo -e " ${GREEN}->${NC} ${app_name}-${install_count}"
 
             for compose_file in $COMPOSE_FILES; do
                 if [ "$compose_file" != "-f" ]; then
@@ -277,13 +277,13 @@ remove_proxy_instance() {
 
     display_banner
     echo "Removing proxy applications..."
-    echo "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
+    echo -e "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n"
 
     install_count=1
     while test "$install_count" -le "$TOTAL_PROXIES"; do
         [ "$(echo "$proxy_url" | cut -c1)" = "#" ] && continue # Skip entries not in use.
 
-        echo "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
+        echo -e "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}"
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
             if [ "$alias" = null ]; then
@@ -292,7 +292,7 @@ remove_proxy_instance() {
                 app_name=$(printf '%s' "$alias" | tr '[:upper:]' '[:lower:]')
             fi
             app_name="${app_name}-${install_count}"
-            echo " ${GREEN}->${NC} $app_name"
+            echo -e " ${GREEN}->${NC} $app_name"
             $CONTAINER_ALIAS rm -f "$app_name" > /dev/null 2>&1
         done
 

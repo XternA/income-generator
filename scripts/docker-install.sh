@@ -60,7 +60,7 @@ install_arch() {
 # macOS
 install_darwin() {
     brew install --cask docker
-    echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
+    echo -e "\nLaunching Docker Desktop in order to start the Docker Engine..."
     echo "Make sure Docker Engine is fully running before proceeding..."
     open -a Docker
 }
@@ -70,11 +70,11 @@ install_wsl() {
     if [ -e "$(which winget.exe 2> /dev/null)" ]; then
         winget.exe install -e --id Docker.DockerDesktop
         $("/mnt/c/Program Files/Docker/Docker/Docker Desktop.exe")
-        echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
+        echo -e "\nLaunching Docker Desktop in order to start the Docker Engine..."
         echo "Make sure Docker Engine is fully running before proceeding..."
     else
         echo "Winget Package Manager is not found. Make sure Winget is installed before trying again."
-        echo "\nDocker is not installed.".
+        echo -e "\nDocker is not installed.".
         exit
     fi
 }
@@ -112,8 +112,8 @@ if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
         sudo usermod -aG docker "$(whoami)"
         newgrp docker
     fi
-    echo "\nDocker has been installed successfully."
-    echo "\nRestart host if docker doesn't start."
+    echo -e "\nDocker has been installed successfully."
+    echo -e "\nRestart host if docker doesn't start."
 else
     echo "Docker is already installed."
 fi

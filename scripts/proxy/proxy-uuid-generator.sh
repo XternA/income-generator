@@ -37,36 +37,36 @@ view_proxy_uuids() {
             filename="${file##*/}"
             app_name="${filename%%.*}" # Remove extension
 
-            echo "[ ${RED}${app_name}${NC} ]${NC}"
+            echo -e "[ ${RED}${app_name}${NC} ]${NC}"
             counter=0
             while IFS= read -r line; do
-                [ $(( counter % 2 )) -eq 0 ] && echo "${YELLOW}$line" || echo "${BLUE}$line"
+                [ $(( counter % 2 )) -eq 0 ] && echo -e "${YELLOW}$line" || echo -e "${BLUE}$line"
                 counter=$((counter + 1))
             done < "$file"
-            echo "$NC"
+            echo -e "$NC"
         done
         return
     fi
 
-    echo "Active Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
+    echo -e "Active Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
 
     if [ "$1" = "active" ]; then
         app_data=$(jq -r '.[] | select(.is_enabled == true and .proxy_uuid != null) | "\(.name) \(.proxy_uuid.description)"' "$JSON_FILE")
 
-        [ -z "$app_data" ] && echo "No active application with multi-UUID currently in use.\n" && return
+        [ -z "$app_data" ] && echo -e "No active application with multi-UUID currently in use.\n" && return
 
         echo "$app_data" | while read -r name description; do
             file="${PROXY_FOLDER_ACTIVE}/${name}.uuid"
 
             [ -f "$file" ] || continue
 
-            echo "[ ${GREEN}${name}${NC} ]${NC}"
-            [ "$description" != null ] && echo "${PINK}$description${NC}\n"
+            echo -e "[ ${GREEN}${name}${NC} ]${NC}"
+            [ "$description" != null ] && echo -e "${PINK}$description${NC}\n"
 
             while IFS= read -r line; do
-                echo " ${GREEN}-> ${YELLOW}$line${NC}"
+                echo -e " ${GREEN}-> ${YELLOW}$line${NC}"
             done < "$file"
-            echo "$NC"
+            echo -e "$NC"
         done
         return
     fi

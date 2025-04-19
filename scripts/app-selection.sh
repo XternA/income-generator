@@ -3,7 +3,7 @@
 display_banner() {
     clear
     echo "Income Generator Application Manager"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    echo -e "${GREEN}----------------------------------------${NC}\n"
 }
 
 choose_application_type() {
@@ -39,13 +39,13 @@ display_table_choice() {
         display_banner
         app_data=$(cat "$JSON_FILE" | jq -r ".[] | select(has(\"$field_name\")) | \"\(.name) \(.${field_name})\"")
 
-        echo "${RED}Disabled${NC} ${application}s will not be deployed.\n"
+        echo -e "${RED}Disabled${NC} ${application}s will not be deployed.\n"
 
         printf "%-4s %-21s %-8s\n" "No." "$header Name" "Status"
         printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
 
         counter=1
-        echo "$app_data" | awk -v counter="$counter" -v GREEN="$GREEN" -v RED="$RED" -v NC="$NC" '
+        echo -e "$app_data" | awk -v counter="$counter" -v GREEN="$GREEN" -v RED="$RED" -v NC="$NC" '
         {
             if ($2 == "true") {
                 status = GREEN "Enabled" NC
@@ -56,11 +56,11 @@ display_table_choice() {
             counter++
         }'
 
-        echo "\nOptions:"
-        echo "  ${GREEN}e${NC} = ${GREEN}enable all${NC}"
-        echo "  ${RED}d${NC} = ${RED}disable all${NC}"
-        [ ! -z "$switch_type" ] && echo "  ${YELLOW}${shortcut}${NC} = ${YELLOW}select ${switch_type}${NC}"
-        echo "  ${BLUE}0${NC} = ${BLUE}exit${NC}"
+        echo -e "\nOptions:"
+        echo -e "  ${GREEN}e${NC} = ${GREEN}enable all${NC}"
+        echo -e "  ${RED}d${NC} = ${RED}disable all${NC}"
+        [ ! -z "$switch_type" ] && echo -e "  ${YELLOW}${shortcut}${NC} = ${YELLOW}select ${switch_type}${NC}"
+        echo -e "  ${BLUE}0${NC} = ${BLUE}exit${NC}"
 
         printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} $application (1-%s): " "$(echo "$app_data" | wc -l | xargs)"
         read -r choice
@@ -69,7 +69,7 @@ display_table_choice() {
             [1-9]*)
                 # Enable or disable specific application
                 if ! [ "$choice" -ge 1 ] || ! [ "$choice" -le "$(echo "$app_data" | wc -l)" ]; then
-                    echo "\nInvalid input! Please enter a number between 1 and $(echo "$app_data" | wc -l)."
+                    echo -e "\nInvalid input! Please enter a number between 1 and $(echo "$app_data" | wc -l)."
                     printf "\nPress Enter to continue..."; read input
                 else
                     # Update entry
@@ -109,7 +109,7 @@ display_table_choice() {
                 exit 0
                 ;;
             *)
-                echo "\nInvalid option! Please select a valid option."
+                echo -e "\nInvalid option! Please select a valid option."
                 printf "\nPress Enter to continue..."; read input
                 ;;
         esac
@@ -186,7 +186,7 @@ parse_cmd_arg() {
     elif [ "$1" = "--backup" ]; then
         TARGET_DEPLOY_FILE="$TARGET_DEPLOY_FILE.backup"
         export_selection
-        echo "\nBackup current app state successfully."
+        echo -e "\nBackup current app state successfully."
         exit 0
     elif [ "$1" = "--restore" ]; then
         save_state=$([ "$2" = "redeploy" ] && echo true || echo false)
@@ -205,9 +205,9 @@ parse_cmd_arg() {
             [ $save_state = "false" ] && rm -f "$TARGET_DEPLOY_FILE"
             TARGET_DEPLOY_FILE=$tmp
             export_selection
-            echo "\nSuccessfully re-applied app's enabled/disabled state from ${restore_type}."
+            echo -e "\nSuccessfully re-applied app's enabled/disabled state from ${restore_type}."
         else
-            echo "\nNo ${restore_type} found. Nothing to restore from."
+            echo -e "\nNo ${restore_type} found. Nothing to restore from."
         fi
         exit 0
     fi

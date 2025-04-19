@@ -7,17 +7,17 @@ HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
 display_banner() {
     clear
     echo "Income Generator Proxy Manager"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    echo -e "${GREEN}----------------------------------------${NC}\n"
 }
 
 setup_proxy() {
     display_banner
     if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
         echo "Proxy application still active."
-        echo "\nRemove existing applications first before editing."
+        echo -e "\nRemove existing applications first before editing."
         printf "\nPress Enter to continue..."; read input
     else
-        echo "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
+        echo -e "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
         printf "\nPress Enter to continue..."; read input
         nano "$PROXY_FILE"
         [ -f "$PROXY_FILE" ] && [ "$(tail -c 1 "$PROXY_FILE")" != "" ] && echo "" >> "$PROXY_FILE"
@@ -28,7 +28,7 @@ select_proxy_app() {
     if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
         display_banner
         echo "Proxy application still active."
-        echo "\nRemove existing applications first."
+        echo -e "\nRemove existing applications first."
         printf "\nPress Enter to continue..."; read input
     else
         $APP_SELECTION proxy proxy
@@ -41,7 +41,7 @@ install_proxy_app() {
 
     if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
         echo "Proxy application still active."
-        echo "\nRemove existing applications first."
+        echo -e "\nRemove existing applications first."
         printf "\nPress Enter to continue..."; read input
     else
         sh "scripts/proxy/proxy-manager.sh" install
@@ -60,7 +60,7 @@ edit_proxy_file() {
 
         if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
             echo "Proxy application still active."
-            echo "\nRemove existing applications first."
+            echo -e "\nRemove existing applications first."
             printf "\nPress Enter to continue..."; read input
             return
         fi
@@ -74,7 +74,7 @@ edit_proxy_file() {
         total_files="$(printf '%s\n' "$uuid_files" | wc -l)"
         options="(1-${total_files})"
 
-        echo "Current applications with multiple UUIDs.\n"
+        echo -e "Current applications with multiple UUIDs.\n"
 
         printf "%-4s %-21s\n" "No." "Name"
         printf "%-4s %-21s\n" "---" "--------------------"
@@ -84,14 +84,14 @@ edit_proxy_file() {
             printf "%-4s %s%-21s%s\n", counter, GREEN, $1, NC
             counter++
         }'
-        echo "\nOption:\n  ${YELLOW}0${NC} = ${YELLOW}exit${NC}"
+        echo -e "\nOption:\n  ${YELLOW}0${NC} = ${YELLOW}exit${NC}"
 
         printf "\nSelect an entry to edit $options: "
         read -r input
 
         case "$input" in
             ''|*[!0-9]*)
-                echo "\nInvalid option. Please select a valid option $options."
+                echo -e "\nInvalid option. Please select a valid option $options."
                 printf "\nPress Enter to continue..."; read input
                 continue
                 ;;
@@ -102,11 +102,11 @@ edit_proxy_file() {
         if [ "$input" -ge 1 ] && [ "$input" -le "$total_files" ]; then
             display_banner
             app="$(set -- $uuid_files; eval echo \${$input})"
-            echo "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
+            echo -e "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
             printf "\nPress Enter to continue..."; read input
             nano "${PROXY_FOLDER}/${app}.uuid"
         else
-            echo "\nInvalid option. Please select a valid option $options."
+            echo -e "\nInvalid option. Please select a valid option $options."
             printf "\nPress Enter to continue..."; read input
         fi
     done
@@ -129,7 +129,7 @@ manage_uuids() {
             1)
                 display_banner
                 if [ ! -d "$PROXY_FOLDER" ]; then
-                    echo "No multi-UUIDs application entries found.\n"
+                    echo -e "No multi-UUIDs application entries found.\n"
                 else
                     view_proxy_uuids all
                 fi
@@ -142,7 +142,7 @@ manage_uuids() {
 
                     if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
                         echo "Proxy application still active."
-                        echo "\nRemove existing applications first."
+                        echo -e "\nRemove existing applications first."
                         printf "\nPress Enter to continue..."; read input
                         break
                     fi
@@ -152,8 +152,8 @@ manage_uuids() {
                         return
                     fi
 
-                    echo "Do you want to clear all application generated multi-UUIDs?\n"
-                    echo "You might want to backup if you wish to re-use the IDs later.\n"
+                    echo -e "Do you want to clear all application generated multi-UUIDs?\n"
+                    echo -e "You might want to backup if you wish to re-use the IDs later.\n"
                     read -p "Do you really want to delete all entries? (Y/N): " yn
 
                     case $yn in
@@ -176,7 +176,7 @@ manage_uuids() {
                 done
                 ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
+                echo -e "\nInvalid option. Please select a valid option $options."
                 printf "\nPress Enter to continue..."; read input
                 ;;
         esac
@@ -186,10 +186,10 @@ manage_uuids() {
 view_proxy() {
     display_banner
     if [ ! -e "$PROXY_FILE" ]; then
-        echo "Proxy file doesn't exist.\nSetup proxy entries first."
+        echo -e "Proxy file doesn't exist.\nSetup proxy entries first."
         printf "\nPress Enter to continue..."; read input
     elif [ ! -s "$PROXY_FILE" ]; then
-        echo "Proxy file is empty.\nAdd proxy entries first."
+        echo -e "Proxy file is empty.\nAdd proxy entries first."
         printf "\nPress Enter to continue..."; read input
     else
         $VIEW_CONFIG "$PROXY_FILE" "PROXY"
@@ -204,12 +204,12 @@ reset_proxy() {
     else
         if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
             echo "Proxy application still active."
-            echo "\nRemove existing applications first."
+            echo -e "\nRemove existing applications first."
             printf "\nPress Enter to continue..."; read input
         else
             while true; do
                 display_banner
-                echo "All proxy entries will be removed.\n"
+                echo -e "All proxy entries will be removed.\n"
                 read -p "Do you want to continue? (Y/N): " input
 
                 case $input in
@@ -225,7 +225,7 @@ reset_proxy() {
                     [nN])
                         break ;;
                     *)
-                        echo "\nInvalid option. Please enter 'Y' or 'N'."
+                        echo -e "\nInvalid option. Please enter 'Y' or 'N'."
                         printf "\nPress Enter to continue..."; read input
                         ;;
                 esac
@@ -239,14 +239,14 @@ view_uuids() {
 
     if [ -d "$PROXY_FOLDER_ACTIVE" ]; then
         echo "Multi-UUID applications with instruction need to be registered."
-        echo "Unregisted IDs will not count towards earnings.\n"
+        echo -e "Unregisted IDs will not count towards earnings.\n"
 
-        echo "Deployed applications with in-use unqiue UUIDs are shown here.\n"
+        echo -e "Deployed applications with in-use unqiue UUIDs are shown here.\n"
 
         view_proxy_uuids active
         printf "Press Enter to continue..."; read input
     else
-        echo "Application with multi-UUIDs are auto generated during installtion.\n"
+        echo -e "Application with multi-UUIDs are auto generated during installtion.\n"
         echo "After installation, check here to view UUIDs and further instructions."
         printf "\nPress Enter to continue..."; read input
     fi
@@ -285,7 +285,7 @@ main_menu() {
             8) view_proxy ;;
             9) reset_proxy ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
+                echo -e "\nInvalid option. Please select a valid option $options."
                 printf "\nPress Enter to continue..."; read input
                 ;;
         esac
