@@ -7,12 +7,12 @@ trap 'rm -f $FILE_CHANGED' INT
 
 display_banner() {
     clear
-    echo "${GREEN}==========================================================="
-    echo "#     ${NC}Application Credential Setup Manager${GREEN}                #"
-    echo "==========================================================="
-    echo "#  ${NC}Manage, update and configure application credentials.${GREEN}  #"
-    echo "#  ${NC}Credentials are stored locally in a ${RED}.env${NC} config file.${GREEN}  #"
-    echo "===========================================================${NC}"
+    printf "${GREEN}===========================================================\n"
+    printf "#  ${NC}Application Credential Setup Manager${GREEN}                   #\n"
+    printf "===========================================================\n"
+    printf "#  ${NC}Manage, update and configure application credentials.${GREEN}  #\n"
+    printf "#  ${NC}Credentials are stored locally in a ${RED}.env${NC} config file.${GREEN}  #\n"
+    printf "===========================================================${NC}\n"
 }
 
 write_entry() {
@@ -38,9 +38,9 @@ process_new_entry() {
     if [ "$entry" != "$entry_name" ]; then
         input="$(generate_uuid $denoter)"
         write_entry
-        echo "A new UUID has been auto-generated for $RED$entry_name$NC: $YELLOW$input$NC\n"
-        [ "$registration" != null ] && echo "${YELLOW}$registration$input${NC}\n"
-        echo "Press Enter to continue..."; read -r input < /dev/tty
+        printf "A new UUID has been auto-generated for $RED$entry_name$NC: $YELLOW$input$NC\n\n"
+        [ "$registration" != null ] && printf "${YELLOW}$registration$input${NC}\n"
+        printf "\nPress Enter to continue..."; read -r input < /dev/tty
     else
         input_new_value
     fi
@@ -64,7 +64,7 @@ process_entries() {
         [ $(echo "$config_entry" | jq -r '.is_enabled') = false ] && continue
 
         display_banner
-        echo "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}"
+        printf "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}\n"
 
         app_name=$(echo "$config_entry" | jq -r '.name')
         url=$(echo "$config_entry" | jq -r '.url')
@@ -72,10 +72,10 @@ process_entries() {
         description_ext=$(echo "$config_entry" | jq -r '.description_ext' | tr -d '\n')
         registration=$(echo "$config_entry" | jq -r '.registration' | tr -d '\n')
 
-        echo "\n[ ${GREEN}$app_name${NC} ]"
-        [ "$url" != null ] && echo "Go to $BLUE$url$NC to register an account. (CTRL + Click)"
-        [ "$description" != null ] && echo "Description: ${YELLOW}$description${NC}"
-        [ "$description_ext" != null ] && echo "${YELLOW}$description_ext${NC}"
+        printf "\n[ ${GREEN}$app_name${NC} ]\n"
+        [ "$url" != null ] && printf "Go to $BLUE$url$NC to register an account. (CTRL + Click)\n"
+        [ "$description" != null ] && printf "Description: ${YELLOW}$description${NC}\n"
+        [ "$description_ext" != null ] && printf "${YELLOW}$description_ext${NC}\n"
         echo
 
         if [ -z "$(echo "$config_entry" | jq -r '.properties // empty')" ]; then
@@ -111,24 +111,24 @@ process_entries() {
 
     display_banner
     if [ -e "$FILE_CHANGED" ]; then
-        echo "\nDone configuring config file '${RED}$ENV_FILE${NC}'."
+        printf "\nDone configuring config file '${RED}$ENV_FILE${NC}'.\n"
     else
-        echo "\nNo changes made to '${RED}$ENV_FILE${NC}'."
+        printf "\nNo changes made to '${RED}$ENV_FILE${NC}'.\n"
     fi
     rm -f $FILE_CHANGED
 }
 
 # Main script
 if [ -f "$ENV_FILE" ]; then
-    echo "Credentials will be stored in '${RED}$ENV_FILE${NC}'"
+    printf "Credentials will be stored in '${RED}$ENV_FILE${NC}'\n"
     printf "\nStart the application setup process? (Y/N): "; read -r input
     if [ "$input" = "y" ]; then
         process_entries
     else
-        echo "\nNo changes made to '${RED}$ENV_FILE${NC}'."
+        printf "\nNo changes made to '${RED}$ENV_FILE${NC}'.\n"
     fi
 else
-    echo "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating new one...\n"
+    printf "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating new one...\n\n"
     sleep 1.4
     touch "$ENV_FILE"
     process_entries

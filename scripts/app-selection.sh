@@ -2,8 +2,8 @@
 
 display_banner() {
     clear
-    echo "Income Generator Application Manager"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    printf "Income Generator Application Manager\n"
+    printf "${GREEN}------------------------------------------${NC}\n\n"
 }
 
 choose_application_type() {
@@ -39,7 +39,7 @@ display_table_choice() {
         display_banner
         app_data=$(cat "$JSON_FILE" | jq -r ".[] | select(has(\"$field_name\")) | \"\(.name) \(.${field_name})\"")
 
-        echo "${RED}Disabled${NC} ${application}s will not be deployed.\n"
+        printf "${RED}Disabled${NC} ${application}s will not be deployed.\n\n"
 
         printf "%-4s %-21s %-8s\n" "No." "$header Name" "Status"
         printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
@@ -56,11 +56,11 @@ display_table_choice() {
             counter++
         }'
 
-        echo "\nOptions:"
-        echo "  ${GREEN}e${NC} = ${GREEN}enable all${NC}"
-        echo "  ${RED}d${NC} = ${RED}disable all${NC}"
-        [ ! -z "$switch_type" ] && echo "  ${YELLOW}${shortcut}${NC} = ${YELLOW}select ${switch_type}${NC}"
-        echo "  ${BLUE}0${NC} = ${BLUE}exit${NC}"
+        printf "\nOptions:\n"
+        printf "  ${GREEN}e${NC} = ${GREEN}enable all${NC}\n"
+        printf "  ${RED}d${NC} = ${RED}disable all${NC}\n"
+        [ ! -z "$switch_type" ] && printf "  ${YELLOW}${shortcut}${NC} = ${YELLOW}select ${switch_type}${NC}\n"
+        printf "  ${BLUE}0${NC} = ${BLUE}exit${NC}\n"
 
         printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} $application (1-%s): " "$(echo "$app_data" | wc -l | xargs)"
         read -r choice
@@ -69,8 +69,8 @@ display_table_choice() {
             [1-9]*)
                 # Enable or disable specific application
                 if ! [ "$choice" -ge 1 ] || ! [ "$choice" -le "$(echo "$app_data" | wc -l)" ]; then
-                    echo "\nInvalid input! Please enter a number between 1 and $(echo "$app_data" | wc -l)."
-                    printf "\nPress Enter to continue..."; read input
+                    printf "\nInvalid input! Please enter a number between 1 and $(echo "$app_data" | wc -l).\n"
+                    printf "\nPress Enter to continue..."; read -r input
                 else
                     # Update entry
                     temp_file=$(mktemp)
@@ -93,8 +93,8 @@ display_table_choice() {
                 ;;
             a|s)
                 if [ -z "$switch_type" ]; then
-                    echo "\nInvalid option! Please select a valid option."
-                    printf "\nPress Enter to continue..."; read input
+                    printf "\nInvalid option! Please select a valid option.\n"
+                    printf "\nPress Enter to continue..."; read -r input
                 else
                     if [ "$choice" = "s" ]; then
                         choose_application_type service
@@ -109,8 +109,8 @@ display_table_choice() {
                 exit 0
                 ;;
             *)
-                echo "\nInvalid option! Please select a valid option."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nInvalid option! Please select a valid option.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -205,9 +205,9 @@ parse_cmd_arg() {
             [ $save_state = "false" ] && rm -f "$TARGET_DEPLOY_FILE"
             TARGET_DEPLOY_FILE=$tmp
             export_selection
-            echo "\nSuccessfully re-applied app's enabled/disabled state from ${restore_type}."
+            printf "\nSuccessfully re-applied app's enabled/disabled state from ${restore_type}.\n"
         else
-            echo "\nNo ${restore_type} found. Nothing to restore from."
+            printf "\nNo ${restore_type} found. Nothing to restore from.\n"
         fi
         exit 0
     fi

@@ -15,8 +15,8 @@ fi
 
 display_banner() {
     clear
-    echo "Backup & Restore Config Manager"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    printf "Backup & Restore Config Manager\n"
+    printf "${GREEN}------------------------------------------${NC}\n\n"
 }
 
 backup_config() {
@@ -25,15 +25,14 @@ backup_config() {
             display_banner
             options="(1-3)"
 
-            echo "Backup file ${RED}$BACKUP_FILE${NC} already exists.\n"
-            echo "Choose an option:\n"
+            printf "Backup file ${RED}$BACKUP_FILE${NC} already exists.\n\n"
+            printf "Choose an option:\n\n"
             echo "1. View current backup file configuration"
             echo "2. View current in-use configuration"
             echo "3. Replace old backup with the current configurations"
             echo "0. Exit"
-            echo
-            read -p "Select an option $options: " option
 
+            printf "\nSelect an option $options: "; read -r option
             case "$option" in
                 1)
                     display_banner
@@ -41,15 +40,15 @@ backup_config() {
                     ;;
                 2)
                     display_banner
-                    echo "Content of current in-use configuration.\n"
+                    printf "Content of current in-use configuration.\n\n"
 
                     # TODO - Remove in future updates
                     if [ "$IS_OLD_CONFIG" = true ]; then
-                        echo "${YELLOW}---------[ START OF CONFIG ]---------\n${BLUE}"
+                        printf "${YELLOW}---------[ START OF CONFIG ]---------\n${BLUE}\n"
                         tail -n +14 $ENV_FILE
-                        echo "${YELLOW}\n----------[ END OF CONFIG ]----------${NC}"
+                        printf "${YELLOW}\n----------[ END OF CONFIG ]----------${NC}\n"
 
-                        printf "\nPress Enter to continue..."; read input
+                        printf "\nPress Enter to continue..."; read -r input
                     else
                         $VIEW_CONFIG
                     fi
@@ -66,7 +65,7 @@ backup_config() {
                 *)
                     echo
                     echo "Invalid option. Please select a valid option $options."
-                    printf "\nPress Enter to continue..."; read input
+                    printf "\nPress Enter to continue..."; read -r input
                     ;;
             esac
         done
@@ -97,7 +96,7 @@ backup_config() {
         cp -f "$ENV_FILE" "$BACKUP_FILE"
     fi
 
-    echo "Backup completed. Content has been saved to ${RED}$BACKUP_FILE${NC}."
+    printf "Backup completed. Content has been saved to ${RED}$BACKUP_FILE${NC}.\n"
 }
 
 restore_config() {
@@ -123,7 +122,7 @@ restore_config() {
     else
         mv -f $BACKUP_FILE $ENV_FILE
     fi
-    echo "Restore completed. Content has been restored from ${RED}$BACKUP_FILE${NC}."
+    printf "Restore completed. Content has been restored from ${RED}$BACKUP_FILE${NC}.\n"
 }
 
 remove_backup() {
@@ -132,7 +131,7 @@ remove_backup() {
         return
     fi
     rm -f $BACKUP_FILE
-    echo "Successfully removed backup config ${RED}$BACKUP_FILE${NC}."
+    printf "Successfully removed backup config ${RED}$BACKUP_FILE${NC}.\n"
 }
 
 # Main script
@@ -142,13 +141,13 @@ while true; do
     display_banner
     options="(1-3)"
 
-    echo "What would you like to do?\n"
+    printf "What would you like to do?\n\n"
     echo "1. Backup config file"
     echo "2. Restore config file"
     echo "3. Delete backup file"
     echo "0. Exit"
     echo
-    read -p "Select an option $options: " option
+    printf "Select an option $options: "; read -r option
 
     case "$option" in
         1)
@@ -168,8 +167,8 @@ while true; do
             exit 0
             ;;
         *)
-            echo "\nInvalid option. Please select a valid option $options."
+            printf "\nInvalid option. Please select a valid option $options.\n"
             ;;
     esac
-    printf "\nPress Enter to continue..."; read input
+    printf "\nPress Enter to continue..."; read -r input
 done

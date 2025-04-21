@@ -12,14 +12,15 @@ STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
 
 display_banner() {
     clear
-    echo "Income Generator Application Manager"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    printf "Income Generator Application Manager\n"
+    printf "${GREEN}------------------------------------------${NC}\n"
+    [ ! "$1" = "--no_line" ] && echo
 }
 
 stats() {
     printf "%s\n\n" "$SYS_INFO"
     printf "%s\n" "$STATS"
-    echo "${GREEN}----------------------------------------${NC}\n"
+    printf "${GREEN}------------------------------------------${NC}\n\n"
 }
 
 option_2() {
@@ -34,12 +35,12 @@ option_2() {
         echo "5. Backup & restore config"
         echo "0. Return to Main Menu"
         echo
-        read -p "Select an option $options: " option
+        printf "Select an option $options: "; read -r option
 
         case $option in
             1)
                 display_banner
-                echo "Setting up application configuration...\n"
+                printf "Setting up application configuration...\n"
                 $APP_CONFIG
                 ;;
             2)
@@ -48,8 +49,8 @@ option_2() {
                 ;;
             3)
                 display_banner
-                echo "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes."
-                printf "\nPress Enter to continue..."; read input
+                printf "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 nano .env
                 ;;
             4)
@@ -62,8 +63,8 @@ option_2() {
                 break  # Return to the main menu
                 ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -79,57 +80,56 @@ option_7() {
         echo "3. Uninstall Docker"
         echo "0. Return to Main Menu"
         echo
-        read -p "Select an option $options: " option
+        printf "Select an option $options: "; read -r option
 
         case $option in
             1)
                 while true; do
                     display_banner
-                    echo "[ Docker Housekeeping ]\n"
-                    echo "Performing cleanup on orphaned applications and downloaded images."
-                    echo "Orphaned applications currently running won't be cleaned up.\n"
-                    read -p "Do you want to perform clean up? (Y/N): " yn
+                    printf "About to clean up orphaned applications and downloaded images.\n"
+                    printf "Running orphaned applications won't be cleaned up unless stopped.\n\n"
+                    printf "Do you want to perform clean up? (Y/N): "; read -r yn
 
                     case $yn in
                         [Yy]*)
                             display_banner
-                            echo "Removing orphaned applications, volumes and downloaded images...\n"
+                            printf "Removing orphaned applications, volumes and downloaded images...\n\n"
                             $CONTAINER_ALIAS system prune -a -f --volumes
-                            echo "\nCleanup completed."
-                            printf "\nPress Enter to continue..."; read input
+                            printf "\nCleanup completed.\n"
+                            printf "\nPress Enter to continue..."; read -r input
                             break
                             ;;
                         [Nn]*)
                             break
                             ;;
                         *)
-                            echo "\nPlease input yes (Y/y) or no (N/n)."
-                            printf "\nPress Enter to continue..."; read input
+                            printf "\nPlease input yes (Y/y) or no (N/n).\n"
+                            printf "\nPress Enter to continue..."; read -r input
                             ;;
                     esac
                 done
                 ;;
             2)
                 display_banner
-                echo "Installing Docker...\n"
+                printf "Installing Docker...\n\n"
                 sh scripts/$CONTAINER_ALIAS-install.sh
                 sh scripts/container/container-config.sh --register
                 sh scripts/emulation-layer.sh --add
-                printf "\nPress Enter to continue..."; read input
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
             3)
                 display_banner
-                echo "Uninstalling Docker...\n"
+                printf "Uninstalling Docker...\n\n"
                 sh scripts/$CONTAINER_ALIAS-uninstall.sh
                 sh scripts/emulation-layer.sh --remove
-                printf "\nPress Enter to continue..."; read input
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
             0)
                 break  # Return to the main menu
                 ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -140,7 +140,7 @@ option_8() {
         display_banner
         options="(1-5)"
 
-        echo "Pick a new resource limit utilization based on current hardware limits.\n"
+        printf "Pick a new resource limit utilization based on current hardware limits.\n\n"
         printf "%s\n" "$STATS"
         echo
         echo "1. BASE   -->   350MB RAM"
@@ -150,7 +150,7 @@ option_8() {
         echo "5. MAX    -->   50% Total RAM"
         [ "$1" = "quick_menu" ] && echo "0. Exit" || echo "0. Return to Main Menu"
         echo
-        read -p "Select an option $options: " option
+        printf "Select an option $options: "; read -r option
 
         case $option in
             1|2|3|4|5)
@@ -165,16 +165,16 @@ option_8() {
                 echo
                 $SET_LIMIT "$limit_type"
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
-                echo "\nRedeploy applications for new limits to take effect."
+                printf "\nRedeploy applications for new limits to take effect.\n"
                 ;;
             0)
                 break  # Return to the main menu
                 ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
+                printf "\nInvalid option. Please select a valid option $options.\n"
                 ;;
         esac
-        printf "\nPress Enter to continue..."; read input
+        printf "\nPress Enter to continue..."; read -r input
     done
 }
 
@@ -191,7 +191,7 @@ option_9() {
         echo "5. Check and get update"
         echo "0. Return to Main Menu"
         echo
-        read -p "Select an option $options: " option
+        read -r -p "Select an option $options: " option
 
         case $option in
             1)
@@ -202,29 +202,29 @@ option_9() {
                     display_banner
                     options="(1-2)"
 
-                    echo "Re-enable, restore saved application state.\n"
+                    printf "Re-enable, restore saved application state.\n\n"
                     echo "1. Re-enable all applications"
                     echo "2. Restore from saved application state"
                     echo "0. Return to Main Menu"
                     echo
-                    read -p "Select an option $options: " choice
+                    printf "Select an option $options: "; read -r choice
 
                     case $choice in
                         1)
                             $APP_SELECTION --default
-                            echo "\nAll applications have been re-enabled."
-                            printf "\nPress Enter to continue..."; read input
+                            printf "\nAll applications have been re-enabled.\n"
+                            printf "\nPress Enter to continue..."; read -r input
                             ;;
                         2)
                             $APP_SELECTION --restore
-                            printf "\nPress Enter to continue..."; read input
+                            printf "\nPress Enter to continue..."; read -r input
                             ;;
                         0)
                             break
                             ;;
                         *)
-                            echo "\nInvalid option. Please select a valid option $options."
-                            printf "\nPress Enter to continue..."; read input
+                            printf "\nInvalid option. Please select a valid option $options.\n"
+                            printf "\nPress Enter to continue..."; read -r input
                             ;;
                     esac
                 done
@@ -233,16 +233,16 @@ option_9() {
                 echo
                 $SET_LIMIT low
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
-                printf "\nPress Enter to continue..."; read input
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
             4)
                 while true; do
                     display_banner
-                    echo "${RED}WARNING!${NC}\n\nAbout to reset everything back to default."
-                    echo "This will remove all configured credentials as well."
-                    echo "Disabled apps will be re-enabled for deployment again.\n"
+                    printf "${RED}WARNING!${NC}\n\nAbout to reset everything back to default.\n"
+                    printf "This will remove all configured credentials as well.\n"
+                    printf "Disabled apps will be re-enabled for deployment again.\n"
 
-                    read -p "Do you want to backup credentials first? (Y/N): " yn
+                    printf "\nDo you want to backup credentials first? (Y/N): "; read -r yn
                     case $yn in
                         [Yy]*)
                             $BACKUP_RESTORE
@@ -253,10 +253,10 @@ option_9() {
                             break
                             ;;
                         *)
-                            echo "\nPlease input yes (Y/y) or no (N/n)."
+                            printf "\nPlease input yes (Y/y) or no (N/n).\n"
                             ;;
                     esac
-                    printf "\nPress Enter to continue..."; read input
+                    printf "\nPress Enter to continue..."; read -r input
                 done
 
                 display_banner
@@ -265,25 +265,25 @@ option_9() {
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 $APP_SELECTION --default
 
-                echo "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again."
-                echo "Resource limits will need re-applying if previously set."
-                echo "\nWhat settings can be restored?"
-                echo "  - Application credentials if backed up."
-                echo "  - State of applications that's been enabled/disabled for use."
-                printf "\nPress Enter to continue..."; read input
+                printf "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again.\n"
+                printf "Resource limits will need re-applying if previously set.\n"
+                printf "\nWhat settings can be restored?\n"
+                printf "  - Application credentials if backed up.\n"
+                printf "  - State of applications that's been enabled/disabled for use.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
             5)
                 $UPDATE_CHECKER --update
                 $APP_SELECTION --import
                 unset NEW_UPDATE
-                printf "\nPress Enter to continue..."; read input
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
             0)
                 break  # Return to the main menu
                 ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -292,21 +292,21 @@ option_9() {
 tool_reset() {
     while true; do
         display_banner
-        read -p "Do you want to reset IGM system settings? (Y/N): " yn
+        printf "Do you want to reset IGM system settings? (Y/N): "; read -r yn
         case $yn in
             [Yy]*)
                 display_banner
                 rm -rf .env.system
                 echo "IGM system setting has been reset."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nPress Enter to continue..."; read -r input
                 break
                 ;;
             ''|[Nn]*)
                 break
                 ;;
             *)
-                echo "\nPlease input yes (Y/y) or no (N/n)."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nPlease input yes (Y/y) or no (N/n).\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -316,9 +316,9 @@ main_menu() {
     NEW_UPDATE=$($UPDATE_CHECKER)
 
     while true; do
-        display_banner
+        display_banner --no_line
         stats
-        [ -n "$NEW_UPDATE" ] && echo "$NEW_UPDATE\n"
+        [ -n "$NEW_UPDATE" ] && printf "$NEW_UPDATE\n"
 
         options="(1-9)"
 
@@ -333,7 +333,7 @@ main_menu() {
         echo "9. Manage Tool"
         echo "0. Quit"
         echo
-        read -p "Select an option $options: " choice
+        printf "Select an option $options: "; read -r choice
 
         case $choice in
             0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;
@@ -347,8 +347,8 @@ main_menu() {
             8) option_8 ;;
             9) option_9 ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -361,16 +361,14 @@ $DECRYPT_CRED
 case "$1" in
     -h|--help|help)
         display_banner
-        echo "Quick action menu of common operations.\n"
-        echo "Usage: igm"
-        echo "Usage: igm [option]"
-        echo "Usage: igm [option] [arg]"
+        printf "Quick action menu of common operations.\n\n"
+        echo "Usage: igm | igm [option] | igm [option] [arg]"
 
-        echo "\n[${BLUE}General${NC}]"
+        printf "\n[${BLUE}General${NC}]\n"
         echo "  igm                      Launch the Income Generator tool."
         echo "  igm help                 Display this help usage guide."
 
-        echo "\n[${BLUE}Manage${NC}]"
+        printf "\n[${BLUE}Manage${NC}]\n"
         echo "  igm start  [name]        Start one or all currently deployed applications."
         echo "  igm stop   [name]        Stop one or all currently deployed running applications."
         echo "  igm remove [name]        Stop and remove one or all currently deployed applications."
@@ -379,7 +377,7 @@ case "$1" in
         echo "  igm redeploy             Redeploy the last installed application state."
         echo "  igm clean                Cleanup orphaned applications, volumes and downloaded images."
 
-        echo "\n[${BLUE}Proxy${NC}]"
+        printf "\n[${BLUE}Proxy${NC}]\n"
         echo "  igm proxy                Launch the proxy tool menu."
         echo "  igm proxy setup          Setup and define list of proxy entries."
         echo "  igm proxy app            Enable or disable proxy applications for deployment."
@@ -388,7 +386,7 @@ case "$1" in
         echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
         echo "  igm proxy id             Show active applications with multi-UUIDs and instructions."
 
-        echo "\n[${BLUE}Configuration${NC}]"
+        printf "\n[${BLUE}Configuration${NC}]\n"
         echo "  igm app|service          Enable or disable applications/services for deployment."
         echo "  igm setup                Setup credentials for applications to be deployed."
         echo "  igm view                 View all configured application credentials."
@@ -457,7 +455,7 @@ case "$1" in
         ;;
     clean)
         display_banner
-        echo "Cleaning up orphaned applications, volumes and images...\n"
+        printf "Cleaning up orphaned applications, volumes and images...\n\n"
         $CONTAINER_ALIAS system prune -a -f --volumes
         ;;
     app|service)

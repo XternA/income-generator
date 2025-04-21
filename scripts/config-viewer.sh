@@ -13,13 +13,13 @@ else
     COMMENT='\x1b[90m' # Grey
     RESET='\x1b[0m'    # Reset
 
-    echo "${YELLOW}---------[ START OF $TYPE ]---------\n${RED}"
+    printf "${YELLOW}---------[ START OF $TYPE ]---------\n${RED}\n"
     if [ "$TYPE" = "PROXY" ]; then
         cat "$FILE" | sed -e "s/^#.*$/\x1b[90m&\x1b[0m/"
     else
         cat "$FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/" -e "s/^##.*/${COMMENT}&${RESET}/"
     fi
-    echo "${YELLOW}\n----------[ END OF $TYPE ]----------${NC}"
+    printf "${YELLOW}\n----------[ END OF $TYPE ]----------${NC}\n"
 fi
 
-printf "\nPress Enter to continue..."; read input
+printf "\nPress Enter to continue..."; read -r input
