@@ -170,7 +170,7 @@ services:
         devices:
             - /dev/net/tun
         volumes:
-          - network3-data:/usr/local/etc/wireguard
+            - network3-data:/usr/local/etc/wireguard
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
