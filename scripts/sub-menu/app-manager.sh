@@ -33,20 +33,20 @@ display_install_info() {
 
     if [ "$is_reinstall_state" != "redeploy" ]; then
         total_apps="Total Available:\n ${GREEN}Applications: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | \
-                ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}\n"
-        echo $total_apps
+                ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}"
+        printf "$total_apps\n\n"
     fi
 
     if [ -z "$has_apps_services" ]; then
         can_install="false"
 
         if [ "$is_reinstall_state" = "redeploy" ]; then
-            echo "No save state to redeploy from.\nInstall normally to save state first."
+            printf "No save state to redeploy from.\nInstall normally to save state first.\n"
         else
-            echo "No applications/services currently selected to ${install_type}."
+            printf "No applications/services currently selected to ${install_type}.\n"
         fi
     else
-        echo "The following applications will be ${install_type}.\n"
+        printf "The following applications will be ${install_type}.\n\n"
 
         printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
         printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
@@ -68,14 +68,13 @@ display_install_info() {
         can_install="true"
     fi
 
+    printf "\nOption:\n"
     if [ "$is_reinstall_state" != "redeploy" ]; then
-        echo "\nOption:"
-        echo "  ${GREEN}a${NC} = ${GREEN}select applications${NC}"
-        echo "  ${YELLOW}s${NC} = ${YELLOW}select services${NC}"
+        printf "  ${GREEN}a${NC} = ${GREEN}select applications${NC}\n"
+        printf "  ${YELLOW}s${NC} = ${YELLOW}select services${NC}\n"
     else
         if [ "$can_install" = "true" ]; then
-            echo "\nOption:"
-            echo "  ${RED}c${NC} = ${RED}clear redeploy state${NC}"
+            printf "  ${RED}c${NC} = ${RED}clear redeploy state${NC}\n"
         fi
     fi
 
@@ -88,7 +87,7 @@ display_install_info() {
     else
         printf "\nDo you want to proceed? (Y/N): "
     fi
-    read input
+    read -r input
 }
 
 install_applications() {
@@ -97,14 +96,14 @@ install_applications() {
         has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
 
         total_apps="Total Available:\n ${GREEN}Applications: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | \
-                ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}\n"
-        echo $total_apps
+                ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}"
+        printf "$total_apps\n\n"
 
         if [ -z "$has_apps_services" ]; then
             echo "No applications/services currently selected to install."
             can_install="false"
         else
-            echo "The following applications will be installed.\n"
+            printf "The following applications will be installed.\n\n"
 
             printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
             printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
@@ -126,16 +125,16 @@ install_applications() {
             can_install="true"
         fi
 
-        echo "\nOption:"
-        echo "  ${GREEN}a${NC} = ${GREEN}select applications${NC}"
-        echo "  ${YELLOW}s${NC} = ${YELLOW}select services${NC}\n"
+        printf "\nOption:\n"
+        printf "  ${GREEN}a${NC} = ${GREEN}select applications${NC}\n"
+        printf "  ${YELLOW}s${NC} = ${YELLOW}select services${NC}\n\n"
 
         if [ "$can_install" = "false" ]; then
             printf "Select an option or press Enter to return: "
         else
             printf "Do you want to proceed? (Y/N): "
         fi
-        read input
+        read -r input
     }
 
     while true; do
@@ -143,7 +142,7 @@ install_applications() {
         [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
         if [ "$1" = "quick_menu" ]; then
-            echo "How would you like to install?\n"
+            printf "How would you like to install?\n\n"
             exit_option="0. Exit"
         else
             exit_option="0. Return to Main Menu"
@@ -157,10 +156,8 @@ install_applications() {
         echo "3. Only VPS/Hosting applications"
         echo "4. All service applications"
         echo "$exit_option"
-        echo
-        printf "Select an option %s: " "$options"
-        read option
 
+        printf "\nSelect an option $options: "; read -r option
         case "$option" in
             1)
                 while true; do
@@ -177,14 +174,14 @@ install_applications() {
                                 is_selective=true
                                 break
                             fi
-                            printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                            printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                             ;;
                         [Nn])
                             if [ "$can_install" = "true" ]; then
                                 compose_files=""
                                 break
                             fi
-                            printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                            printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                             ;;
                         a)
                             $APP_SELECTION
@@ -193,7 +190,7 @@ install_applications() {
                             $APP_SELECTION service
                             ;;
                         *)
-                            printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                            printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                             ;;
                     esac
                 done
@@ -214,8 +211,8 @@ install_applications() {
                 break
                 ;;
             *)
-                echo "\nInvalid option. Please select a valid option $options."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
         esac
 
@@ -224,19 +221,19 @@ install_applications() {
 
         display_banner
         if [ ! -s "$ENV_FILE" ]; then
-            echo "No configuration for applications found. Configure app credentials first."
-            echo "Running setup configuration now...\n"
+            printf "No configuration for applications found. Configure app credentials first.\n"
+            printf "Running setup configuration now...\n\n"
             sleep 0.6
             $APP_CONFIG
             return
         fi
 
-        echo "$install_type\n"
+        printf "$install_type\n\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
 
         proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
         [ "$proxy_is_active" ] && $WATCHTOWER modify_only
-        
+
         $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
         echo
         $CONTAINER_ALIAS container prune -f
@@ -246,7 +243,7 @@ install_applications() {
         $APP_SELECTION --save > /dev/null 2>&1
         $WATCHTOWER restore_only
 
-        printf "\nPress Enter to continue..."; read input
+        printf "\nPress Enter to continue..."; read -r input
     done
 }
 
@@ -268,7 +265,7 @@ reinstall_applications() {
                 ;;
             [Yy])
                 display_banner
-                echo "Redeploying last application install state...\n"
+                printf "Redeploying last application install state...\n\n"
 
                 proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
                 [ "$proxy_is_active" ] && $WATCHTOWER modify_only
@@ -280,7 +277,7 @@ reinstall_applications() {
                 $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
                 [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
-                printf "\nPress Enter to continue..."; read input
+                printf "\nPress Enter to continue..."; read -r input
                 break
                 ;;
             [Nn])
@@ -288,11 +285,11 @@ reinstall_applications() {
                 ;;
             c)
                 rm -f "$ENV_DEPLOY_FILE.save"
-                echo "\nRedeploy save state has been cleared."
-                printf "\nPress Enter to continue..."; read input
+                printf "\nRedeploy save state has been cleared.\n"
+                printf "\nPress Enter to continue..."; read -r input
                 ;;
             *)
-                printf "\nInvalid option.\n\nPress Enter to continue..."; read input
+                printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
                 ;;
         esac
     done
@@ -302,10 +299,10 @@ reinstall_applications() {
 start_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    echo "Starting applications...\n"
+    printf "Starting applications...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
-    echo "\nAll installed applications started."
-    printf "\nPress Enter to continue..."; read input
+    printf "\nAll installed applications started.\n"
+    printf "\nPress Enter to continue..."; read -r input
 }
 
 start_application() {
@@ -317,20 +314,20 @@ start_application() {
 stop_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    echo "Stopping applications...\n"
+    printf "Stopping applications...\n\n"
 
     compose_files=$ALL_COMPOSE_FILES
     proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
     [ "$proxy_is_active" ] && compose_files=$APP_COMPOSE_FILES
 
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
-    echo "\nAll running applications stopped."
-    printf "\nPress Enter to continue..."; read input
+    printf "\nAll running applications stopped.\n"
+    printf "\nPress Enter to continue..."; read -r input
 }
 
 stop_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Stopping application "
+    printf "Stopping application"
     $CONTAINER_ALIAS stop -t 6 "$1"
 }
 
@@ -338,7 +335,7 @@ remove_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
-    echo "Stopping and removing applications and volumes...\n"
+    printf "Stopping and removing applications and volumes...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
 
@@ -346,13 +343,13 @@ remove_applications() {
     [ "$proxy_is_active" ] && $WATCHTOWER deploy
 
     $CONTAINER_ALIAS container prune -f
-    echo "\nAll installed applications and volumes removed."
-    printf "\nPress Enter to continue..."; read input
+    printf "\nAll installed applications and volumes removed.\n"
+    printf "\nPress Enter to continue..."; read -r input
 }
 
 remove_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Removing application "
+    printf "Removing application"
     $CONTAINER_ALIAS rm -f -v "$1"
 }
 
@@ -360,7 +357,7 @@ show_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
-    echo "Installed Containers:\n"
+    printf "Installed Containers:\n\n"
 
     local proxy_number="${2:-}"
     local proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
@@ -386,11 +383,11 @@ show_applications() {
                 echo "No installed applications."
             else
                 if [ -n "$(has_apps standard)" ]; then
-                    echo "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n"
+                    printf "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n\n"
                     show_apps standard
                 fi
                 if [ -n "$(has_apps proxy)" ]; then
-                    echo "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n"
+                    printf "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n\n"
                     show_apps proxy
                 fi
             fi
@@ -398,7 +395,7 @@ show_applications() {
         proxy)
             if [ -z "$(has_apps proxy)" ]; then
                 if [ -n "$proxy_number" ]; then
-                    echo "No installed set ${RED}${proxy_number}${NC} proxy applications."
+                    printf "No installed set ${RED}${proxy_number}${NC} proxy applications.\n"
                 else
                     echo "No installed proxy applications."
                 fi
@@ -417,5 +414,5 @@ show_applications() {
             echo "igm: '$1' is not a valid command. See 'igm help'."
             ;;
     esac
-    printf "\nPress Enter to continue..."; read input
+    printf "\nPress Enter to continue..."; read -r input
 }
