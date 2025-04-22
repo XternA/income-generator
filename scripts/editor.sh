@@ -5,7 +5,7 @@ set_if_not_defined() {
 }
 
 sync_editor() {
-    EDITOR="$(sed -n '/^EDITOR=/ { s/^EDITOR=//; p; q }' $ENV_SYSTEM_FILE)"
+    EDITOR="$(grep '^EDITOR=' "$ENV_SYSTEM_FILE" | cut -d= -f2 | head -n 1)"
     [ -z "$EDITOR" ] && echo "EDITOR=nano" >> "$ENV_SYSTEM_FILE"
 }
 
