@@ -5,43 +5,44 @@ OS="$(uname -s)"
 RAW_ARCH="$(uname -m)"
 
 case $RAW_ARCH in
-    arm64|aarch64)
-        ARCH="arm64v8"
-        ;;
-    armv7l)
-        ARCH="arm32v7"
-        ;;
-    *)
-        ARCH="latest"
-        ;;
+    arm64|aarch64) ARCH="arm64v8" ;;
+    armv7l) ARCH="arm32v7" ;;
+    *) ARCH="latest" ;;
 esac
 
-if [ -f /etc/os-release ]; then
-  while IFS='=' read -r key val; do
-    val=${val%\"}; val=${val#\"}
-    case "$key" in
-      ID) DISTRO=$val ;;
-      VERSION_CODENAME|UBUNTU_CODENAME) [ -z "$CODENAME" ] && CODENAME=$val ;;
-      VERSION_ID) VERSION=$val ;;
-    esac
-  done < /etc/os-release
+if [ "$OS" = "Darwin" ]; then
+    DISTRO="$OS"
+    OS="$(sw_vers -productName)"
+    VERSION="$(sw_vers -productVersion)"
+
+    CODENAME=$(awk '/SOFTWARE LICENSE AGREEMENT FOR macOS/ {print $NF}' \
+        /System/Library/CoreServices/Setup\ Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf | sed 's/.$//')
+elif [ -f /etc/os-release ]; then
+    while IFS='=' read -r key val; do
+        val=${val%\"}; val=${val#\"}
+        case "$key" in
+            ID) DISTRO=$val ;;
+            VERSION_CODENAME|UBUNTU_CODENAME) [ -z "$CODENAME" ] && CODENAME=$val ;;
+            VERSION_ID) VERSION=$val ;;
+        esac
+    done < /etc/os-release
 elif [ -f /etc/lsb-release ]; then
-  while IFS='=' read -r key val; do
-    val=${val%\"}; val=${val#\"}
-    case "$key" in
-      DISTRIB_ID) DISTRO=$(echo "$val" | tr A-Z a-z) ;;
-      DISTRIB_CODENAME) CODENAME=$val ;;
-      DISTRIB_RELEASE) VERSION=$val ;;
-    esac
-  done < /etc/lsb-release
+    while IFS='=' read -r key val; do
+        val=${val%\"}; val=${val#\"}
+        case "$key" in
+            DISTRIB_ID) DISTRO=$(echo "$val" | tr A-Z a-z) ;;
+            DISTRIB_CODENAME) CODENAME=$val ;;
+            DISTRIB_RELEASE) VERSION=$val ;;
+        esac
+    done < /etc/lsb-release
 elif [ -f /etc/issue ]; then
-  read -r DISTRO VERSION _ < /etc/issue
-  DISTRO=$(echo "$DISTRO" | tr A-Z a-z)
-  CODENAME=""
+    read -r DISTRO VERSION _ < /etc/issue
+    DISTRO=$(echo "$DISTRO" | tr A-Z a-z)
+    CODENAME=""
 else
-  DISTRO=$(uname -s | tr A-Z a-z)
-  CODENAME=""
-  VERSION=""
+    DISTRO=$(uname -s | tr A-Z a-z)
+    CODENAME=""
+    VERSION=""
 fi
 
 DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
