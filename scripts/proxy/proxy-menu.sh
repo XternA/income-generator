@@ -16,9 +16,9 @@ setup_proxy() {
         printf "Proxy application still active.\nRemove existing applications first before editing.\n"
         printf "\nPress Enter to continue..."; read -r input
     else
-        printf "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes.\n"
+        get_editor_description
         printf "\nPress Enter to continue..."; read -r input
-        nano "$PROXY_FILE"
+        run_editor "$PROXY_FILE"
         [ -f "$PROXY_FILE" ] && [ "$(tail -c 1 "$PROXY_FILE")" != "" ] && echo "" >> "$PROXY_FILE"
     fi
 }
@@ -96,9 +96,10 @@ edit_proxy_file() {
         if [ "$input" -ge 1 ] && [ "$input" -le "$total_files" ]; then
             display_banner
             app="$(set -- $uuid_files; eval echo \${$input})"
-            printf "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes.\n"
+
+            get_editor_description
             printf "\nPress Enter to continue..."; read -r input
-            nano "${PROXY_FOLDER}/${app}.uuid"
+            run_editor "${PROXY_FOLDER}/${app}.uuid"
         else
             printf "\nInvalid option. Please select a valid option $options.\n"
             printf "\nPress Enter to continue..."; read -r input

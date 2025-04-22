@@ -3,6 +3,7 @@
 . scripts/shared-component.sh
 sh scripts/init.sh
 
+. scripts/editor.sh
 . scripts/container/container-config.sh
 . scripts/sub-menu/app-manager.sh
 . scripts/arch-image-tag.sh
@@ -49,9 +50,9 @@ option_2() {
                 ;;
             3)
                 display_banner
-                printf "After making changes, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes.\n"
+                get_editor_description
                 printf "\nPress Enter to continue..."; read -r input
-                nano .env
+                run_editor $ENV_FILE
                 ;;
             4)
                 $APP_SELECTION
@@ -178,20 +179,20 @@ option_8() {
     done
 }
 
-option_9() {
+manage_tool() {
     while true; do
         display_banner
 
-        options="(1-5)"
-
+        options="(1-6)"
         echo "1. Backup & restore config"
         echo "2. Manage application state"
         echo "3. Reset resource limit"
         echo "4. Reset all back to default"
         echo "5. Check and get update"
+        echo "6. Change editor tool"
         echo "0. Return to Main Menu"
         echo
-        read -r -p "Select an option $options: " option
+        printf "Select an option $options: "; read -r option
 
         case $option in
             1)
@@ -278,6 +279,10 @@ option_9() {
                 unset NEW_UPDATE
                 printf "\nPress Enter to continue..."; read -r input
                 ;;
+            6)
+                display_banner
+                set_editor
+                ;;
             0)
                 break  # Return to the main menu
                 ;;
@@ -345,7 +350,7 @@ main_menu() {
             6) show_applications ;;
             7) option_7 ;;
             8) option_8 ;;
-            9) option_9 ;;
+            9) manage_tool ;;
             *)
                 printf "\nInvalid option. Please select a valid option $options.\n"
                 printf "\nPress Enter to continue..."; read -r input
@@ -362,7 +367,7 @@ case "$1" in
     -h|--help|help)
         display_banner
         printf "Quick action menu of common operations.\n\n"
-        echo "Usage: igm | igm [option] | igm [option] [arg]"
+        echo "Usage: igm ${BLUE}|${NC} igm [option] ${BLUE}|${NC} igm [option] [arg]"
 
         printf "\n[${BLUE}General${NC}]\n"
         echo "  igm                      Launch the Income Generator tool."
@@ -392,6 +397,7 @@ case "$1" in
         echo "  igm view                 View all configured application credentials."
         echo "  igm edit                 Edit configured credentials and config file directly."
         echo "  igm limit                Set the application resource limits."
+        echo "  igm editor               Change the default editor tool to use."
         echo
         ;;
     "")
@@ -475,11 +481,16 @@ case "$1" in
         clear
         ;;
     edit)
-        nano $ENV_FILE
+        run_editor $ENV_FILE
         clear
         ;;
     limit)
         option_8 quick_menu
+        clear
+        ;;
+    editor)
+        display_banner
+        set_editor
         clear
         ;;
     *)
