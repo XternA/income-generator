@@ -2,8 +2,19 @@
 
 case "$1" in
     --update)
-        echo "\nChecking and attempting to get latest updates...\n"
-        git fetch; git reset --hard; git pull
+        printf "Checking for new updates available...\n\n"
+
+        git fetch --quiet
+        if [ "$(git rev-list HEAD..@{u} --count)" -gt 0 ]; then
+            printf "New updates available! 🚀"
+            sleep 1.4
+            printf "\rUpdating to latest version...\n\n"
+            git pull --quiet > /dev/null 2>&1
+            sleep 1.2
+            echo "Update complete ✅"
+        else
+            echo "No update available ❌"
+        fi
         ;;
     *)
         URL="https://api.github.com/repos"

@@ -179,6 +179,22 @@ option_8() {
     done
 }
 
+run_updater() {
+    case "$1" in
+        --cli)
+            display_banner
+            $UPDATE_CHECKER --update
+            ;;
+        *)
+            display_banner
+            $UPDATE_CHECKER --update
+            unset NEW_UPDATE
+            ;;
+    esac
+    $APP_SELECTION --import
+    printf "\nPress Enter to continue..."; read -r input
+}
+
 manage_tool() {
     while true; do
         display_banner
@@ -274,10 +290,7 @@ manage_tool() {
                 printf "\nPress Enter to continue..."; read -r input
                 ;;
             5)
-                $UPDATE_CHECKER --update
-                $APP_SELECTION --import
-                unset NEW_UPDATE
-                printf "\nPress Enter to continue..."; read -r input
+                run_updater
                 ;;
             6)
                 display_banner
@@ -491,6 +504,10 @@ case "$1" in
     editor)
         display_banner
         set_editor
+        clear
+        ;;
+    update)
+        run_updater --cli
         clear
         ;;
     *)
