@@ -385,6 +385,7 @@ case "$1" in
         printf "\n[${BLUE}General${NC}]\n"
         echo "  igm                      Launch the Income Generator tool."
         echo "  igm help                 Display this help usage guide."
+        echo "  igm update               Check and update Income Generator tool if available."
 
         printf "\n[${BLUE}Manage${NC}]\n"
         echo "  igm start  [name]        Start one or all currently deployed applications."
