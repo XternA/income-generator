@@ -11,7 +11,7 @@ case "$1" in
             case "$answer" in
                 [Yy]*)
                     printf "\nUpdating to latest version..."
-                    git reset --hard && git pull --quiet > /dev/null 2>&1
+                    git reset --hard --quiet && git pull --quiet
                     sleep 1.2
                     printf "\rUpdate complete ✅            \n"
                     ;;
