@@ -6,12 +6,19 @@ case "$1" in
 
         git fetch --quiet
         if [ "$(git rev-list HEAD..@{u} --count)" -gt 0 ]; then
-            printf "New updates available! 🚀"
-            sleep 1.4
-            printf "\rUpdating to latest version...\n\n"
-            git pull --quiet > /dev/null 2>&1
-            sleep 1.2
-            echo "Update complete ✅"
+            printf "New update available 🚀\nDo you want to update now? [Y/N]: "
+            read answer
+            case "$answer" in
+                [Yy]*)
+                    printf "\nUpdating to latest version..."
+                    git pull --quiet > /dev/null 2>&1
+                    sleep 1.2
+                    printf "\rUpdate complete ✅            \n"
+                    ;;
+                *)
+                    printf "\nUpdate skipped ❌\n"
+                    ;;
+            esac
         else
             echo "No update available ❌"
         fi
