@@ -202,11 +202,11 @@ install_proxy_instance() {
 
                     # Update container name
                     new_app_name="${app_name}-${install_count}"
-                    $SED_INPLACE "s/^\([[:space:]]*\)${app_name}-\?[0-9]*:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
-                    $SED_INPLACE "s/container_name: ${app_name}-\?[0-9]*/container_name: ${new_app_name}/" "$compose_file"
+                    $SED_INPLACE "s/^\([[:space:]]*\)${app_name}\(-[0-9][0-9]*\)\?:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
+                    $SED_INPLACE "s/container_name: ${app_name}\(-[0-9][0-9]*\)\?/container_name: ${new_app_name}/" "$compose_file"
 
                     # Update proxy network and depends on
-                    $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]/${PROXY_APP_NAME}-${install_count}/" "$compose_file"
+                    $SED_INPLACE "s/\(${PROXY_APP_NAME}-\)[0-9]*/\1${install_count}/g" "$compose_file"
                 fi
             done
 
@@ -215,9 +215,9 @@ install_proxy_instance() {
         done
 
         new_proxy_name="$PROXY_APP_NAME-${install_count}"
-        if grep -q "${PROXY_APP_NAME}-[0-9]:" "$TUNNEL_COMPOSE_FILE"; then
-            $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]:/${new_proxy_name}:/" "$TUNNEL_COMPOSE_FILE"
-            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}-[0-9]/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
+        if grep -q "${PROXY_APP_NAME}-[0-9]*:" "$TUNNEL_COMPOSE_FILE"; then
+            $SED_INPLACE "s/${PROXY_APP_NAME}-[0-9]*:/${new_proxy_name}:/" "$TUNNEL_COMPOSE_FILE"
+            $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}-[0-9]*/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
         else
             $SED_INPLACE "s/${PROXY_APP_NAME}:/${new_proxy_name}:/" "$TUNNEL_COMPOSE_FILE"
             $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
