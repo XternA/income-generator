@@ -327,7 +327,7 @@ stop_applications() {
 
 stop_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Stopping application"
+    printf "Stopping application "
     $CONTAINER_ALIAS stop -t 6 "$1"
 }
 
@@ -349,7 +349,7 @@ remove_applications() {
 
 remove_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Removing application"
+    printf "Removing application "
     $CONTAINER_ALIAS rm -f -v "$1"
 }
 
