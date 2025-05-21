@@ -1,8 +1,8 @@
 #!/bin/sh
 
-LIMIT_TYPE="low"
+sh scripts/installer/binary-installer.sh
 
-sh scripts/prerequisite.sh
+LIMIT_TYPE="low"
 
 if [ ! -f "$ENV_SYSTEM_FILE" ]; then
     $SYS_INFO > /dev/null 2>&1

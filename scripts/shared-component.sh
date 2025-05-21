@@ -43,5 +43,5 @@ export DECRYPT_CRED="$ENCRYPTOR -ds $ENV_FILE"
 # Declare tool alias ----------------
 case "$(uname)" in
     Linux) export SED_INPLACE="sed -i" ;;
-    Darwin) export SED_INPLACE="sed -i .bk" ;;
+    Darwin) export SED_INPLACE="gsed -i" ;;
 esac
