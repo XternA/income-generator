@@ -7,12 +7,8 @@ trap 'rm -f $FILE_CHANGED' INT
 
 display_banner() {
     clear
-    printf "${GREEN}===========================================================\n"
-    printf "#  ${NC}Application Credential Setup Manager${GREEN}                   #\n"
-    printf "===========================================================\n"
-    printf "#  ${NC}Manage, update and configure application credentials.${GREEN}  #\n"
-    printf "#  ${NC}Credentials are stored locally in a ${RED}.env${NC} config file.${GREEN}  #\n"
-    printf "===========================================================${NC}\n"
+    printf "Income Generator Credentials Manager\n"
+    printf "${GREEN}------------------------------------------${NC}\n"
 }
 
 write_entry() {
@@ -20,11 +16,15 @@ write_entry() {
         awk -v entry="$entry_name" -v input="$input" -F "=" 'BEGIN { OFS="=" } $1 == entry { $2 = input } 1' "$ENV_FILE" > "$ENV_FILE.tmp"
         mv "$ENV_FILE.tmp" "$ENV_FILE"
     else
-        if [ $is_new_app = true ]; then
-            echo "" >> "$ENV_FILE"
-            is_new_app=false
+        if [ ! -s "$ENV_FILE" ]; then
+            echo "$entry_name=$input" > "$ENV_FILE"
+        else
+            [ "$is_new_app" = true ] && {
+                echo "" >> "$ENV_FILE"
+                is_new_app=false
+            }
+            echo "$entry_name=$input" >> "$ENV_FILE"
         fi
-        echo "$entry_name=$input" >> "$ENV_FILE"
     fi
     : > $FILE_CHANGED
 }
@@ -36,11 +36,11 @@ input_new_value() {
 
 process_new_entry() {
     if [ "$entry" != "$entry_name" ]; then
-        input="$(generate_uuid $denoter)"
+        input="$(generate_uuid $uuid_type)"
         write_entry
         printf "A new UUID has been auto-generated for $RED$entry_name$NC: $YELLOW$input$NC\n\n"
-        [ "$registration" != null ] && printf "${YELLOW}$registration$input${NC}\n"
-        printf "\nPress Enter to continue..."; read -r input < /dev/tty
+        [ -n "$registration" ] && printf "${YELLOW}$registration$input${NC}\n\n"
+        printf "Press Enter to continue..."; read -r input < /dev/tty
     else
         input_new_value
     fi
@@ -57,53 +57,46 @@ process_uuid_user_choice() {
 }
 
 process_entries() {
-    num_entries=$(jq '. | length' "$JSON_FILE")
+    set -- $(jq -r '[.[] | select(.is_enabled == true)] as $enabled | [. | length, $enabled | length] | @tsv' "$JSON_FILE")
+    total_entries=$1
+    num_entries=$2
 
-    jq -c '.[]' "$JSON_FILE" | while read -r config_entry; do
+    jq -r -j '
+        .[] |
+        "is_enabled="      + (.is_enabled // false | @sh) + "\n" +
+        "app_name="        + (.name // "" | @sh) + "\n" +
+        "url="             + (.url // "" | @sh) + "\n" +
+        "description="     + (.description // "" | @sh) + "\n" +
+        "description_ext=" + (.description_ext // "" | @sh) + "\n" +
+        "registration="    + (.registration // "" | @sh) + "\n" +
+        "properties="      + ((.properties // []) | join(" ") | @sh) + "\n" +
+        "uuid_type="         + (.uuid_type // "" | @sh) + "\n" +
+        "\u0000"
+    ' "$JSON_FILE" | while IFS= read -r -d '' config_entry; do
+        eval "$config_entry" || continue
+
+        [ $is_enabled = "false" ] && continue
         entry_count=$((entry_count + 1))
-        [ $(echo "$config_entry" | jq -r '.is_enabled') = false ] && continue
-
-        display_banner
-        printf "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}\n"
-
-        app_name=$(echo "$config_entry" | jq -r '.name')
-        url=$(echo "$config_entry" | jq -r '.url')
-        description=$(echo "$config_entry" | jq -r '.description' | tr -d '\n')
-        description_ext=$(echo "$config_entry" | jq -r '.description_ext' | tr -d '\n')
-        registration=$(echo "$config_entry" | jq -r '.registration' | tr -d '\n')
-
-        printf "\n[ ${GREEN}$app_name${NC} ]\n"
-        [ "$url" != null ] && printf "Go to $BLUE$url$NC to register an account. (CTRL + Click)\n"
-        [ "$description" != null ] && printf "Description: ${YELLOW}$description${NC}\n"
-        [ "$description_ext" != null ] && printf "${YELLOW}$description_ext${NC}\n"
-        echo
-
-        if [ -z "$(echo "$config_entry" | jq -r '.properties // empty')" ]; then
-            printf "Press Enter to continue..."; read -r input < /dev/tty
-            continue
-        fi
-
         is_update=false
         is_new_app=true
-        properties=$(echo "$config_entry" | jq -r '.properties[]')
+
+        display_banner
+        printf "\nTotal applications: ${RED}$total_entries${NC}\n"
+        printf "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}\n"
+        printf "\n[ ${GREEN}$app_name${NC} ]\n"
+        [ -n "$url" ] && printf "Go to $BLUE$url$NC to register an account. (CTRL + Click)\n"
+        [ -n "$description" ] && printf "Description: ${YELLOW}$description${NC}\n"
+        [ -n "$description_ext" ] && printf "${YELLOW}$description_ext${NC}\n"
+        echo
 
         if [ -n "$properties" ]; then
-            # Check if properties is an array before looping through it
-            if [ "$(echo "$config_entry" | jq -r '.properties | type')" = "array" ]; then
-                for entry in $properties; do
-                    entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "#") # Remove surrounding quotes and denoter
-                    require_uuid=$(echo "${entry%${entry#?}}")
+            for entry in $properties; do
+                entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "#") # Remove surrounding quotes and denoter
+                require_uuid=$(echo "${entry%${entry#?}}")
 
-                    [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ] && is_update=true
-
-                    if [ "$require_uuid" = "#" ]; then
-                        denoter=$(echo "$config_entry" | jq -r '.uuid_type' | tr -d '\n')
-                        process_uuid_user_choice
-                    else
-                        input_new_value
-                    fi
-                done
-            fi
+                [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ] && is_update=true
+                [ "$require_uuid" = "#" ] && process_uuid_user_choice || input_new_value
+            done
         else
             printf "Press Enter to continue..."; read -r input < /dev/tty
         fi
