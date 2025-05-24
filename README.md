@@ -17,7 +17,7 @@
 If you like this project, don't forget to leave a star. ⭐
 </div>
 
-![image](https://github.com/XternA/income-generator/assets/9136075/22881e8c-c3f8-4c61-a927-cccc18bd0c7e)
+![image](https://github.com/user-attachments/assets/4f4dddc3-3156-460e-91c2-e8d9cfce0ef8)
 
 **Income Generator** is an all-in-one feature-rich tool that allows generating passive income by leveraging income generating applications and unused internet bandwidth with minimal system resource.
 
