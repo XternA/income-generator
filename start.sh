@@ -380,7 +380,7 @@ case "$1" in
     -h|--help|help)
         display_banner
         printf "Quick action menu of common operations.\n\n"
-        echo "Usage: igm ${BLUE}|${NC} igm [option] ${BLUE}|${NC} igm [option] [arg]"
+        echo "Usage: igm ${RED}|${NC} igm [option] ${RED}|${NC} igm [option] [arg]"
 
         printf "\n[${BLUE}General${NC}]\n"
         echo "  igm                      Launch the Income Generator tool."
@@ -412,7 +412,6 @@ case "$1" in
         echo "  igm edit                 Edit configured credentials and config file directly."
         echo "  igm limit                Set the application resource limits."
         echo "  igm editor               Change the default editor tool to use."
-        echo
         ;;
     "")
         $APP_SELECTION --import
