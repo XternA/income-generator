@@ -7,7 +7,8 @@ HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
 display_banner() {
     clear
     printf "Income Generator Proxy Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n\n"
+    printf "${GREEN}------------------------------------------${NC}\n"
+    [ ! "$1" = "--no_line" ] && echo
 }
 
 setup_proxy() {
@@ -246,7 +247,7 @@ view_uuids() {
 
 main_menu() {
     while true; do
-        display_banner
+        display_banner --no_line
 
         TOTAL_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
         printf "Available Proxies: ${RED}${TOTAL_PROXIES}${NC}\n\n"
