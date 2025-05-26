@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. "${ROOT_DIR}/scripts/util/uuid-generator.sh"
+. scripts/util/uuid-generator.sh
 
 export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
 export PROXY_FOLDER_ACTIVE="$PROXY_FOLDER/active"

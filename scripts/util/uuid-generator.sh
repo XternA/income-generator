@@ -1,5 +1,8 @@
 #!/bin/sh
 
+[ -n "$__UUID_GENERATOR" ] && return
+__UUID_GENERATOR=1
+
 generate_uuid() {
     if [ "$(uname)" = "Darwin" ]; then
         uuid="$(uuidgen | tr 'A-Z' 'a-z')"
