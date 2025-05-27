@@ -32,5 +32,5 @@ case "$1" in
         LOCAL_COMMIT=$(git rev-parse HEAD)
         COMPARE_COMMITS=$(curl -s --connect-timeout 2 --max-time 5 "$URL/$REPO/compare/$TAG_COMMIT...$LOCAL_COMMIT" | jq -r '.status' 2>/dev/null)
 
-        [ "$COMPARE_COMMITS" = "behind" ] && printf "\033[5m\033[91m%s\033[0m\n" "New tool update available! 🚀"
+        [ "$COMPARE_COMMITS" = "behind" ] && printf "\033[5m\033[91m%s\033[0m\n" "New tool update available! 🚀\n"
 esac
