@@ -7,6 +7,7 @@ sh scripts/init.sh
 . scripts/container/container-config.sh
 . scripts/sub-menu/app-manager.sh
 . scripts/arch-image-tag.sh
+. scripts/container/runtime-manager.sh
 
 SYS_INFO=$($SYS_INFO)
 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
@@ -346,7 +347,7 @@ main_menu() {
         echo "4. Stop Applications"
         echo "5. Remove Applications"
         echo "6. Show Installed Applications"
-        echo "7. Manage Docker"
+        echo "7. Manage Runtime"
         echo "8. Change Resource Limits"
         echo "9. Manage Tool"
         echo "0. Quit"
@@ -361,7 +362,7 @@ main_menu() {
             4) stop_applications ;;
             5) remove_applications ;;
             6) show_applications ;;
-            7) option_7 ;;
+            7) runtime_menu ;;
             8) option_8 ;;
             9) manage_tool ;;
             *)
@@ -412,6 +413,7 @@ case "$1" in
         echo "  igm edit                 Edit configured credentials and config file directly."
         echo "  igm limit                Set the application resource limits."
         echo "  igm editor               Change the default editor tool to use."
+        echo "  igm runtime              Configure or manage the container runtime engine."
         ;;
     "")
         $APP_SELECTION --import
@@ -508,6 +510,10 @@ case "$1" in
         ;;
     update)
         run_updater --cli
+        clear
+        ;;
+    runtime)
+        runtime_menu
         clear
         ;;
     *)
