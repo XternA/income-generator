@@ -4,10 +4,10 @@
 sh scripts/init.sh
 
 . scripts/editor.sh
-. scripts/container/container-config.sh
+. scripts/runtime/container-config.sh
 . scripts/sub-menu/app-manager.sh
 . scripts/arch-image-tag.sh
-. scripts/container/runtime-manager.sh
+. scripts/runtime/runtime-manager.sh
 
 SYS_INFO=$($SYS_INFO)
 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
@@ -115,7 +115,7 @@ option_7() {
                 display_banner
                 printf "Installing Docker...\n\n"
                 sh scripts/$CONTAINER_ALIAS-install.sh
-                sh scripts/container/container-config.sh --register
+                sh scripts/runtime/container-config.sh --register
                 sh scripts/emulation-layer.sh --add
                 printf "\nPress Enter to continue..."; read -r input
                 ;;

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. scripts/container/colima/colima-runtime.sh
+. scripts/runtime/colima/colima-runtime.sh
 
 _install_runtime() {
     display_banner
@@ -8,7 +8,7 @@ _install_runtime() {
         --docker) sh scripts/$CONTAINER_ALIAS-install.sh ;;
         --colima) setup_runtime ;;
     esac
-    sh scripts/container/container-config.sh --register
+    sh scripts/runtime/container-config.sh --register
     sh scripts/emulation-layer.sh --add
 }
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-_autostart="sh scripts/container/colima/colima-autostart.sh"
+_autostart="sh scripts/runtime/colima/colima-autostart.sh"
 _brew_path="$(command -v brew | sed 's:/[^/]*$::')"
 
 _has_runtime() {

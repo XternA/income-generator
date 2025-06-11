@@ -1,6 +1,6 @@
 #!/bin/sh
 
-WATCHTOWER="sh $ROOT_DIR/scripts/container/watchtower.sh"
+WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
 LOADED_ENV_FILES="
 $SYSTEM_ENV_FILES

@@ -3,7 +3,7 @@
 PROXY_APP_NAME="tun2socks"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
 TUNNEL_COMPOSE_FILE="$COMPOSE_DIR/compose.proxy.yml"
-WATCHTOWER="sh $ROOT_DIR/scripts/container/watchtower.sh"
+WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
 LOADED_ENV_FILES="
 $SYSTEM_ENV_FILES
