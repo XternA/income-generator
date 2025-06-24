@@ -91,26 +91,6 @@ _runtime_cleanup() {
     done
 }
 
-_config_runtime() {
-    while true; do
-        display_banner
-        _display_colima_stats --status
-
-        printf "Do you want to configure a new setting? (Y/N): "; read -r yn
-        case "$yn" in
-            [Yy]*)
-                _configure_colima
-                break
-                ;;
-            ""|[Nn]*) break ;;
-            *)
-                printf "\nInvalid option. Please select yes (Y) or no (N).\n"
-                printf "\nPress Enter to continue..."; read -r _
-                ;;
-        esac
-    done
-}
-
 runtime_menu() {
     while true; do
         display_banner
@@ -133,7 +113,7 @@ runtime_menu() {
         case $option in
             0) break ;;
             1) _runtime_cleanup ;;
-            2) [ "$has_runtime" -eq 1 ] && _config_runtime || _setup_runtime ;;
+            2) [ "$has_runtime" -eq 1 ] && configure_runtime || _setup_runtime ;;
             3) [ "$has_runtime" -eq 1 ] && _setup_runtime || _remove_runtime ;;
             4)
                 if [ "$has_runtime" -eq 1 ]; then
