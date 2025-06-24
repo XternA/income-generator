@@ -24,6 +24,7 @@ _uninstall_runtime() {
 _setup_runtime() {
     if [ "$OS" != "darwin" ]; then
         _install_runtime --docker
+        printf "\nPress Enter to continue..."; read -r _
         return
     fi
 
