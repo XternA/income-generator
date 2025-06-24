@@ -33,8 +33,8 @@ _display_colima_stats() {
     done
 
     printf "$display_msg\n\n"
-    printf "CPU (Cores):  ${RED}$cpu${NC}\n"
-    printf "RAM (GB):     ${RED}$memory${NC}\n"
+    printf "CPU  (Cores): ${RED}$cpu${NC}\n"
+    printf "RAM  (GB):    ${RED}$memory${NC}\n"
     printf "Disk (GB):    ${RED}$disk${NC}\n\n"
 }
 
