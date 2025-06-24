@@ -79,6 +79,7 @@ _runtime_cleanup() {
                 $CONTAINER_ALIAS system prune -a -f --volumes
                 printf "\nCleanup completed.\n"
                 printf "\nPress Enter to continue..."; read -r _
+                break
                 ;;
             ""|[Nn]*)
                 break ;;
