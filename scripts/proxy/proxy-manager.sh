@@ -156,7 +156,11 @@ install_proxy_instance() {
     display_banner
     printf "Pulling latest image...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_COMPOSE_FILE pull
-    printf "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n\n"
+    sleep 1.5
+
+    display_banner
+    printf "Installing proxy applications...\n\n"
+    printf "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n\n"
 
     install_count=1
     proxy_entry_pointer=1
