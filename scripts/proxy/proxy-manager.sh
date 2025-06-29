@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. "scripts/proxy/proxy-uuid-generator.sh"
+
 PROXY_APP_NAME="tun2socks"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
 TUNNEL_COMPOSE_FILE="$COMPOSE_DIR/compose.proxy.yml"
@@ -54,7 +56,7 @@ display_info() {
         can_install="false"
     else
         echo "The following proxy applications will be $type.\n"
-        printf "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n\n"
+        printf "Total Proxies: ${RED}$ACTIVE_PROXIES${NC}\n\n"
 
         printf "%-4s %-21s\n" "No." "Name"
         printf "%-4s %-21s\n" "---" "--------------------"
@@ -128,7 +130,6 @@ install_proxy_instance() {
                 ;;
             [Yy])
                 if [ "$can_install" = "true" ]; then
-                    . "scripts/proxy/proxy-uuid-generator.sh"
                     generate_uuid_files
                     break
                 fi
@@ -160,7 +161,7 @@ install_proxy_instance() {
 
     display_banner
     printf "Installing proxy applications...\n\n"
-    printf "Total Proxies: ${RED}$TOTAL_PROXIES${NC}\n\n"
+    printf "Total Proxies: ${RED}$ACTIVE_PROXIES${NC}\n\n"
 
     install_count=1
     proxy_entry_pointer=1
@@ -281,12 +282,10 @@ remove_proxy_instance() {
 
     display_banner
     echo "Removing proxy applications..."
-    printf "\nTotal Proxies: ${RED}$TOTAL_PROXIES${NC}\n\n"
+    printf "\nTotal Proxies: ${RED}$ACTIVE_PROXIES${NC}\n\n"
 
     install_count=1
-    while test "$install_count" -le "$TOTAL_PROXIES"; do
-        [ "$(echo "$proxy_url" | cut -c1)" = "#" ] && continue # Skip entries not in use.
-
+    while test "$install_count" -le "$ACTIVE_PROXIES"; do
         printf "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}\n"
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
@@ -350,7 +349,7 @@ display_banner
 check_proxy_file
 
 APP_DATA="$(eval read_app_data)"
-TOTAL_PROXIES="$(awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE")"
+# ACTIVE_PROXIES="$(awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE")"
 
 case "$1" in
     install) install_proxy_instance ;;
