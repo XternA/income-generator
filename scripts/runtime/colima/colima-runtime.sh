@@ -11,12 +11,11 @@ _colima() {
     cpu="${1:-1}"
     memory="${2:-2}"
     disk="${3:-10}"
-    extra_args="${4:-}"
 
-    extra_args=("${@:4}")
-    [ ${#extra_args[@]} -eq 0 ] && extra_args=(--vm-type=qemu)
+    shift 3
+    [ $# -ne 0 ] || set -- --vm-type=qemu
 
-    colima start --cpu "$cpu" --memory "$memory" --disk "$disk" --dns 1.1.1.1 --dns 8.8.8.8 "${extra_args[@]}"
+    colima start --cpu "$cpu" --memory "$memory" --disk "$disk" --dns 1.1.1.1 --dns 8.8.8.8 "$@"
 }
 
 _display_colima_stats() {
