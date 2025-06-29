@@ -349,7 +349,6 @@ display_banner
 check_proxy_file
 
 APP_DATA="$(eval read_app_data)"
-# ACTIVE_PROXIES="$(awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE")"
 
 case "$1" in
     install) install_proxy_instance ;;
