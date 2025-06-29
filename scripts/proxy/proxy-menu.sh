@@ -38,9 +38,15 @@ install_proxy_app() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
+    if [ "$ACTIVE_PROXIES" -le 0 ]; then
+        printf "No proxy entries found.\nSetup proxy entries first.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+
     if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
         printf "Proxy application still active.\nRemove existing applications first.\n"
-        printf "\nPress Enter to continue..."; read -r input
+        printf "\nPress Enter to continue..."; read -r _
     else
         sh "scripts/proxy/proxy-manager.sh" install
     fi
@@ -247,10 +253,10 @@ view_uuids() {
 
 main_menu() {
     while true; do
-        display_banner --no_line
+        display_banner
 
-        TOTAL_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
-        printf "Available Proxies: ${RED}${TOTAL_PROXIES}${NC}\n\n"
+        ACTIVE_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
+        printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
 
         options="(1-9)"
         echo "1. Setup Proxies"

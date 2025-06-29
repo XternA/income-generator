@@ -4,7 +4,15 @@
 
 export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
 export PROXY_FOLDER_ACTIVE="$PROXY_FOLDER/active"
-TOTAL_PROXIES="$(awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE")"
+
+read TOTAL_PROXIES ACTIVE_PROXIES <<EOF
+$(awk '
+  BEGIN { total=0; active=0 }
+  NF { total++ }
+  /^[^#]/ && NF { active++ }
+  END { print total, active }
+' "$PROXY_FILE")
+EOF
 
 generate_uuid_files() {
     app_data="jq -r '.[] | select(.is_enabled == true and .uuid_type != null) | \"\(.name) \(.uuid_type)\"' \"$JSON_FILE\""
@@ -48,7 +56,7 @@ view_proxy_uuids() {
         return
     fi
 
-    echo "Active Proxies: ${RED}${TOTAL_PROXIES}${NC}\n"
+    echo "Active Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n"
 
     if [ "$1" = "active" ]; then
         app_data=$(jq -r '.[] | select(.is_enabled == true and .proxy_uuid != null) | "\(.name) \(.proxy_uuid.description)"' "$JSON_FILE")

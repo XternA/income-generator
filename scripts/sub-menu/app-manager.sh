@@ -1,6 +1,6 @@
 #!/bin/sh
 
-WATCHTOWER="sh $ROOT_DIR/scripts/container/watchtower.sh"
+WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
 LOADED_ENV_FILES="
 $SYSTEM_ENV_FILES
@@ -226,7 +226,7 @@ install_applications() {
             return
         fi
 
-        printf "$install_type\n\n"
+        printf "Pulling latest image...\n\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
 
         proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
@@ -235,7 +235,10 @@ install_applications() {
         $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
         echo
         $CONTAINER_ALIAS container prune -f
-        echo
+        sleep 1.5
+
+        display_banner
+        printf "$install_type\n\n"
         $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
@@ -263,7 +266,7 @@ reinstall_applications() {
                 ;;
             [Yy])
                 display_banner
-                printf "Redeploying last application install state...\n\n"
+                printf "Pulling latest image...\n\n"
 
                 proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
                 [ "$proxy_is_active" ] && $WATCHTOWER modify_only
@@ -271,7 +274,10 @@ reinstall_applications() {
                 $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
                 echo
                 $CONTAINER_ALIAS container prune -f
-                echo
+                sleep 1.5
+
+                display_banner
+                printf "Redeploying last application install state...\n\n"
                 $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
                 [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
