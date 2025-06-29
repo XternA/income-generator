@@ -3,7 +3,7 @@
 _autostart="sh scripts/runtime/colima/colima-autostart.sh"
 _brew_path="$(command -v brew | sed 's:/[^/]*$::')"
 
-_has_runtime() {
+_has_colima_runtime() {
     [ -f "$_brew_path/colima" ]
 }
 
@@ -200,7 +200,7 @@ configure_runtime() {
 }
 
 setup_runtime() {
-    if _has_runtime; then
+    if _has_colima_runtime; then
         printf "Colima runtime already installed.\n"
         return
     fi
@@ -232,7 +232,7 @@ setup_runtime() {
 }
 
 remove_runtime() {
-    if ! _has_runtime; then
+    if ! _has_colima_runtime; then
         printf "Runtime not installed.\n"
         return
     fi

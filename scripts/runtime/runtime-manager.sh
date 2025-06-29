@@ -95,10 +95,10 @@ _runtime_cleanup() {
 runtime_menu() {
     while true; do
         display_banner
-        _has_runtime && has_runtime=1 || has_runtime=0
+        _has_colima_runtime && has_colima_runtime=1 || has_colima_runtime=0
 
         echo "1. Runtime Housekeeping"
-        if [ "$has_runtime" -eq 1 ]; then
+        if [ "$has_colima_runtime" -eq 1 ]; then
             options="(1-4)"
             echo "2. Configure Runtime"
             echo "3. Install Runtime"
@@ -114,10 +114,10 @@ runtime_menu() {
         case $option in
             0) break ;;
             1) _runtime_cleanup ;;
-            2) [ "$has_runtime" -eq 1 ] && configure_runtime || _setup_runtime ;;
-            3) [ "$has_runtime" -eq 1 ] && _setup_runtime || _remove_runtime ;;
+            2) [ "$has_colima_runtime" -eq 1 ] && configure_runtime || _setup_runtime ;;
+            3) [ "$has_colima_runtime" -eq 1 ] && _setup_runtime || _remove_runtime ;;
             4)
-                if [ "$has_runtime" -eq 1 ]; then
+                if [ "$has_colima_runtime" -eq 1 ]; then
                     _remove_runtime
                 else
                     printf "\nInvalid option. Please select a valid option $options.\n"
