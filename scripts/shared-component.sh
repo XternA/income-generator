@@ -35,7 +35,9 @@ export BACKUP_RESTORE="sh scripts/backup-restore.sh"
 export SET_LIMIT="sh scripts/set-limit.sh"
 export UPDATE_CHECKER="sh scripts/check-tool-update.sh"
 export VIEW_CONFIG="sh scripts/config-viewer.sh"
-export OS="$(sh scripts/platform.sh)"
+export OS="$(sh scripts/platform.sh --platform)"
+export OS_ARCH="$(sh scripts/platform.sh --arch)"
+export IS_ARM_ARCH="$(sh scripts/platform.sh --is-arm)"
 
 # Declared quick util operation ----------------
 export ENCRYPT_CRED="$ENCRYPTOR -es $ENV_FILE"
