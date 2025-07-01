@@ -5,11 +5,13 @@
 _install_runtime() {
     display_banner
     case "$1" in
-        --docker) sh scripts/$CONTAINER_ALIAS-install.sh ;;
+        --docker)
+            sh scripts/$CONTAINER_ALIAS-install.sh
+            [ ! "$OS" = "darwin" ] && [ "$IS_ARM_ARCH" = "true" ] && sh scripts/emulation-layer.sh --add
+            ;;
         --colima) setup_runtime ;;
     esac
     sh scripts/runtime/container-config.sh --register
-    sh scripts/emulation-layer.sh --add
 }
 
 _uninstall_runtime() {

@@ -12,10 +12,11 @@ _colima() {
     memory="${2:-2}"
     disk="${3:-10}"
 
-    shift 3
-    [ $# -ne 0 ] || set -- --vm-type=qemu
-
-    colima start --cpu "$cpu" --memory "$memory" --disk "$disk" --dns 1.1.1.1 --dns 8.8.8.8 "$@"
+    if [ "$IS_ARM_ARCH" = "false" ]; then
+        colima start --cpu "$cpu" --memory "$memory" --disk "$disk" --vm-type=qemu
+    else
+        colima start --cpu "$cpu" --memory "$memory" --disk "$disk" --vm-type=vz --vz-rosetta
+    fi
 }
 
 _display_colima_stats() {
@@ -31,7 +32,7 @@ _display_colima_stats() {
             cpu=$1
             memory=$2
             disk=$3
-            driver=$([ "$4" = "QEMU" ] && printf "QEMU" || printf "Rosetta")
+            driver=$([ "$4" = "QEMU" ] && printf "QEMU" || printf "Native")
         else
             display_msg=$arg
         fi
@@ -115,83 +116,25 @@ configure_runtime() {
         display_banner
         _display_colima_stats --status
 
-        options="(1-2)"
+        printf "Do you want to configure a new setting? (Y/N): "; read -r yn
+        case "$yn" in
+            [Yy]*)
+                _run_config_prompt "Configuring new Colima setting...\n\n"
 
-        echo "1. Configure Colima"
-        echo "2. Change Runtime Driver"
-        echo "0. Return to Main Menu"
-        printf "\nSelect an option $options: "; read -r option
+                display_banner
+                _display_colima_stats "Applying new Colima configuration..."
 
-        case "$option" in
-            ""|0) break ;;
-            1)
-                while :; do
-                    display_banner
-                    _display_colima_stats
-                    printf "Do you want to configure a new setting? (Y/N): "; read -r yn
-                    case "$yn" in
-                        [Yy]*)
-                            _run_config_prompt "Configuring new Colima setting...\n\n"
+                colima stop -f
+                sleep 1.5
+                _colima "$cpu" "$memory" "$disk"
 
-                            display_banner
-                            _display_colima_stats "Applying new Colima configuration..."
-
-                            colima stop
-                            sleep 1.5
-                            _colima "$cpu" "$memory" "$disk"
-
-                            printf "\nColima updated with the new applied configuration.\n"
-                            printf "\nPress Enter to continue..."; read -r _
-                            break
-                            ;;
-                        ""|[Nn]*) break ;;
-                        *)
-                            printf "\nInvalid option. Please select yes (Y) or no (N).\n"
-                            printf "\nPress Enter to continue..."; read -r _
-                            ;;
-                    esac
-                done
+                printf "\nColima updated with the new applied configuration.\n"
+                printf "\nPress Enter to continue..."; read -r _
+                break
                 ;;
-            2)
-                while :; do
-                    display_banner
-                    printf "Current Driver: ${GREEN}$driver${NC}\n\n"
-                    printf "Changing runtime driver requires deleting the current Colima instance.\n"
-                    printf "All applications will need to be reinstalled after the change.\n\n"
-
-                    driver_type=$( [ "$driver" = "QEMU" ] && printf "Rosetta" || printf "QEMU" )
-                    printf "Do you want to change Colima runtime driver to ${YELLOW}$driver_type${NC}? (Y/N): "; read -r yn
-
-                    case "$yn" in
-                        ""|[Nn]*) break ;;
-                        [Yy])
-                            display_banner
-                            printf "Changing Colima to use $driver_type runtime driver...\n\n"
-
-                            colima stop -f
-                            colima prune -f -a > /dev/null 2>&1
-                            colima delete -f
-                            sleep 1.5
-
-                            if [ "$driver" == "QEMU" ]; then
-                                _colima $cpu "$memory" "$disk" --vm-type=vz --vz-rosetta
-                            else
-                                _colima $cpu "$memory" "$disk"
-                            fi
-
-                            printf "\nRuntime driver changed to ${GREEN}$driver_type${NC}.\n"
-                            printf "\nPress Enter to continue..."; read -r _
-                            break
-                            ;;
-                        *)
-                            printf "\nInvalid option. Please select yes (Y) or no (N).\n"
-                            printf "\nPress Enter to continue..."; read -r _
-                            ;;
-                    esac
-                done
-                ;;
+            ""|[Nn]*) break ;;
             *)
-                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nInvalid option. Please select yes (Y) or no (N).\n"
                 printf "\nPress Enter to continue..."; read -r _
                 ;;
         esac
