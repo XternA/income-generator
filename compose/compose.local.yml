@@ -192,7 +192,7 @@ services:
         environment:
             EMAIL: ${WIPTER_EMAIL:-}
             PASSWORD: ${WIPTER_PASSWORD:-}
-            VNC_PASS: "secret"
+            VNC_PASS: ${VNC_PASS:-}
         profiles:
             - ${WIPTER:-DISABLED}
         ports:
