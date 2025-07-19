@@ -221,5 +221,17 @@
             "NETWORK3_EMAIL"
         ],
         "is_enabled": true
+    },
+    {
+        "name": "WIPTER",
+        "url": "https://tinyurl.com/mt8rj948",
+        "description": "After installing, GUI can be accessed in the browser at 'localhost:8000' or '<ip_address_of_instance>:8000' using the VNC password configured.",
+        "description_ext": "Add wallet address for cash out in the GUI and done just once. Proxy application access starts from port '5001'.",
+        "properties": [
+            "WIPTER_EMAIL",
+            "WIPTER_PASSWORD",
+            "VNC_PASS"
+        ],
+        "is_enabled": true
     }
 ]

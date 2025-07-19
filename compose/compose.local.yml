@@ -181,6 +181,34 @@ services:
                 max-size: 10k
                 max-file: 1
 
+    wipter:
+        container_name: wipter
+        image: ghcr.io/xterna/wipter
+        restart: always
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
+        environment:
+            EMAIL: ${WIPTER_EMAIL:-}
+            PASSWORD: ${WIPTER_PASSWORD:-}
+            VNC_PASS: "secret"
+        profiles:
+            - ${WIPTER:-DISABLED}
+        ports:
+          - 8000:8080
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $ALT_MIN_CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1
+
 volumes:
     earnapp-data:
     network3-data:

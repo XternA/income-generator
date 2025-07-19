@@ -120,6 +120,7 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[BEARSHARE](https://tinyurl.com/4568a69a)**       | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
 | **[PACKETSHARE](https://tinyurl.com/bdhdvaex)**     | :white_check_mark: | :x:                |Unlimited|1        | PayPal |
 | **[NETWORK3](https://tinyurl.com/fe8knv3t)**        | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
+| **[WIPTER](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                |Unlimited|Unlimited| Crypto |
 
 ### Additional Applications
 These are applications currently without support via IGM. You can start running these alongside IGM to start earning until they become supported.
@@ -127,7 +128,6 @@ These are applications currently without support via IGM. You can start running 
 | Application | Major Payout Type |
 | --- | :---: |
 | **[ByteLixir](https://tinyurl.com/2uhz58ae)** | Crypto |
-| **[Wipter](https://tinyurl.com/mt8rj948)**    | Crypto |
 | **[UpRock](https://tinyurl.com/2tk9ppz7)**    | Crypto |
 
 The applcations are usually a desktop GUI application.
@@ -141,7 +141,6 @@ The tool has been tried and tested on the following environments and should be r
 | Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
 
 ## Like The Project? 🫶
-
 Your efforts and interest are well appreciated if you would like to contribute and improve the tool or compatibility and enable it widely available and easy to use.
 
 Even if you do not wish to contribute, you can still show your support by giving this project a star ⭐ or sharing it with others.
