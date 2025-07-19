@@ -17,6 +17,9 @@ services:
         dns:
             - 1.1.1.1
             - 8.8.8.8
+        ports:
+            - 5000:8080
+            - 6000:4449
         devices:
             - /dev/net/tun:/dev/net/tun
         cpus: $ALT_MIN_CPU_LIMIT

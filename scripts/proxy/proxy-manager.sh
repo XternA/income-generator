@@ -203,6 +203,17 @@ install_proxy_instance() {
                                 next
                             } 1' "$compose_file" > tmp && mv tmp "$compose_file"
                         fi
+
+                        # Remove defined ports
+                        awk -v url="$proxy_url" '
+                            BEGIN { skip_ports = 0; in_env = 0 }
+
+                            # Remove ports section
+                            /^[[:space:]]*ports:/ { skip_ports = 1; next }
+                            skip_ports && /^[[:space:]]*-/ { next }
+                            skip_ports && !/^[[:space:]]*-/ { skip_ports = 0 }
+                            { print }
+                        ' "$compose_file" > tmp && mv tmp "$compose_file"
                     fi
 
                     # Update container name
@@ -227,6 +238,18 @@ install_proxy_instance() {
             $SED_INPLACE "s/${PROXY_APP_NAME}:/${new_proxy_name}:/" "$TUNNEL_COMPOSE_FILE"
             $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
         fi
+
+        # Update and increment all ports
+        awk '
+            /^[[:space:]]*ports:/ { p=1; print; next }
+            p && /^[[:space:]]*-[[:space:]]*[0-9]+:[0-9]+/ {
+            split($2, a, ":")
+            a[1]++
+            print "            - " a[1] ":" a[2]
+            next
+            }
+            { p=0; print }
+        ' "$TUNNEL_COMPOSE_FILE" > tmp && mv tmp "$TUNNEL_COMPOSE_FILE"
 
         echo
         set_host_suffix "-${install_count}"

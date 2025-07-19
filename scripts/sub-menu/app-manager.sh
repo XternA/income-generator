@@ -375,10 +375,18 @@ show_applications() {
     }
     show_apps() {
         if [ ! -z "$proxy_number" ]; then
-            $CONTAINER_ALIAS ps -a -f "label=${proxy_project}"
+            filter_label="label=${proxy_project}"
         else
-            $CONTAINER_ALIAS ps -a -f "label=project=${1}"
+            filter_label="label=project=${1}"
         fi
+
+        $CONTAINER_ALIAS ps -a -f "$filter_label" \
+        --format "table {{.ID}}\t{{.Names}}\t\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}" | \
+        sed -E '
+            s/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+://g
+            s/\[::\]://g
+            s/([0-9]+)->[0-9]+/\1/g
+        '
     }
 
     case "$1" in
