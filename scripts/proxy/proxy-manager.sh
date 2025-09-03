@@ -223,6 +223,9 @@ install_proxy_instance() {
 
                     # Update proxy network and depends on
                     $SED_INPLACE "s/\(${PROXY_APP_NAME}-\)[0-9]*/\1${install_count}/g" "$compose_file"
+
+                    # Update volume dir
+                    $SED_INPLACE "s#\(\$DATA_DIR/\)$app_name\(-[^:/]*\)\?:#\1$new_app_name:#" "$compose_file"
                 fi
             done
 
