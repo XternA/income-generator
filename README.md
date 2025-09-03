@@ -128,7 +128,7 @@ These are applications currently without support via IGM. You can start running 
 | Application | Major Payout Type |
 | --- | :---: |
 | **[ByteLixir](https://tinyurl.com/2uhz58ae)** | Crypto |
-| **[Earn.CC](https://tinyurl.com/y57x29nt))**  | Crypto |
+| **[Earn.CC](https://tinyurl.com/y57x29nt)**  | Crypto |
 | **[UpRock](https://tinyurl.com/2tk9ppz7)**    | Crypto |
 
 The applcations are usually a desktop GUI application.
