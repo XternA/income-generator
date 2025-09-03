@@ -120,7 +120,7 @@ services:
             - 1.1.1.1
             - 8.8.8.8
         volumes:
-            - $DATA_DIR/mysterium-node:/var/lib/mysterium-node
+            - $DATA_DIR/mysterium:/var/lib/mysterium-node
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
