@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. "scripts/proxy/proxy-uuid-generator.sh"
+. scripts/proxy/proxy-uuid-generator.sh
+. scripts/util/app-import-reader.sh
 
 PROXY_APP_NAME="tun2socks"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
@@ -28,9 +29,8 @@ display_banner() {
     printf "${GREEN}------------------------------------------${NC}\n\n"
 }
 
-read_app_data() {
-    APP_DATA="jq -r '.[] | select(.is_enabled == true) | \"\(.name) \(.alias) \(.is_enabled) \(.proxy_uuid)\"' \"$JSON_FILE\""
-    echo "$(eval $APP_DATA)"
+retrieve_app_data() {
+    APP_DATA=$(extract_app_data .alias .is_enabled .proxy_uuid)
 }
 
 set_host_suffix() {
@@ -45,27 +45,30 @@ set_host_suffix() {
 
 display_info() {
     display_banner
-    local type="$1"
-    local is_install="${2-true}"
+    type="$1"
+    is_install="${2-true}"
     can_install="true"
 
-    has_apps_services="$(echo "$APP_DATA" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')"
+    can_install_app=$(awk -v data="$APP_DATA" '
+    BEGIN {
+        n = split(data, lines, "\n")
+        for (i = 1; i <= n; i++) {
+            split(lines[i], f, " ")
+            if (f[3] == "true") {
+                print "true"
+                exit
+            }
+        }
+    }')
 
-    if [ -z "$has_apps_services" ] && [ "$is_install" = "true" ]; then
-        echo "No applications selected to install."
+    if [ -z "$can_install_app" ]; then
+        printf "No applications selected to install.\n"
         can_install="false"
     else
-        echo "The following proxy applications will be $type.\n"
+        printf "The following proxy applications will be $type.\n\n"
         printf "Total Proxies: ${RED}$ACTIVE_PROXIES${NC}\n\n"
 
-        printf "%-4s %-21s\n" "No." "Name"
-        printf "%-4s %-21s\n" "---" "--------------------"
-        printf "%s\n" "$APP_DATA" | awk -v GREEN="$GREEN" -v NC="$NC" '
-        BEGIN { counter = 1 }
-        {
-            printf "%-4s %s%-21s%s\n", counter, GREEN, $1, NC
-            counter++
-        }'
+        display_app_table "$APP_DATA" basic
     fi
 
     [ "$is_install" = "true" ] && printf "\nOption:\n  ${RED}a = select applications${NC}\n"
@@ -126,7 +129,7 @@ install_proxy_instance() {
                 ;;
             a)
                 $APP_SELECTION proxy proxy
-                APP_DATA="$(eval read_app_data)"
+                retrieve_app_data
                 ;;
             [Yy])
                 if [ "$can_install" = "true" ]; then
@@ -261,6 +264,13 @@ install_proxy_instance() {
         install_count=$((install_count + 1))
         proxy_entry_pointer=$((proxy_entry_pointer + 1))
         echo
+
+        # Pause to give time for apps to load
+        if [ "$ACTIVE_PROXIES" -gt 1 ] && [ "$install_count" -lt "$ACTIVE_PROXIES" ]; then
+            sleep_time=$((10 + (install_count - 1) * 2))
+            [ "$sleep_time" -gt 20 ] && sleep_time=20
+            sleep "$sleep_time"
+        fi
     done < "$PROXY_FILE"
 
     $WATCHTOWER deploy
@@ -373,8 +383,7 @@ check_proxy_file() {
 # Main script
 display_banner
 check_proxy_file
-
-APP_DATA="$(eval read_app_data)"
+retrieve_app_data
 
 case "$1" in
     install) install_proxy_instance ;;
