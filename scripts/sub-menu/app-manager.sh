@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. scripts/util/app-import-reader.sh
+
 WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
 LOADED_ENV_FILES="
@@ -20,6 +22,15 @@ ALL_COMPOSE_FILES="
 $APP_COMPOSE_FILES
 "
 
+load_app_service_data() {
+    app_data=$(extract_app_data .service_enabled .is_enabled)
+    has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
+}
+
+print_total_apps_info() {
+    printf "Total Available:\n ${GREEN}Applications: ${RED}${TOTAL_APPS}${NC} | ${YELLOW}Services: ${RED}${TOTAL_SERVICES}${NC}\n\n"
+}
+
 display_install_info() {
     display_banner
 
@@ -28,13 +39,9 @@ display_install_info() {
     install_type="installed"
     [ "$is_reinstall_state" = "redeploy" ] && install_type="redeployed"
 
-    app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
-    has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
+    load_app_service_data
 
-    if [ "$is_reinstall_state" != "redeploy" ]; then
-        total_apps="Total Available:\n ${GREEN}Applications: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}"
-        printf "$total_apps\n\n"
-    fi
+    [ "$is_reinstall_state" != "redeploy" ] && print_total_apps_info
 
     if [ -z "$has_apps_services" ]; then
         can_install="false"
@@ -47,23 +54,7 @@ display_install_info() {
     else
         printf "The following applications will be ${install_type}.\n\n"
 
-        printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
-        printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
-
-        printf "%s\n" "$app_data" | awk -v GREEN="$GREEN" -v YELLOW="$YELLOW" -v NC="$NC" '
-        BEGIN { counter = 1 }
-        {
-            if ($2 == "true" && $3 == "true") {
-                printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-                counter++
-            }
-            if ($2 == "true") {
-                printf "%-4s %s%-21s %s%s\n", counter, YELLOW, $1, "Service", NC
-            } else {
-                printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-            }
-            counter++
-        }'
+        display_app_table "$app_data" install
         can_install="true"
     fi
 
@@ -91,11 +82,8 @@ display_install_info() {
 
 install_applications() {
     display_apps_services() {
-        app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
-        has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
-
-        total_apps="Total Available:\n ${GREEN}Applications: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}"
-        printf "$total_apps\n\n"
+        load_app_service_data
+        print_total_apps_info
 
         if [ -z "$has_apps_services" ]; then
             echo "No applications/services currently selected to install."
@@ -103,23 +91,7 @@ install_applications() {
         else
             printf "The following applications will be installed.\n\n"
 
-            printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
-            printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
-
-            printf "%s\n" "$app_data" | awk -v GREEN="$GREEN" -v YELLOW="$YELLOW" -v NC="$NC" '
-            BEGIN { counter = 1 }
-            {
-                if ($2 == "true" && $3 == "true") {
-                    printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-                    counter++
-                }
-                if ($2 == "true") {
-                    printf "%-4s %s%-21s %s%s\n", counter, YELLOW, $1, "Service", NC
-                } else {
-                    printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-                }
-                counter++
-            }'
+            display_app_table "$app_data" install
             can_install="true"
         fi
 
