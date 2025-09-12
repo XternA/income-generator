@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. scripts/util/app-import-reader.sh
+
 display_banner() {
     clear
     printf "Income Generator Application Manager\n"
@@ -37,24 +39,10 @@ display_table_choice() {
 
     while true; do
         display_banner
-        app_data=$(cat "$JSON_FILE" | jq -r ".[] | select(has(\"$field_name\")) | \"\(.name) \(.${field_name})\"")
-
         printf "${RED}Disabled${NC} ${application}s will not be deployed.\n\n"
 
-        printf "%-4s %-21s %-8s\n" "No." "$header Name" "Status"
-        printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
-
-        counter=1
-        echo "$app_data" | awk -v counter="$counter" -v GREEN="$GREEN" -v RED="$RED" -v NC="$NC" '
-        {
-            if ($2 == "true") {
-                status = GREEN "Enabled" NC
-            } else {
-                status = RED "Disabled" NC
-            }
-            printf "%-4s %-21s %s\n", counter, $1, status
-            counter++
-        }'
+        app_data="$(extract_app_data_field $field_name)"
+        display_app_table "$app_data"
 
         printf "\nOptions:\n"
         printf "  ${GREEN}e${NC} = ${GREEN}enable all${NC}\n"
