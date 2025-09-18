@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. "scripts/proxy/proxy-uuid-generator.sh"
+. scripts/proxy/proxy-uuid-generator.sh
+. scripts/proxy/proxy-app-limiter.sh
 
 HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
 
@@ -299,11 +300,13 @@ else
 fi
 
 case "$1" in
+    "") main_menu ;;
     setup) setup_proxy ;;
     app) select_proxy_app ;;
     install) install_proxy_app ;;
     remove) remove_proxy_app ;;
     reset) reset_proxy ;;
     id) view_uuids ;;
-    *) main_menu ;;
+    limit) proxy_app_limiter ;;
+    *) echo "igm proxy: '$1' is not a valid command. See 'igm help'."; exit ;;
 esac

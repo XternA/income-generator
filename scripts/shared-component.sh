@@ -16,6 +16,7 @@ export ENV_IMAGE_TAG_FILE="$ROOT_DIR/.env.image.tag"
 export JSON_FILE="$ROOT_DIR/apps.json"
 export COMPOSE_DIR="$ROOT_DIR/compose"
 export PROXY_FILE="$ROOT_DIR/proxies.txt"
+export PROXY_INSTALL_LIMIT="$ROOT_DIR/.env.proxy.limit"
 
 # Shared system files
 export SYSTEM_ENV_FILES="

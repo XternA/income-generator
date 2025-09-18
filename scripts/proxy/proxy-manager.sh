@@ -2,6 +2,7 @@
 
 . scripts/proxy/proxy-uuid-generator.sh
 . scripts/util/app-import-reader.sh
+. scripts/proxy/proxy-app-limiter.sh
 
 PROXY_APP_NAME="tun2socks"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
@@ -166,6 +167,10 @@ install_proxy_instance() {
     printf "Installing proxy applications...\n\n"
     printf "Total Proxies: ${RED}$ACTIVE_PROXIES${NC}\n\n"
 
+    # Make a of the base env file to restore state after working with it
+    TMP_ENV_DEPLOY_PROXY_FILE="$ENV_DEPLOY_PROXY_FILE.bak"
+    cp "$ENV_DEPLOY_PROXY_FILE" "$TMP_ENV_DEPLOY_PROXY_FILE"
+
     install_count=1
     proxy_entry_pointer=1
     while IFS= read -r proxy_url; do
@@ -179,7 +184,21 @@ install_proxy_instance() {
         echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
-            if [ "$alias" = null ]; then
+            # Skip app if over install limit
+            app_limit=$(get_app_install_limit "$name")
+            if [ "$app_limit" != "null" ] && [ "$install_count" -gt "$app_limit" ]; then
+                tmp=$(mktemp)
+                while IFS= read -r line; do
+                    case $line in
+                        "$name="ENABLED)  printf '%s=DISABLED\n' "$name" ;;
+                        *) printf '%s\n' "$line" ;;
+                    esac
+                done < "$ENV_DEPLOY_PROXY_FILE" > "$tmp"
+                mv "$tmp" "$ENV_DEPLOY_PROXY_FILE"
+                continue
+            fi
+
+            if [ "$alias" = "null" ]; then
                 app_name=$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')
             else
                 app_name=$(printf '%s' "$alias" | tr '[:upper:]' '[:lower:]')
@@ -282,6 +301,7 @@ install_proxy_instance() {
             rm -f "${compose_file}.bk"
         fi
     done
+    mv "$TMP_ENV_DEPLOY_PROXY_FILE" "$ENV_DEPLOY_PROXY_FILE"
     mv "${TUNNEL_COMPOSE_FILE}.bak" "$TUNNEL_COMPOSE_FILE"
     mv "${ENV_FILE}.bak" "$ENV_FILE"
     rm -f "${TUNNEL_COMPOSE_FILE}.bk" "$ENV_PROXY_FILE"
@@ -325,6 +345,11 @@ remove_proxy_instance() {
         printf "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}\n"
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do
+            app_limit=$(get_app_install_limit "$name")
+            if [ "$app_limit" != "null" ] && [ "$install_count" -gt "$app_limit" ]; then
+                continue # Skip because install count is greater than app limit
+            fi
+
             if [ "$alias" = null ]; then
                 app_name=$(printf '%s' "$name" | tr '[:upper:]' '[:lower:]')
             else

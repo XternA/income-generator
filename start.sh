@@ -405,6 +405,7 @@ case "$1" in
         echo "  igm proxy remove         Remove all currently deployed proxy applications."
         echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
         echo "  igm proxy id             Show active applications with multi-UUIDs and instructions."
+        echo "  igm proxy limit          Configure proxy application install limit."
 
         printf "\n[${BLUE}Configuration${NC}]\n"
         echo "  igm app|service          Enable or disable applications/services for deployment."
@@ -426,15 +427,9 @@ case "$1" in
         fi
         ;;
     proxy)
-        case "$2" in
-            ""|setup|app|install|remove|reset|id)
-                set -- "$2"
-                . scripts/proxy/proxy-menu.sh
-                clear
-                ;;
-            *)
-                echo "igm proxy: '$2' is not a valid command. See 'igm help'." ;;
-        esac
+        set -- "$2"
+        . scripts/proxy/proxy-menu.sh
+        clear
         ;;
     start)
         if [ -n "$2" ]; then
