@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . scripts/proxy/proxy-uuid-generator.sh
+. scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
 
 HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
@@ -252,6 +253,16 @@ view_uuids() {
     fi
 }
 
+run_proxy_app_limiter() {
+    display_banner
+    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+        printf "Proxy application still active.\nRemove existing applications first.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+    proxy_app_limiter
+}
+
 main_menu() {
     while true; do
         display_banner
@@ -307,6 +318,6 @@ case "$1" in
     remove) remove_proxy_app ;;
     reset) reset_proxy ;;
     id) view_uuids ;;
-    limit) proxy_app_limiter ;;
+    limit) run_proxy_app_limiter ;;
     *) echo "igm proxy: '$1' is not a valid command. See 'igm help'."; exit ;;
 esac

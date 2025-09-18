@@ -72,7 +72,11 @@ display_info() {
         display_app_table "$APP_DATA" basic
     fi
 
-    [ "$is_install" = "true" ] && printf "\nOption:\n  ${RED}a = select applications${NC}\n"
+    if [ "$is_install" = "true" ]; then
+        printf "\nOption:\n"
+        printf "  ${RED}a = select applications${NC}\n"
+        printf "  ${YELLOW}l = set install limit${NC}\n"
+    fi
 
     if [ "$can_install" = "false" ]; then
         printf "\nSelect applications or press Enter to return: "
@@ -131,6 +135,9 @@ install_proxy_instance() {
             a)
                 $APP_SELECTION proxy proxy
                 retrieve_app_data
+                ;;
+            l)
+                proxy_app_limiter
                 ;;
             [Yy])
                 if [ "$can_install" = "true" ]; then
