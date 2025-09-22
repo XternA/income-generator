@@ -1,7 +1,7 @@
 services:
     earnapp:
         container_name: earnapp
-        image: fazalfarhan01/earnapp:lite
+        image: trakkdev/earnapp:latest
         restart: always
         hostname: $DEVICE_ID
         labels:
@@ -33,7 +33,6 @@ services:
         image: packetstream/psclient
         restart: always
         hostname: $DEVICE_ID
-        platform: linux/amd64
         labels:
             - project=standard
             - com.centurylinklabs.watchtower.scope=igm

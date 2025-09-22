@@ -10,7 +10,6 @@ services:
         environment:
             - RP_EMAIL=${REPOCKET_EMAIL:-}
             - RP_API_KEY=${REPOCKET_API_KEY:-}
-        platform: linux/amd64
         profiles:
             - ${REPOCKET:-DISABLED}
         dns:
