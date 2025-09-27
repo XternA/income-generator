@@ -26,7 +26,8 @@
         "service_enabled": true,
         "service_tag": {
             "arm32": "arm32v7"
-        }
+        },
+        "install_limit": 10
     },
     {
         "name": "PEER2PROFIT",
@@ -92,7 +93,8 @@
         "proxy_uuid": {
             "name_type": "UUID",
             "description": "Register device ID in app dashboard's 'Devices' section."
-        }
+        },
+        "install_limit": 500
     },
     {
         "name": "PROXYLITE",
