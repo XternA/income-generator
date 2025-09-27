@@ -386,6 +386,7 @@ case "$1" in
         printf "\n[${BLUE}General${NC}]\n"
         echo "  igm                      Launch the Income Generator tool."
         echo "  igm help                 Display this help usage guide."
+        echo "  igm version              Show the current version of Income Generator tool."
         echo "  igm update               Check and update Income Generator tool if available."
 
         printf "\n[${BLUE}Manage${NC}]\n"
@@ -415,6 +416,10 @@ case "$1" in
         echo "  igm limit                Set the application resource limits."
         echo "  igm editor               Change the default editor tool to use."
         echo "  igm runtime              Configure or manage the container runtime engine."
+        ;;
+    -v|--version|version)
+        ver=$(git describe --tags --abbrev=0 2>/dev/null || echo "unknown")
+        printf "version: $ver\n"
         ;;
     "")
         $APP_SELECTION --import
