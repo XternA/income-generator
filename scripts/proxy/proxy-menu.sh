@@ -10,7 +10,7 @@ display_banner() {
     clear
     printf "Income Generator Proxy Manager\n"
     printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--no_line" ] && echo
+    [ ! "$1" = "--noline" ] && echo
 }
 
 setup_proxy() {

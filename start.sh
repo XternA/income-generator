@@ -16,7 +16,7 @@ display_banner() {
     clear
     printf "Income Generator Application Manager\n"
     printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--no_line" ] && echo
+    [ ! "$1" = "--noline" ] && echo
 }
 
 stats() {
@@ -335,7 +335,7 @@ main_menu() {
     NEW_UPDATE=$($UPDATE_CHECKER)
 
     while true; do
-        display_banner --no_line
+        display_banner --noline
         stats
         [ -n "$NEW_UPDATE" ] && printf "$NEW_UPDATE\n"
 

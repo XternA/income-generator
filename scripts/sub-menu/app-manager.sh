@@ -330,7 +330,7 @@ remove_application() {
 }
 
 show_applications() {
-    display_banner --no_line
+    display_banner --noline
 
     if [ -z "$HAS_CONTAINER_RUNTIME" ]; then
         print_no_runtime
