@@ -46,6 +46,29 @@ extract_app_data_field() {
     __extract_app_data_field "$1"
 }
 
+extract_and_map_app_data_field() {
+    file="$JSON_FILE"
+    filter=".is_enabled == true"
+
+    mapping=""
+    for arg; do
+        field="${arg%%:*}"     # before :
+        type="${arg#*:}"       # after :
+        [ "$field" = "$type" ] && type="string"
+        field="${field#.}"     # strip leading dot if present
+
+        if [ "$type" = "array" ]; then
+            mapping="$mapping \"${field}=\" + ((.${field} // []) | join(\" \") | @sh),"
+        else
+            mapping="$mapping \"${field}=\" + ((.${field} // \"\") | @sh),"
+        fi
+    done
+
+    mapping="${mapping%,}"   # remove trailing comma
+
+    jq -r ".[] | select($filter) | [ $mapping ] | join(\" \")" "$file"
+}
+
 display_app_table() {
     data="$1"
     mode="${2:-status}"
