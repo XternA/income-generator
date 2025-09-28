@@ -367,7 +367,7 @@ show_applications() {
             app_type_name="$2"
             index="$3"
 
-            count=$(printf '%s\n' "$table" | tail -n +2 | wc -l)
+            count=$(printf '%s\n' "$table" | awk 'NR>1 {c++} END{print c+0}')
             if [ "$index" ]; then
                 printf "\n${GREEN}[ ${YELLOW}%s Applications ${NC}| ${RED}%s ${GREEN}]${NC} (%s containers)\n\n" "$app_type_name" "$index" "$count"
             else
