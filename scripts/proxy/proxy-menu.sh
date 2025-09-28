@@ -290,7 +290,7 @@ main_menu() {
             2) select_proxy_app ;;
             3) install_proxy_app ;;
             4) remove_proxy_app ;;
-            5) show_applications proxy ;;
+            5) show_applications proxy group ;;
             6) view_uuids ;;
             7) manage_uuids ;;
             8) view_proxy ;;
