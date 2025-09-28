@@ -50,17 +50,7 @@ display_info() {
     is_install="${2-true}"
     can_install="true"
 
-    can_install_app=$(awk -v data="$APP_DATA" '
-    BEGIN {
-        n = split(data, lines, "\n")
-        for (i = 1; i <= n; i++) {
-            split(lines[i], f, " ")
-            if (f[3] == "true") {
-                print "true"
-                exit
-            }
-        }
-    }')
+    can_install_app=$(printf '%s\n' "$APP_DATA" | awk '$3 == "true" { print "true"; exit }')
 
     if [ -z "$can_install_app" ]; then
         printf "No applications selected to install.\n"
