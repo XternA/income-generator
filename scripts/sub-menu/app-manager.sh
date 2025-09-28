@@ -330,10 +330,12 @@ remove_application() {
 }
 
 show_applications() {
-    display_banner
-    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    display_banner --no_line
 
-    printf "Installed Containers:\n\n"
+    if [ -z "$HAS_CONTAINER_RUNTIME" ]; then
+        print_no_runtime
+        return
+    fi
 
     local proxy_number="${2:-}"
     local proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
@@ -346,42 +348,102 @@ show_applications() {
         fi
     }
     show_apps() {
-        if [ ! -z "$proxy_number" ]; then
-            filter_label="label=${proxy_project}"
+        container_type="$1"
+        should_group="$2"
+
+        case "$container_type" in
+            proxy*) app_type_name="Proxy" ;;
+            *) app_type_name="Standard" ;;
+        esac
+
+        if [ -n "$proxy_number" ]; then
+            filter_label="label=com.docker.compose.project=${container_type}-app-${proxy_number}"
         else
-            filter_label="label=project=${1}"
+            filter_label="label=project=${container_type}"
         fi
 
-        $CONTAINER_ALIAS ps -a -f "$filter_label" \
-        --format "table {{.ID}}\t{{.Names}}\t\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}" | \
-        sed -E '
-            s/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+://g
-            s/\[::\]://g
-            s/([0-9]+)->[0-9]+/\1/g
-        '
+        print_table_output() {
+            table="$1"
+            app_type_name="$2"
+            index="$3"
+
+            count=$(printf '%s\n' "$table" | tail -n +2 | wc -l)
+            if [ "$index" ]; then
+                printf "\n${GREEN}[ ${YELLOW}%s Applications ${NC}| ${RED}%s ${GREEN}]${NC} (%s containers)\n\n" "$app_type_name" "$index" "$count"
+            else
+                printf "\n${GREEN}[ ${YELLOW}%s Applications ${GREEN}]${NC} (%s containers)\n\n" "$app_type_name" "$count"
+            fi
+            # Cleanup output
+            printf '%s\n' "$table" | sed 's/[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*://g; s/\[::\]://g; s/\([0-9][0-9]*\)->[0-9][0-9]*/\1/g'
+        }
+
+        if [ "$should_group" = "group" ]; then
+            # Find all unique app labels
+            set_list=$(
+                $CONTAINER_ALIAS ps -a --format '{{.Label "com.docker.compose.project"}}' \
+                | grep "^${container_type}-app-[0-9][0-9]*$" \
+                | sort -u
+            )
+
+            i=1
+            for s in $set_list; do
+                # Capture table for this set
+                table=$(
+                    $CONTAINER_ALIAS ps -a -f "label=com.docker.compose.project=$s" \
+                    --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
+                )
+
+                # Skip if table empty (header only)
+                line_count=$(printf '%s\n' "$table" | wc -l)
+                if [ "$line_count" -le 1 ]; then
+                    i=$((i + 1))
+                    continue
+                fi
+
+                print_table_output "$table" "$app_type_name" "$i"
+                i=$((i+1))
+            done
+        else
+            table=$(
+                $CONTAINER_ALIAS ps -a -f "$filter_label" \
+                --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
+            )
+
+            # Skip if no containers
+            line_count=$(printf '%s\n' "$table" | wc -l)
+            if [ "$line_count" -le 1 ]; then
+                return
+            fi
+
+            print_table_output "$table" "$app_type_name"
+        fi
     }
 
     case "$1" in
-        "")
+        ""|"group")
             if [ -z "$(has_apps standard)" ] && [ -z "$(has_apps proxy)" ]; then
                 echo "No installed applications."
             else
                 if [ -n "$(has_apps standard)" ]; then
-                    printf "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n\n"
                     show_apps standard
                 fi
                 if [ -n "$(has_apps proxy)" ]; then
-                    printf "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n\n"
-                    show_apps proxy
+                    if [ "$1" = "group" ]; then
+                        show_apps proxy group
+                    else
+                        show_apps proxy
+                    fi
                 fi
             fi
             ;;
         proxy)
             if [ -z "$(has_apps proxy)" ]; then
-                if [ -n "$proxy_number" ]; then
-                    printf "No installed set ${RED}${proxy_number}${NC} proxy applications.\n"
+                if [ "$proxy_number" = "group" ]; then
+                    show_apps proxy group
+                elif [ -n "$proxy_number" ]; then
+                    printf "\nNo installed set ${RED}%s${NC} proxy applications.\n" "$proxy_number"
                 else
-                    echo "No installed proxy applications."
+                    print "\nNo installed proxy applications.\n"
                 fi
             else
                 show_apps proxy
@@ -389,14 +451,14 @@ show_applications() {
             ;;
         app)
             if [ -z "$(has_apps standard)" ]; then
-                echo "No installed applications."
+                print "\nNo installed applications.\n"
             else
                 show_apps standard
             fi
             ;;
         *)
-            echo "igm: '$1' is not a valid command. See 'igm help'."
+            printf "\nigm: '$1' is not a valid command. See 'igm help'.\n"
             ;;
     esac
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
