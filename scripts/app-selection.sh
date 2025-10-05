@@ -10,12 +10,14 @@ display_banner() {
 
 choose_application_type() {
     if [ "$1" = "service" ]; then
+        total_apps="$TOTAL_SERVICES"
         field="service_enabled"
         app_type="Service"
         action="service"
         switch_type="applications"
         shortcut="a"
     else
+        total_apps="$TOTAL_APPS"
         field="is_enabled"
         app_type="App"
         action="application"
@@ -27,15 +29,16 @@ choose_application_type() {
         fi
     fi
 
-    display_table_choice "$field" "$app_type" "$action" "$shortcut" "$switch_type"
+    display_table_choice "$total_apps" "$field" "$app_type" "$action" "$shortcut" "$switch_type"
 }
 
 display_table_choice() {
-    local field_name="$1"
-    local header="$2"
-    local application="$3"
-    local shortcut=$4
-    local switch_type=$5
+    local total_apps="$1"
+    local field_name="$2"
+    local header="$3"
+    local application="$4"
+    local shortcut="$5"
+    local switch_type="$6"
 
     while true; do
         display_banner
@@ -50,15 +53,16 @@ display_table_choice() {
         [ ! -z "$switch_type" ] && printf "  ${YELLOW}${shortcut}${NC} = ${YELLOW}select ${switch_type}${NC}\n"
         printf "  ${BLUE}0${NC} = ${BLUE}exit${NC}\n"
 
-        printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} $application (1-%s): " "$(echo "$app_data" | wc -l | xargs)"
+        printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} $application (1-%s): " "$total_apps"
         read -r choice
 
         case $choice in
             [1-9]*)
                 # Enable or disable specific application
-                if ! [ "$choice" -ge 1 ] || ! [ "$choice" -le "$(echo "$app_data" | wc -l)" ]; then
-                    printf "\nInvalid input! Please enter a number between 1 and $(echo "$app_data" | wc -l).\n"
-                    printf "\nPress Enter to continue..."; read -r input
+                choice=$(printf '%s' "$choice" | tr -cd '0-9')
+                if ! [ "$choice" -ge 1 ] || ! [ "$choice" -le "$total_apps" ]; then
+                    printf "\nInvalid input! Please enter a number between 1 and $total_apps.\n"
+                    printf "\nPress Enter to continue..."; read -r _
                 else
                     # Update entry
                     temp_file=$(mktemp)
@@ -81,8 +85,8 @@ display_table_choice() {
                 ;;
             a|s)
                 if [ -z "$switch_type" ]; then
-                    printf "\nInvalid option! Please select a valid option.\n"
-                    printf "\nPress Enter to continue..."; read -r input
+                    printf "\nInvalid input! Please enter a number between 1 and $TOTAL_APPS.\n"
+                    printf "\nPress Enter to continue..."; read -r _
                 else
                     if [ "$choice" = "s" ]; then
                         choose_application_type service
@@ -98,7 +102,7 @@ display_table_choice() {
                 ;;
             *)
                 printf "\nInvalid option! Please select a valid option.\n"
-                printf "\nPress Enter to continue..."; read -r input
+                printf "\nPress Enter to continue..."; read -r _
                 ;;
         esac
     done

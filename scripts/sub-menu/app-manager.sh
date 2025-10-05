@@ -394,7 +394,7 @@ show_applications() {
                 )
 
                 # Skip if table empty (header only)
-                line_count=$(printf '%s\n' "$table" | wc -l)
+                line_count=$(printf '%s\n' "$table" | awk 'NF{n++} END{print n+0}')
                 if [ "$line_count" -le 1 ]; then
                     i=$((i + 1))
                     continue
@@ -410,7 +410,7 @@ show_applications() {
             )
 
             # Skip if no containers
-            line_count=$(printf '%s\n' "$table" | wc -l)
+            line_count=$(printf '%s\n' "$table" | awk 'NF{n++} END{print n+0}')
             if [ "$line_count" -le 1 ]; then
                 return
             fi

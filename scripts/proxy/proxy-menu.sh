@@ -75,8 +75,8 @@ edit_proxy_file() {
             return
         fi
 
-        uuid_files="$(find "$PROXY_FOLDER" -maxdepth 1 -type f -printf '%f\n' | sed 's/\.[^.]*$//')"
-        total_files="$(printf '%s\n' "$uuid_files" | wc -l)"
+        uuid_files=$(cd "$PROXY_FOLDER" && for f in *; do [ -f "$f" ] && printf '%s\n' "${f%.*}"; done)
+        total_files="$(printf '%s\n' "$uuid_files" | awk 'NF{n++} END{print n+0}')"
         options="(1-${total_files})"
 
         printf "Current applications with multiple UUIDs.\n\n"

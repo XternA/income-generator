@@ -61,7 +61,7 @@ process_uuid_user_choice() {
 
 process_entries() {
     app_data=$(extract_and_map_app_data_field .name .url .description .description_ext .registration .properties:array .uuid_type)
-    total_enabled_apps=$(printf '%s\n' "$app_data" | wc -l)
+    total_enabled_apps=$(printf '%s\n' "$app_data" | awk 'NF{n++} END{print n+0}')
 
     printf '%s\n' "$app_data" | while IFS= read -r config_entry; do
         eval "$config_entry" || continue
