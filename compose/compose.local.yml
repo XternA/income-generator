@@ -16,8 +16,6 @@ services:
             - 8.8.8.8
         volumes:
             - earnapp-data:/etc/earnapp
-        healthcheck:
-            disable: true
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
