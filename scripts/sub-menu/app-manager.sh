@@ -307,6 +307,16 @@ stop_application() {
     $CONTAINER_ALIAS stop -t 6 "$1"
 }
 
+restart_application() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return    
+    if [ "$($CONTAINER_ALIAS restart "$1" 2>&1)" = "$1" ]; then
+        printf "Application '$1' restarted successfully.\n"
+    else
+        printf "Error: '$1' couldn't be restarted.\n"
+        printf "Remove and reinstall '$1' instead."
+    fi
+}
+
 remove_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return

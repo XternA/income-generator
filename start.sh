@@ -390,10 +390,11 @@ case "$1" in
         echo "  igm update                      Check and update Income Generator tool if available."
 
         printf "\n[${BLUE}Manage${NC}]\n"
-        echo "  igm start  [name]               Start one or all currently deployed applications."
-        echo "  igm stop   [name]               Stop one or all currently deployed running applications."
-        echo "  igm remove [name]               Stop and remove one or all currently deployed applications."
-        echo "  igm show   [app|proxy|group]    List installed and running applications, optionally grouped."
+        echo "  igm start   [name]              Start one or all currently deployed applications."
+        echo "  igm stop    [name]              Stop one or all currently deployed running applications."
+        echo "  igm restart [name]              Restart a current deployed running application."
+        echo "  igm remove  [name]              Stop and remove one or all currently deployed applications."
+        echo "  igm show    [app|proxy|group]   List installed and running applications, optionally grouped."
         echo "  igm deploy                      Launch the install manager for deploying applications."
         echo "  igm redeploy                    Redeploy the last installed application state."
         echo "  igm clean                       Cleanup orphaned applications, volumes and downloaded images."
@@ -450,6 +451,11 @@ case "$1" in
         else
             stop_applications
             clear
+        fi
+        ;;
+    restart)
+        if [ -n "$2" ]; then
+            restart_application "$2"
         fi
         ;;
     remove)
