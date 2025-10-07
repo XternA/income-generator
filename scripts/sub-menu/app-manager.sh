@@ -283,8 +283,7 @@ start_applications() {
 
 start_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    result="$($CONTAINER_ALIAS stop -t 6 "$1" 2>&1)"
+    result="$($CONTAINER_ALIAS start "$1" 2>&1)"
     if [ "$result" = "$1" ]; then
         printf "Starting application ${RED}$1${NC}\n"
     else
