@@ -283,8 +283,13 @@ start_applications() {
 
 start_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Starting application "
-    $CONTAINER_ALIAS start "$1"
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    result="$($CONTAINER_ALIAS stop -t 6 "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Starting application ${RED}$1${NC}\n"
+    else
+        printf "Failed to start application ${RED}$1${NC}\n$result\n"
+    fi
 }
 
 stop_applications() {
@@ -303,17 +308,21 @@ stop_applications() {
 
 stop_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Stopping application "
-    $CONTAINER_ALIAS stop -t 6 "$1"
+    result="$($CONTAINER_ALIAS stop -t 6 "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Stopping application ${RED}$1${NC}\n"
+    else
+        printf "Failed to stop application ${RED}$1${NC}\n$result\n"
+    fi
 }
 
 restart_application() {
-    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return    
-    if [ "$($CONTAINER_ALIAS restart "$1" 2>&1)" = "$1" ]; then
-        printf "Application '$1' restarted successfully.\n"
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    result="$($CONTAINER_ALIAS restart "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Application ${RED}$1${NC} restarted successfully.\n"
     else
-        printf "Error: '$1' couldn't be restarted.\n"
-        printf "Remove and reinstall '$1' instead."
+        printf "Failed to restart application ${RED}$1${NC}\n$result\n"
     fi
 }
 
@@ -335,8 +344,12 @@ remove_applications() {
 
 remove_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Removing application "
-    $CONTAINER_ALIAS rm -f -v "$1"
+    result="$($CONTAINER_ALIAS rm -f -v "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Removing application ${RED}$1${NC}\n"
+    else
+        printf "Failed to remove application ${RED}$1${NC}\n$result\n"
+    fi
 }
 
 show_applications() {

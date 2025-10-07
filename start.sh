@@ -438,16 +438,22 @@ case "$1" in
         clear
         ;;
     start)
-        if [ -n "$2" ]; then
-            start_application "$2"
+        shift
+        if [ "$#" -gt 0 ]; then
+            for app in "$@"; do
+                start_application "$app"
+            done
         else
             start_applications
             clear
         fi
         ;;
     stop)
-        if [ -n "$2" ]; then
-            stop_application "$2"
+        shift
+        if [ "$#" -gt 0 ]; then
+            for app in "$@"; do
+                stop_application "$app"
+            done
         else
             stop_applications
             clear
@@ -459,8 +465,11 @@ case "$1" in
         fi
         ;;
     remove)
-        if [ -n "$2" ]; then
-            remove_application "$2"
+        shift
+        if [ "$#" -gt 0 ]; then
+            for app in "$@"; do
+                remove_application "$app"
+            done
         else
             remove_applications
             clear
