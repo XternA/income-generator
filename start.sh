@@ -392,7 +392,7 @@ case "$1" in
         printf "\n[${BLUE}Manage${NC}]\n"
         echo "  igm start   [name]              Start one or all currently deployed applications."
         echo "  igm stop    [name]              Stop one or all currently deployed running applications."
-        echo "  igm restart [name]              Restart a current deployed running application."
+        echo "  igm restart [name]              Restart a currently deployed running application."
         echo "  igm remove  [name]              Stop and remove one or all currently deployed applications."
         echo "  igm show    [app|proxy|group]   List installed and running applications, optionally grouped."
         echo "  igm deploy                      Launch the install manager for deploying applications."
