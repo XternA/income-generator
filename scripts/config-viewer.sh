@@ -3,23 +3,38 @@
 FILE=${1:-"$ENV_FILE"}
 
 if [ ! -e "$FILE" ]; then
-    echo "Nothing to view as file doesn't exist."
-else
-    TYPE=${2:-"CONFIG"}
-
-    KEY='\x1b[94m'     # Blue
-    EQUALS='\x1b[91m'  # Red
-    VALUE='\x1b[92m'   # Green
-    COMMENT='\x1b[90m' # Grey
-    RESET='\x1b[0m'    # Reset
-
-    printf "${YELLOW}---------[ START OF $TYPE ]---------\n${RED}\n"
-    if [ "$TYPE" = "PROXY" ]; then
-        cat "$FILE" | sed -e "s/^#.*$/\x1b[90m&\x1b[0m/"
-    else
-        cat "$FILE" | sed -e "s/^\([^=]*\)=\(.*\)$/${KEY}\1${EQUALS}=${VALUE}\2${RESET}/" -e "s/^##.*/${COMMENT}&${RESET}/"
-    fi
-    printf "${YELLOW}\n----------[ END OF $TYPE ]----------${NC}\n"
+    printf 'Nothing to view as file does not exist.\n'
+    exit 1
 fi
 
-printf "\nPress Enter to continue..."; read -r input
+TYPE=${2:-CONFIG}
+COMMENT="\033[90m" # Grey
+
+printf "${YELLOW}---------[ START OF $TYPE ]---------\n${RED}\n"
+
+if [ "$TYPE" = "PROXY" ]; then
+    awk -v COMMENT="$COMMENT" -v NC="$NC" '
+        /^#/ { print COMMENT $0 NC; next }
+        { print }
+    ' "$FILE"
+else
+    awk -v KEY="$BLUE" -v EQUALS="$RED" -v VALUE="$GREEN" -v COMMENT="$COMMENT" -v NC="$NC" '
+        /^##/ { print COMMENT $0 NC; next }
+        /=/ {
+            # split on first = only
+            i = index($0, "=")
+            if (i > 0) {
+                key = substr($0, 1, i-1)
+                value = substr($0, i+1)
+                printf "%s%s%s=%s%s%s\n", KEY, key, EQUALS, VALUE, value, NC
+            } else {
+                print $0
+            }
+            next
+        }
+        { print }
+    ' "$FILE"
+fi
+
+printf "${YELLOW}\n----------[ END OF $TYPE ]----------${NC}\n"
+printf '\nPress Enter to continue...'; read -r _
