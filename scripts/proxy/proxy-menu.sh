@@ -13,6 +13,10 @@ display_banner() {
     [ ! "$1" = "--noline" ] && echo
 }
 
+get_and_update_proxy_entries() {
+    ACTIVE_PROXIES=$(if [ -e "$PROXY_FILE" ]; then grep -c '^[^#]' "$PROXY_FILE"; else echo 0; fi)
+}
+
 setup_proxy() {
     display_banner
     if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
@@ -23,6 +27,7 @@ setup_proxy() {
         printf "\nPress Enter to continue..."; read -r input
         run_editor "$PROXY_FILE"
         [ -f "$PROXY_FILE" ] && [ "$(tail -c 1 "$PROXY_FILE")" != "" ] && echo "" >> "$PROXY_FILE"
+        get_and_update_proxy_entries
     fi
 }
 
@@ -263,11 +268,34 @@ run_proxy_app_limiter() {
     proxy_app_limiter
 }
 
-main_menu() {
-    while true; do
+manage_proxy() {
+    while :; do
         display_banner
+        printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
 
-        ACTIVE_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
+        options="(1-2)"
+        echo "1. Manage UUIDs"
+        echo "2. Reset Proxies"
+        echo "0. Return to Main Menu"
+        printf "\nSelect an option $options: "; read -r choice
+
+        case $choice in
+            0) break ;;
+            1) manage_uuids ;;
+            2) reset_proxy ;;
+            *)
+                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nPress Enter to continue..."; read -r _
+                ;;
+        esac
+    done
+}
+
+main_menu() {
+    get_and_update_proxy_entries
+
+    while :; do
+        display_banner
         printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
 
         options="(1-9)"
@@ -276,13 +304,12 @@ main_menu() {
         echo "3. Install Proxy Applications"
         echo "4. Remove Proxy Applications"
         echo "5. Show Installed Applications"
-        echo "6. View Active UUIDs"
-        echo "7. Manage UUIDs"
+        echo "6. Manage Proxy Install Limit"
+        echo "7. View Active UUIDs"
         echo "8. View Proxies"
-        echo "9. Reset Proxies"
+        echo "9. Manage Proxy"
         echo "0. Quit"
-        echo
-        printf "Select an option $options: "; read -r choice
+        printf "\nSelect an option $options: "; read -r choice
 
         case $choice in
             0) display_banner Proxy; echo "Quitting..."; sleep 0.62; clear; break ;;
@@ -291,13 +318,13 @@ main_menu() {
             3) install_proxy_app ;;
             4) remove_proxy_app ;;
             5) show_applications proxy group ;;
-            6) view_uuids ;;
-            7) manage_uuids ;;
+            6) run_proxy_app_limiter ;;
+            7) view_uuids ;;
             8) view_proxy ;;
-            9) reset_proxy ;;
+            9) manage_proxy ;;
             *)
                 printf "\nInvalid option. Please select a valid option $options.\n"
-                printf "\nPress Enter to continue..."; read -r input
+                printf "\nPress Enter to continue..."; read -r _
                 ;;
         esac
     done
