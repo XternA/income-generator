@@ -8,17 +8,16 @@ if [ ! -e "$FILE" ]; then
 fi
 
 TYPE=${2:-CONFIG}
-COMMENT="\033[90m" # Grey
 
 printf "${YELLOW}---------[ START OF $TYPE ]---------\n${RED}\n"
 
 if [ "$TYPE" = "PROXY" ]; then
-    awk -v COMMENT="$COMMENT" -v NC="$NC" '
+    awk -v COMMENT="$GREY" -v NC="$NC" '
         /^#/ { print COMMENT $0 NC; next }
         { print }
     ' "$FILE"
 else
-    awk -v KEY="$BLUE" -v EQUALS="$RED" -v VALUE="$GREEN" -v COMMENT="$COMMENT" -v NC="$NC" '
+    awk -v KEY="$BLUE" -v EQUALS="$RED" -v VALUE="$GREEN" -v COMMENT="$GREY" -v NC="$NC" '
         /^##/ { print COMMENT $0 NC; next }
         /=/ {
             # split on first = only
