@@ -11,7 +11,7 @@ esac
 extract_all_app_data .platform_override | while read -r app_name array; do
     [ "x$array" = "xnull" ] && continue
 
-    clean=${array#\{}; clean=${clean%\}}; clean=${clean//\"/}
+    clean=${array#\{}; clean=${clean%\}}; clean=$(echo "$clean" | tr -d '"')
     key=${clean%%:*}; values=${clean#*:}; values=${values#\[}; values=${values%\]}
 
     old_ifs=$IFS
