@@ -30,7 +30,7 @@ services:
         image: packetstream/psclient
         restart: always
         hostname: $DEVICE_ID
-        platform: linux/amd64
+        platform: ${PACKETSTREAM_PLATFORM:-}
         labels:
             - project=standard
             - com.centurylinklabs.watchtower.scope=igm

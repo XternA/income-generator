@@ -4,13 +4,13 @@ services:
         image: repocket/repocket
         restart: always
         hostname: $DEVICE_ID
+        platform: ${REPOCKET_PLATFORM:-}
         labels:
             - project=standard
             - com.centurylinklabs.watchtower.scope=igm
         environment:
             - RP_EMAIL=${REPOCKET_EMAIL:-}
             - RP_API_KEY=${REPOCKET_API_KEY:-}
-        platform: linux/amd64
         profiles:
             - ${REPOCKET:-DISABLED}
         dns:
