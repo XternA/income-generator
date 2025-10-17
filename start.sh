@@ -7,6 +7,7 @@ sh scripts/init.sh
 . scripts/runtime/container-config.sh
 . scripts/sub-menu/app-manager.sh
 . scripts/arch-image-tag.sh
+. scripts/arch-platform-runtime.sh
 . scripts/runtime/runtime-manager.sh
 
 SYS_INFO=$($SYS_INFO)

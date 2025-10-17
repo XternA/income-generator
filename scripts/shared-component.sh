@@ -24,6 +24,7 @@ export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"
 export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
 export ENV_DEPLOY_PROXY_FILE="$ROOT_DIR/.env.deploy.proxy"
 export ENV_IMAGE_TAG_FILE="$ROOT_DIR/.env.image.tag"
+export ENV_PLATFORM_OVERRIDE_FILE="$ROOT_DIR/.env.platform.override"
 export JSON_FILE="$ROOT_DIR/apps.json"
 export COMPOSE_DIR="$ROOT_DIR/compose"
 export PROXY_FILE="$ROOT_DIR/proxies.txt"
@@ -34,6 +35,7 @@ export SYSTEM_ENV_FILES="
 --env-file $ENV_FILE
 --env-file $ENV_SYSTEM_FILE
 --env-file $ENV_IMAGE_TAG_FILE
+--env-file $ENV_PLATFORM_OVERRIDE_FILE
 "
 
 # Declared util component ----------------
