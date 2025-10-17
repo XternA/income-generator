@@ -17,7 +17,7 @@ extract_all_app_data .platform_override | while read -r app_name array; do
     old_ifs=$IFS
     IFS=','
     for arch in $values; do
-        if [ "${arch// /}" = "$ARCH" ]; then
+        if [ "$arch" = "$ARCH" ]; then
             printf "%s_PLATFORM=linux/%s\n" "$app_name" "$key" >> "$ENV_PLATFORM_OVERRIDE_FILE"
         fi
     done
