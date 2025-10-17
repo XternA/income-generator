@@ -394,6 +394,7 @@ case "$1" in
         echo "  igm stop    [name]              Stop one or all currently deployed running applications."
         echo "  igm restart [name]              Restart a currently deployed running application."
         echo "  igm remove  [name]              Stop and remove one or all currently deployed applications."
+        echo "  igm logs    [name]              Show logs for the selected application."
         echo "  igm show    [app|proxy|group]   List installed and running applications, optionally grouped."
         echo "  igm deploy                      Launch the install manager for deploying applications."
         echo "  igm redeploy                    Redeploy the last installed application state."
@@ -474,6 +475,11 @@ case "$1" in
             remove_applications
             clear
         fi
+        ;;
+    logs)
+        display_banner
+        show_application_log "$2"
+        clear
         ;;
     show)
         show_applications "$2" "$3"

@@ -351,6 +351,12 @@ remove_application() {
     fi
 }
 
+show_application_log() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    $CONTAINER_ALIAS logs --since "$(date '+%Y-%m-%d')T00:00:00" "$1"
+    printf "\nPress Enter to continue..."; read -r _
+}
+
 show_applications() {
     display_banner --noline
 
