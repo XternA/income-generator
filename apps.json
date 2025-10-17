@@ -69,7 +69,13 @@
             "REPOCKET_EMAIL",
             "REPOCKET_API_KEY"
         ],
-        "is_enabled": true
+        "is_enabled": true,
+        "platform_override": {
+            "amd64": [
+                "armv7l",
+                "armv6l"
+            ]
+        }
     },
     {
         "name": "PACKETSTREAM",
@@ -78,7 +84,14 @@
         "properties": [
             "PACKETSTREAM_CID"
         ],
-        "is_enabled": true
+        "is_enabled": true,
+        "platform_override": {
+            "amd64": [
+                "arm64",
+                "armv7l",
+                "armv6l"
+            ]
+        }
     },
     {
         "name": "PROXYRACK",
