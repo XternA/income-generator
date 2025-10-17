@@ -378,12 +378,6 @@ show_applications() {
             *) app_type_name="Standard" ;;
         esac
 
-        if [ -n "$proxy_number" ]; then
-            filter_label="label=com.docker.compose.project=${container_type}-app-${proxy_number}"
-        else
-            filter_label="label=project=${container_type}"
-        fi
-
         print_table_output() {
             table="$1"
             app_type_name="$2"
@@ -426,6 +420,11 @@ show_applications() {
                 i=$((i+1))
             done
         else
+            if [ -n "$proxy_number" ]; then
+                filter_label="label=com.docker.compose.project=${container_type}-app-${proxy_number}"
+            else
+                filter_label="label=project=${container_type}"
+            fi
             table=$(
                 $CONTAINER_ALIAS ps -a -f "$filter_label" \
                 --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
@@ -444,7 +443,7 @@ show_applications() {
     case "$1" in
         ""|"group")
             if [ -z "$(has_apps standard)" ] && [ -z "$(has_apps proxy)" ]; then
-                echo "No installed applications."
+                printf "\nNo applications installed.\n"
             else
                 if [ -n "$(has_apps standard)" ]; then
                     show_apps standard
@@ -463,9 +462,9 @@ show_applications() {
                 if [ "$proxy_number" = "group" ]; then
                     show_apps proxy group
                 elif [ -n "$proxy_number" ]; then
-                    printf "\nNo installed set ${RED}%s${NC} proxy applications.\n" "$proxy_number"
+                    printf "\nNo proxy set ${RED}%s${NC} applications installed.\n" "$proxy_number"
                 else
-                    print "\nNo installed proxy applications.\n"
+                    printf "\nNo proxy applications installed.\n"
                 fi
             else
                 show_apps proxy
@@ -473,7 +472,7 @@ show_applications() {
             ;;
         app)
             if [ -z "$(has_apps standard)" ]; then
-                print "\nNo installed applications.\n"
+                printf "\nNo applications installed.\n"
             else
                 show_apps standard
             fi
