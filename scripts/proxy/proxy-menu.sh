@@ -1,6 +1,8 @@
 #!/bin/sh
 
-. "scripts/proxy/proxy-uuid-generator.sh"
+. scripts/proxy/proxy-uuid-generator.sh
+. scripts/util/app-import-reader.sh
+. scripts/proxy/proxy-app-limiter.sh
 
 HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
 
@@ -8,7 +10,11 @@ display_banner() {
     clear
     printf "Income Generator Proxy Manager\n"
     printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--no_line" ] && echo
+    [ ! "$1" = "--noline" ] && echo
+}
+
+get_and_update_proxy_entries() {
+    ACTIVE_PROXIES=$(if [ -e "$PROXY_FILE" ]; then grep -c '^[^#]' "$PROXY_FILE"; else echo 0; fi)
 }
 
 setup_proxy() {
@@ -21,6 +27,7 @@ setup_proxy() {
         printf "\nPress Enter to continue..."; read -r input
         run_editor "$PROXY_FILE"
         [ -f "$PROXY_FILE" ] && [ "$(tail -c 1 "$PROXY_FILE")" != "" ] && echo "" >> "$PROXY_FILE"
+        get_and_update_proxy_entries
     fi
 }
 
@@ -73,8 +80,8 @@ edit_proxy_file() {
             return
         fi
 
-        uuid_files="$(find "$PROXY_FOLDER" -maxdepth 1 -type f -printf '%f\n' | sed 's/\.[^.]*$//')"
-        total_files="$(printf '%s\n' "$uuid_files" | wc -l)"
+        uuid_files=$(cd "$PROXY_FOLDER" && for f in *; do [ -f "$f" ] && printf '%s\n' "${f%.*}"; done)
+        total_files="$(printf '%s\n' "$uuid_files" | awk 'NF{n++} END{print n+0}')"
         options="(1-${total_files})"
 
         printf "Current applications with multiple UUIDs.\n\n"
@@ -251,11 +258,44 @@ view_uuids() {
     fi
 }
 
-main_menu() {
-    while true; do
-        display_banner
+run_proxy_app_limiter() {
+    display_banner
+    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+        printf "Proxy application still active.\nRemove existing applications first.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+    proxy_app_limiter
+}
 
-        ACTIVE_PROXIES=$([ -e "$PROXY_FILE" ] && awk 'BEGIN {count=0} /^[^#]/ && NF {count++} END {print count}' "$PROXY_FILE" || echo 0)
+manage_proxy() {
+    while :; do
+        display_banner
+        printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
+
+        options="(1-2)"
+        echo "1. Manage UUIDs"
+        echo "2. Reset Proxies"
+        echo "0. Return to Main Menu"
+        printf "\nSelect an option $options: "; read -r choice
+
+        case $choice in
+            0) break ;;
+            1) manage_uuids ;;
+            2) reset_proxy ;;
+            *)
+                printf "\nInvalid option. Please select a valid option $options.\n"
+                printf "\nPress Enter to continue..."; read -r _
+                ;;
+        esac
+    done
+}
+
+main_menu() {
+    get_and_update_proxy_entries
+
+    while :; do
+        display_banner
         printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
 
         options="(1-9)"
@@ -264,13 +304,12 @@ main_menu() {
         echo "3. Install Proxy Applications"
         echo "4. Remove Proxy Applications"
         echo "5. Show Installed Applications"
-        echo "6. View Active UUIDs"
-        echo "7. Manage UUIDs"
+        echo "6. Manage Proxy Install Limit"
+        echo "7. View Active UUIDs"
         echo "8. View Proxies"
-        echo "9. Reset Proxies"
+        echo "9. Manage Proxy"
         echo "0. Quit"
-        echo
-        printf "Select an option $options: "; read -r choice
+        printf "\nSelect an option $options: "; read -r choice
 
         case $choice in
             0) display_banner Proxy; echo "Quitting..."; sleep 0.62; clear; break ;;
@@ -278,14 +317,14 @@ main_menu() {
             2) select_proxy_app ;;
             3) install_proxy_app ;;
             4) remove_proxy_app ;;
-            5) show_applications proxy ;;
-            6) view_uuids ;;
-            7) manage_uuids ;;
+            5) show_applications proxy group ;;
+            6) run_proxy_app_limiter ;;
+            7) view_uuids ;;
             8) view_proxy ;;
-            9) reset_proxy ;;
+            9) manage_proxy ;;
             *)
                 printf "\nInvalid option. Please select a valid option $options.\n"
-                printf "\nPress Enter to continue..."; read -r input
+                printf "\nPress Enter to continue..."; read -r _
                 ;;
         esac
     done
@@ -299,11 +338,13 @@ else
 fi
 
 case "$1" in
+    "") main_menu ;;
     setup) setup_proxy ;;
     app) select_proxy_app ;;
     install) install_proxy_app ;;
     remove) remove_proxy_app ;;
     reset) reset_proxy ;;
     id) view_uuids ;;
-    *) main_menu ;;
+    limit) run_proxy_app_limiter ;;
+    *) echo "igm proxy: '$1' is not a valid command. See 'igm help'."; exit ;;
 esac

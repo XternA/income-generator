@@ -3,46 +3,46 @@
 _autostart="sh scripts/runtime/colima/colima-autostart.sh"
 _brew_path="$(command -v brew | sed 's:/[^/]*$::')"
 
+DEFAULT_CPU=1
+DEFAULT_MEMORY=2
+DEFAULT_DISK=10
+
 _has_colima_runtime() {
     [ -f "$_brew_path/colima" ]
 }
 
 _colima() {
-    cpu="${1:-1}"
-    memory="${2:-2}"
-    disk="${3:-10}"
-
+    set -- "$@"
     if [ "$IS_ARM_ARCH" = "false" ]; then
-        colima start --cpu "$cpu" --memory "$memory" --disk "$disk" --vm-type=qemu
+        colima start --cpu "$1" --memory "$2" --disk "$3" --vm-type=qemu
     else
-        colima start --cpu "$cpu" --memory "$memory" --disk "$disk" --vm-type=vz --vz-rosetta
+        colima start --cpu "$1" --memory "$2" --disk "$3" --vm-type=vz --vz-rosetta
     fi
 }
 
 _display_colima_stats() {
-    display_msg="Current Colima configuration:"
-
-    cpu=1
-    memory=2
-    disk=10
-
-    for arg in "$@"; do
-        if [ "$arg" = "--status" ]; then
-            set -- $(colima status --json | jq -r '.cpu, (.memory / 1e9 | floor), (.disk / 1e9 | floor), .driver')
-            cpu=$1
-            memory=$2
-            disk=$3
-            driver=$([ "$4" = "QEMU" ] && printf "QEMU" || printf "Native")
-        else
-            display_msg=$arg
-        fi
-    done
+    display_msg="${1:-Current Colima configuration:}"
+    c_cpu="${2:-$DEFAULT_CPU}"
+    c_memory="${3:-$DEFAULT_MEMORY}"
+    c_disk="${4:-$DEFAULT_DISK}"
+    driver="$5"
 
     printf "$display_msg\n\n"
-    [ $driver ] && printf "Driver:        ${GREEN}$driver${NC}\n"
-    printf "CPU  (Cores):  ${RED}$cpu${NC}\n"
-    printf "RAM  (GB):     ${RED}$memory${NC}\n"
-    printf "Disk (GB):     ${RED}$disk${NC}\n\n"
+    if [ "$driver" ]; then
+        printf "Driver:        ${GREEN}$driver${NC}\n"
+    fi
+    printf "CPU  (Cores):  ${RED}$c_cpu${NC}\n"
+    printf "RAM  (GB):     ${RED}$c_memory${NC}\n"
+    printf "Disk (GB):     ${RED}$c_disk${NC}\n\n"
+}
+
+_show_current_colima_setup() {
+    set -- $(colima status --json | jq -r '.cpu, (.memory / 1e9 | floor), (.disk / 1e9 | floor), .driver')
+    case "$4" in
+        QEMU) driver="QEMU" ;;
+        *) driver="Native" ;;
+    esac
+    _display_colima_stats "" "$1" "$2" "$3" "$driver"
 }
 
 _run_config_prompt() {
@@ -114,19 +114,20 @@ _run_config_prompt() {
 configure_runtime() {
     while :; do
         display_banner
-        _display_colima_stats --status
+        _show_current_colima_setup
 
         printf "Do you want to configure a new setting? (Y/N): "; read -r yn
         case "$yn" in
             [Yy]*)
                 _run_config_prompt "Configuring new Colima setting...\n\n"
+                set -- "$cpu" "$memory" "$disk"
 
                 display_banner
-                _display_colima_stats "Applying new Colima configuration..."
+                _display_colima_stats "Applying new Colima configuration..." "$1" "$2" "$3"
 
                 colima stop -f
                 sleep 1.5
-                _colima "$cpu" "$memory" "$disk"
+                _colima "$1" "$2" "$3"
 
                 printf "\nColima updated with the new applied configuration.\n"
                 printf "\nPress Enter to continue..."; read -r _
@@ -158,18 +159,22 @@ setup_runtime() {
     case "$input" in
         [Yy]*)
             _run_config_prompt "$config_msg"
-
+            set -- "$cpu" "$memory" "$disk"
+            
             display_banner
             printf "$config_msg"
+
+            _display_colima_stats "Using the following Colima configuration:" "$1" "$2" "$3"
+            _colima "$1" "$2" "$3"
             ;;
         *|[Nn]*)
             display_banner
             printf "$config_msg"
+
+            _display_colima_stats "Using default Colima configuration:"
+            _colima "$DEFAULT_CPU" "$DEFAULT_MEMORY" "$DEFAULT_DISK"
             ;;
     esac
-
-    _display_colima_stats "Using the following Colima configuration:"
-    _colima "$cpu" "$memory" "$disk"
     $_autostart --install $_brew_path
 }
 
@@ -183,7 +188,7 @@ remove_runtime() {
     colima stop -f
     colima prune -f -a > /dev/null 2>&1
     colima delete -f
-    rm -rf $HOME/.colima
+    rm -rf -- "$HOME/.colima"
     echo
     brew remove --formula colima docker docker-compose
     brew cleanup --prune=all > /dev/null 2>&1

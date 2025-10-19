@@ -6,13 +6,6 @@ BACKUP_FILE="$ENV_FILE.backup"
 ENCRYPT_BACKUP="$ENCRYPTOR -es $BACKUP_FILE"
 DECRYPT_BACKUP="$ENCRYPTOR -ds $BACKUP_FILE"
 
-# TODO temporary to migrate old config over to new
-if grep -q "^#------------------------------------------------------------------------$" "$ENV_FILE"; then
-    IS_OLD_CONFIG=true
-else
-    IS_OLD_CONFIG=false
-fi
-
 display_banner() {
     clear
     printf "Backup & Restore Config Manager\n"
@@ -41,17 +34,7 @@ backup_config() {
                 2)
                     display_banner
                     printf "Content of current in-use configuration.\n\n"
-
-                    # TODO - Remove in future updates
-                    if [ "$IS_OLD_CONFIG" = true ]; then
-                        printf "${YELLOW}---------[ START OF CONFIG ]---------\n${BLUE}\n"
-                        tail -n +14 $ENV_FILE
-                        printf "${YELLOW}\n----------[ END OF CONFIG ]----------${NC}\n"
-
-                        printf "\nPress Enter to continue..."; read -r input
-                    else
-                        $VIEW_CONFIG
-                    fi
+                    $VIEW_CONFIG
                     ;;
                 3)
                     display_banner
@@ -73,28 +56,7 @@ backup_config() {
 
     BACKUP_FLAG=0
     : > "$BACKUP_FILE" # Clear previous backup file or create new
-
-    if [ "$IS_OLD_CONFIG" = true ]; then
-        while IFS= read -r line; do
-            # Check if end of system config
-            if [ "$line" = "#------------------------------------------------------------------------" ]; then
-                BACKUP_FLAG=1
-                continue
-            fi
-
-            # Skip the frst line after system config
-            if [ "$BACKUP_FLAG" -eq 1 ] && [ -z "$line" ]; then
-                BACKUP_FLAG=2
-                continue
-            fi
-
-            if [ "$BACKUP_FLAG" -eq 2 ]; then
-                echo "$line" >> "$BACKUP_FILE"
-            fi
-        done < "$ENV_FILE"
-    else
-        cp -f "$ENV_FILE" "$BACKUP_FILE"
-    fi
+    cp -f "$ENV_FILE" "$BACKUP_FILE"
 
     printf "Backup completed. Content has been saved to ${RED}$BACKUP_FILE${NC}.\n"
 }
@@ -104,24 +66,8 @@ restore_config() {
         echo "No backup file found. Nothing to restore."
         return
     fi
+    mv -f $BACKUP_FILE $ENV_FILE
 
-    if [ "$IS_OLD_CONFIG" = true ]; then
-        # Get system config
-        awk '
-        /#------------------------------------------------------------------------/ {
-            print
-            print ""
-            exit
-        }
-        {print}
-        ' "$ENV_FILE" > "$TEMP_FILE"
-
-        echo "$(cat $BACKUP_FILE)" >> "$TEMP_FILE"
-        mv -f "$TEMP_FILE" "$ENV_FILE"
-        rm -f "$BACKUP_FILE"
-    else
-        mv -f $BACKUP_FILE $ENV_FILE
-    fi
     printf "Restore completed. Content has been restored from ${RED}$BACKUP_FILE${NC}.\n"
 }
 

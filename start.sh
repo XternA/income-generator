@@ -7,6 +7,7 @@ sh scripts/init.sh
 . scripts/runtime/container-config.sh
 . scripts/sub-menu/app-manager.sh
 . scripts/arch-image-tag.sh
+. scripts/arch-platform-runtime.sh
 . scripts/runtime/runtime-manager.sh
 
 SYS_INFO=$($SYS_INFO)
@@ -16,7 +17,7 @@ display_banner() {
     clear
     printf "Income Generator Application Manager\n"
     printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--no_line" ] && echo
+    [ ! "$1" = "--noline" ] && echo
 }
 
 stats() {
@@ -278,17 +279,22 @@ manage_tool() {
                 done
 
                 display_banner
-                rm -rf "$ENV_FILE" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE" "$ENV_IMAGE_TAG_FILE"
+                rm -rf "$ENV_FILE" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE" "$ENV_IMAGE_TAG_FILE" "$ENV_PLATFORM_OVERRIDE_FILE"
+                
+                # Re-init some default setups
                 sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 $APP_SELECTION --default
+                run_arch_image_tag
+                run_platform_override
 
                 printf "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again.\n"
-                printf "Resource limits will need re-applying if previously set.\n"
+                printf "Resource limits will need to be re-applied if previously set.\n"
+                printf "Settings for Income Generator Proxy are left alone.\n"
                 printf "\nWhat settings can be restored?\n"
-                printf "  - Application credentials if backed up.\n"
-                printf "  - State of applications that's been enabled/disabled for use.\n"
-                printf "\nPress Enter to continue..."; read -r input
+                printf "  - Application credentials if previously backed up.\n"
+                printf "  - State of applications that's been ${GREEN}enabled${NC}/${RED}disabled${NC} for use.\n"
+                printf "\nPress Enter to continue..."; read -r _
                 ;;
             5)
                 run_updater
@@ -335,7 +341,7 @@ main_menu() {
     NEW_UPDATE=$($UPDATE_CHECKER)
 
     while true; do
-        display_banner --no_line
+        display_banner --noline
         stats
         [ -n "$NEW_UPDATE" ] && printf "$NEW_UPDATE\n"
 
@@ -361,7 +367,7 @@ main_menu() {
             3) start_applications ;;
             4) stop_applications ;;
             5) remove_applications ;;
-            6) show_applications ;;
+            6) show_applications group ;;
             7) runtime_menu ;;
             8) option_8 ;;
             9) manage_tool ;;
@@ -384,36 +390,44 @@ case "$1" in
         echo "Usage: igm ${RED}|${NC} igm [option] ${RED}|${NC} igm [option] [arg]"
 
         printf "\n[${BLUE}General${NC}]\n"
-        echo "  igm                      Launch the Income Generator tool."
-        echo "  igm help                 Display this help usage guide."
-        echo "  igm update               Check and update Income Generator tool if available."
+        echo "  igm                             Launch the Income Generator tool."
+        echo "  igm help                        Display this help usage guide."
+        echo "  igm version                     Show the current version of Income Generator tool."
+        echo "  igm update                      Check and update Income Generator tool if available."
 
         printf "\n[${BLUE}Manage${NC}]\n"
-        echo "  igm start  [name]        Start one or all currently deployed applications."
-        echo "  igm stop   [name]        Stop one or all currently deployed running applications."
-        echo "  igm remove [name]        Stop and remove one or all currently deployed applications."
-        echo "  igm show   [app|proxy]   Show list of installed and running applications."
-        echo "  igm deploy               Launch the install manager for deploying applications."
-        echo "  igm redeploy             Redeploy the last installed application state."
-        echo "  igm clean                Cleanup orphaned applications, volumes and downloaded images."
+        echo "  igm start   [name]              Start one or all currently deployed applications."
+        echo "  igm stop    [name]              Stop one or all currently deployed running applications."
+        echo "  igm restart [name]              Restart a currently deployed running application."
+        echo "  igm remove  [name]              Stop and remove one or all currently deployed applications."
+        echo "  igm logs    [name]              Show logs for the selected application."
+        echo "  igm show    [app|proxy|group]   List installed and running applications, optionally grouped."
+        echo "  igm deploy                      Launch the install manager for deploying applications."
+        echo "  igm redeploy                    Redeploy the last installed application state."
+        echo "  igm clean                       Cleanup orphaned applications, volumes and downloaded images."
 
         printf "\n[${BLUE}Proxy${NC}]\n"
-        echo "  igm proxy                Launch the proxy tool menu."
-        echo "  igm proxy setup          Setup and define list of proxy entries."
-        echo "  igm proxy app            Enable or disable proxy applications for deployment."
-        echo "  igm proxy install        Install selected proxy applications."
-        echo "  igm proxy remove         Remove all currently deployed proxy applications."
-        echo "  igm proxy reset          Clear all proxy entries and remove proxy file."
-        echo "  igm proxy id             Show active applications with multi-UUIDs and instructions."
+        echo "  igm proxy                       Launch the proxy tool menu."
+        echo "  igm proxy setup                 Setup and define list of proxy entries."
+        echo "  igm proxy app                   Enable or disable proxy applications for deployment."
+        echo "  igm proxy install               Install selected proxy applications."
+        echo "  igm proxy remove                Remove all currently deployed proxy applications."
+        echo "  igm proxy reset                 Clear all proxy entries and remove proxy file."
+        echo "  igm proxy id                    Show active applications with multi-UUIDs and instructions."
+        echo "  igm proxy limit                 Configure proxy application install limit."
 
         printf "\n[${BLUE}Configuration${NC}]\n"
-        echo "  igm app|service          Enable or disable applications/services for deployment."
-        echo "  igm setup                Setup credentials for applications to be deployed."
-        echo "  igm view                 View all configured application credentials."
-        echo "  igm edit                 Edit configured credentials and config file directly."
-        echo "  igm limit                Set the application resource limits."
-        echo "  igm editor               Change the default editor tool to use."
-        echo "  igm runtime              Configure or manage the container runtime engine."
+        echo "  igm app|service                 Enable or disable applications/services for deployment."
+        echo "  igm setup                       Setup credentials for applications to be deployed."
+        echo "  igm view                        View all configured application credentials."
+        echo "  igm edit                        Edit configured credentials and config file directly."
+        echo "  igm limit                       Set the application resource limits."
+        echo "  igm editor                      Change the default editor tool to use."
+        echo "  igm runtime                     Configure or manage the container runtime engine."
+        ;;
+    -v|--version|version)
+        ver=$(git describe --tags --abbrev=0 2>/dev/null || echo "unknown")
+        printf "version: $ver\n"
         ;;
     "")
         $APP_SELECTION --import
@@ -426,39 +440,52 @@ case "$1" in
         fi
         ;;
     proxy)
-        case "$2" in
-            ""|setup|app|install|remove|reset|id)
-                set -- "$2"
-                . scripts/proxy/proxy-menu.sh
-                clear
-                ;;
-            *)
-                echo "igm proxy: '$2' is not a valid command. See 'igm help'." ;;
-        esac
+        set -- "$2"
+        . scripts/proxy/proxy-menu.sh
+        clear
         ;;
     start)
-        if [ -n "$2" ]; then
-            start_application "$2"
+        shift
+        if [ "$#" -gt 0 ]; then
+            for app in "$@"; do
+                start_application "$app"
+            done
         else
             start_applications
             clear
         fi
         ;;
     stop)
-        if [ -n "$2" ]; then
-            stop_application "$2"
+        shift
+        if [ "$#" -gt 0 ]; then
+            for app in "$@"; do
+                stop_application "$app"
+            done
         else
             stop_applications
             clear
         fi
         ;;
-    remove)
+    restart)
         if [ -n "$2" ]; then
-            remove_application "$2"
+            restart_application "$2"
+        fi
+        ;;
+    remove)
+        shift
+        if [ "$#" -gt 0 ]; then
+            for app in "$@"; do
+                remove_application "$app"
+            done
         else
             remove_applications
             clear
         fi
+        ;;
+    logs)
+        display_banner
+        show_application_log "$2"
+        clear
         ;;
     show)
         show_applications "$2" "$3"

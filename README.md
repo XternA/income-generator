@@ -21,11 +21,11 @@ If you like this project, don't forget to leave a star. ⭐
   <img src="https://github.com/user-attachments/assets/883c4584-3c71-4040-a45d-da02bded1174" alt="image" />
 </p>
 
-**Income Generator** is an all-in-one feature-rich tool that allows generating passive income by leveraging income generating applications and unused internet bandwidth with minimal system resource.
+**Income Generator (IGM)** is an all-in-one feature-rich tool that allows generating passive income by leveraging income generating applications and unused internet bandwidth with minimal system resource.
 
-Designed for minimal setup and native cross-platform support, utilizing containerized runtime isolation from the host, with full orchestration allowing fast deployment across multiple hosts.
+Designed for fast setup and cross-platform compatibility, IGM runs each application in isolated containers, providing a safe, efficient execution with full orchestration for rapid deployment across multiple hosts.
 
-📖 It's' strongly recommended to refer to the [**Wiki**](../../wiki) for in-depth details and instructions.
+📖 For detailed instructions and advanced usage, refer to the [**Wiki**](../../wiki).
 
 ## Key Features ✨
 - **Multi-platform** - Deploy across different OS.
@@ -39,6 +39,7 @@ Designed for minimal setup and native cross-platform support, utilizing containe
 - **Quick Actions** -  CLI commands for common operations without launching the tool.
 - **Auto Claim** - Auto claim daily rewards for supported applications with service apps.
 - **Multi-Proxy** - Scale and deploy multiple proxy instances based on proxy entries automatically.
+- **Proxy Install Limit** - Fine tune proxy application deployments with install limits.
 
 ## Getting Started 🚥
 ### Prerequisite 📦
@@ -166,3 +167,6 @@ The author of this stack does not accept any responsibility for the outcomes res
 The author does not provide any assurances, whether explicit or implicit, regarding the accuracy, completeness, or appropriateness of this script for specific purposes. The author shall not be held accountable for any damages, including but not limited to direct, indirect, incidental, consequential, or special damages, arising from the use or inability to use this tool or its accompanying documentation, even if the possibility of such damages has been communicated.
 
 By choosing to utilize this tool, you acknowledge and assume all risks associated with its use. Additionally, you agree that the author cannot be held liable for any issues or consequences that may arise as a result of its usage.
+
+## Stargazers ⭐️
+[![Stargazers over time](https://starchart.cc/XternA/income-generator.svg?variant=adaptive)](https://starchart.cc/XternA/income-generator)

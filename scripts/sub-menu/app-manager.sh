@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. scripts/util/app-import-reader.sh
+
 WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
 LOADED_ENV_FILES="
@@ -20,6 +22,15 @@ ALL_COMPOSE_FILES="
 $APP_COMPOSE_FILES
 "
 
+load_app_service_data() {
+    app_data=$(extract_app_data .service_enabled .is_enabled)
+    has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
+}
+
+print_total_apps_info() {
+    printf "Total Available:\n ${GREEN}Applications: ${RED}${TOTAL_APPS}${NC} | ${YELLOW}Services: ${RED}${TOTAL_SERVICES}${NC}\n\n"
+}
+
 display_install_info() {
     display_banner
 
@@ -28,13 +39,9 @@ display_install_info() {
     install_type="installed"
     [ "$is_reinstall_state" = "redeploy" ] && install_type="redeployed"
 
-    app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
-    has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
+    load_app_service_data
 
-    if [ "$is_reinstall_state" != "redeploy" ]; then
-        total_apps="Total Available:\n ${GREEN}Applications: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}"
-        printf "$total_apps\n\n"
-    fi
+    [ "$is_reinstall_state" != "redeploy" ] && print_total_apps_info
 
     if [ -z "$has_apps_services" ]; then
         can_install="false"
@@ -47,23 +54,7 @@ display_install_info() {
     else
         printf "The following applications will be ${install_type}.\n\n"
 
-        printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
-        printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
-
-        printf "%s\n" "$app_data" | awk -v GREEN="$GREEN" -v YELLOW="$YELLOW" -v NC="$NC" '
-        BEGIN { counter = 1 }
-        {
-            if ($2 == "true" && $3 == "true") {
-                printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-                counter++
-            }
-            if ($2 == "true") {
-                printf "%-4s %s%-21s %s%s\n", counter, YELLOW, $1, "Service", NC
-            } else {
-                printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-            }
-            counter++
-        }'
+        display_app_table "$app_data" install
         can_install="true"
     fi
 
@@ -91,11 +82,8 @@ display_install_info() {
 
 install_applications() {
     display_apps_services() {
-        app_data=$(jq -r '.[] | select(.is_enabled == true or .service_enabled == true) | "\(.name) \(.service_enabled) \(.is_enabled)"' "$JSON_FILE")
-        has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
-
-        total_apps="Total Available:\n ${GREEN}Applications: ${RED}$(jq '. | length' "$JSON_FILE")${NC} | ${YELLOW}Services: ${RED}$(jq '[.[] | select(has("service_enabled"))] | length' "$JSON_FILE")${NC}"
-        printf "$total_apps\n\n"
+        load_app_service_data
+        print_total_apps_info
 
         if [ -z "$has_apps_services" ]; then
             echo "No applications/services currently selected to install."
@@ -103,23 +91,7 @@ install_applications() {
         else
             printf "The following applications will be installed.\n\n"
 
-            printf "%-4s %-21s %-8s\n" "No." "Name" "Type"
-            printf "%-4s %-21s %-8s\n" "---" "--------------------" "--------"
-
-            printf "%s\n" "$app_data" | awk -v GREEN="$GREEN" -v YELLOW="$YELLOW" -v NC="$NC" '
-            BEGIN { counter = 1 }
-            {
-                if ($2 == "true" && $3 == "true") {
-                    printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-                    counter++
-                }
-                if ($2 == "true") {
-                    printf "%-4s %s%-21s %s%s\n", counter, YELLOW, $1, "Service", NC
-                } else {
-                    printf "%-4s %s%-21s %s%s\n", counter, GREEN, $1, "App", NC
-                }
-                counter++
-            }'
+            display_app_table "$app_data" install
             can_install="true"
         fi
 
@@ -311,8 +283,12 @@ start_applications() {
 
 start_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Starting application "
-    $CONTAINER_ALIAS start "$1"
+    result="$($CONTAINER_ALIAS start "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Starting application ${RED}$1${NC}\n"
+    else
+        printf "Failed to start application ${RED}$1${NC}\n$result\n"
+    fi
 }
 
 stop_applications() {
@@ -331,8 +307,22 @@ stop_applications() {
 
 stop_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Stopping application "
-    $CONTAINER_ALIAS stop -t 6 "$1"
+    result="$($CONTAINER_ALIAS stop -t 6 "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Stopping application ${RED}$1${NC}\n"
+    else
+        printf "Failed to stop application ${RED}$1${NC}\n$result\n"
+    fi
+}
+
+restart_application() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    result="$($CONTAINER_ALIAS restart "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Application ${RED}$1${NC} restarted successfully.\n"
+    else
+        printf "Failed to restart application ${RED}$1${NC}\n$result\n"
+    fi
 }
 
 remove_applications() {
@@ -353,15 +343,27 @@ remove_applications() {
 
 remove_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Removing application "
-    $CONTAINER_ALIAS rm -f -v "$1"
+    result="$($CONTAINER_ALIAS rm -f -v "$1" 2>&1)"
+    if [ "$result" = "$1" ]; then
+        printf "Removing application ${RED}$1${NC}\n"
+    else
+        printf "Failed to remove application ${RED}$1${NC}\n$result\n"
+    fi
+}
+
+show_application_log() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    $CONTAINER_ALIAS logs --since "$(date '+%Y-%m-%d')T00:00:00" "$1"
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 show_applications() {
-    display_banner
-    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    display_banner --noline
 
-    printf "Installed Containers:\n\n"
+    if [ -z "$HAS_CONTAINER_RUNTIME" ]; then
+        print_no_runtime
+        return
+    fi
 
     local proxy_number="${2:-}"
     local proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
@@ -374,42 +376,101 @@ show_applications() {
         fi
     }
     show_apps() {
-        if [ ! -z "$proxy_number" ]; then
-            filter_label="label=${proxy_project}"
-        else
-            filter_label="label=project=${1}"
-        fi
+        container_type="$1"
+        should_group="$2"
 
-        $CONTAINER_ALIAS ps -a -f "$filter_label" \
-        --format "table {{.ID}}\t{{.Names}}\t\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}" | \
-        sed -E '
-            s/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+://g
-            s/\[::\]://g
-            s/([0-9]+)->[0-9]+/\1/g
-        '
+        case "$container_type" in
+            proxy*) app_type_name="Proxy" ;;
+            *) app_type_name="Standard" ;;
+        esac
+
+        print_table_output() {
+            table="$1"
+            app_type_name="$2"
+            index="$3"
+
+            count=$(printf '%s\n' "$table" | awk 'NR>1 {c++} END{print c+0}')
+            if [ "$index" ]; then
+                printf "\n${GREEN}[ ${YELLOW}%s Applications ${NC}| ${RED}%s ${GREEN}]${NC} (%s containers)\n\n" "$app_type_name" "$index" "$count"
+            else
+                printf "\n${GREEN}[ ${YELLOW}%s Applications ${GREEN}]${NC} (%s containers)\n\n" "$app_type_name" "$count"
+            fi
+            # Cleanup output
+            printf '%s\n' "$table" | sed 's/[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*://g; s/\[::\]://g; s/\([0-9][0-9]*\)->[0-9][0-9]*/\1/g'
+        }
+
+        if [ "$should_group" = "group" ]; then
+            # Find all unique app labels
+            set_list=$(
+                $CONTAINER_ALIAS ps -a --format '{{.Label "com.docker.compose.project"}}' \
+                | grep "^${container_type}-app-[0-9][0-9]*$" \
+                | sort -u
+            )
+
+            i=1
+            for s in $set_list; do
+                # Capture table for this set
+                table=$(
+                    $CONTAINER_ALIAS ps -a -f "label=com.docker.compose.project=$s" \
+                    --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
+                )
+
+                # Skip if table empty (header only)
+                line_count=$(printf '%s\n' "$table" | awk 'NF{n++} END{print n+0}')
+                if [ "$line_count" -le 1 ]; then
+                    i=$((i + 1))
+                    continue
+                fi
+
+                print_table_output "$table" "$app_type_name" "$i"
+                i=$((i+1))
+            done
+        else
+            if [ -n "$proxy_number" ]; then
+                filter_label="label=com.docker.compose.project=${container_type}-app-${proxy_number}"
+            else
+                filter_label="label=project=${container_type}"
+            fi
+            table=$(
+                $CONTAINER_ALIAS ps -a -f "$filter_label" \
+                --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
+            )
+
+            # Skip if no containers
+            line_count=$(printf '%s\n' "$table" | awk 'NF{n++} END{print n+0}')
+            if [ "$line_count" -le 1 ]; then
+                return
+            fi
+
+            print_table_output "$table" "$app_type_name"
+        fi
     }
 
     case "$1" in
-        "")
+        ""|"group")
             if [ -z "$(has_apps standard)" ] && [ -z "$(has_apps proxy)" ]; then
-                echo "No installed applications."
+                printf "\nNo applications installed.\n"
             else
                 if [ -n "$(has_apps standard)" ]; then
-                    printf "${GREEN}[ ${YELLOW}Standard Applications ${GREEN}]${NC}\n\n"
                     show_apps standard
                 fi
                 if [ -n "$(has_apps proxy)" ]; then
-                    printf "\n${GREEN}[ ${YELLOW}Proxy Applications ${GREEN}]${NC}\n\n"
-                    show_apps proxy
+                    if [ "$1" = "group" ]; then
+                        show_apps proxy group
+                    else
+                        show_apps proxy
+                    fi
                 fi
             fi
             ;;
         proxy)
             if [ -z "$(has_apps proxy)" ]; then
-                if [ -n "$proxy_number" ]; then
-                    printf "No installed set ${RED}${proxy_number}${NC} proxy applications.\n"
+                if [ "$proxy_number" = "group" ]; then
+                    show_apps proxy group
+                elif [ -n "$proxy_number" ]; then
+                    printf "\nNo proxy set ${RED}%s${NC} applications installed.\n" "$proxy_number"
                 else
-                    echo "No installed proxy applications."
+                    printf "\nNo proxy applications installed.\n"
                 fi
             else
                 show_apps proxy
@@ -417,14 +478,14 @@ show_applications() {
             ;;
         app)
             if [ -z "$(has_apps standard)" ]; then
-                echo "No installed applications."
+                printf "\nNo applications installed.\n"
             else
                 show_apps standard
             fi
             ;;
         *)
-            echo "igm: '$1' is not a valid command. See 'igm help'."
+            printf "\nigm: '$1' is not a valid command. See 'igm help'.\n"
             ;;
     esac
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }

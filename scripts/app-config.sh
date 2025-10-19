@@ -1,6 +1,7 @@
 #!/bin/sh
 
 . scripts/util/uuid-generator.sh
+. scripts/util/app-import-reader.sh
 
 FILE_CHANGED='.app_marker'
 trap 'rm -f $FILE_CHANGED' INT
@@ -20,13 +21,13 @@ write_entry() {
             echo "$entry_name=$input" >"$ENV_FILE"
         else
             [ "$is_new_app" = true ] && {
-                echo "" >>"$ENV_FILE"
+                echo "" >> "$ENV_FILE"
                 is_new_app=false
             }
             echo "$entry_name=$input" >>"$ENV_FILE"
         fi
     fi
-    : >$FILE_CHANGED
+    : > "$FILE_CHANGED"
 }
 
 input_new_value() {
@@ -48,31 +49,21 @@ process_new_entry() {
 
 process_uuid_user_choice() {
     printf "Do you want to auto-generate a new UUID for $RED$entry_name$NC? (Y/N): "; read -r input < /dev/tty
-    if [ "$input" = "y" ]; then
-        process_new_entry
-    else
-        printf "Do you want to define an existing UUID? (Y/N): "; read -r input < /dev/tty
-        [ "$input" = "y" ] && input_new_value
-    fi
+    case "$input" in
+        y|Y) process_new_entry ;;
+        *)
+            printf "Do you want to define an existing UUID? (Y/N): "; read -r input < /dev/tty
+            case "$input" in
+                y|Y) input_new_value ;;
+            esac
+    esac
 }
 
 process_entries() {
-    set -- $(jq -r '[.[] | select(.is_enabled == true)] as $enabled | [. | length, $enabled | length] | @tsv' "$JSON_FILE")
-    total_entries=$1
-    num_entries=$2
+    app_data=$(extract_and_map_app_data_field .name .url .description .description_ext .registration .properties:array .uuid_type)
+    total_enabled_apps=$(printf '%s\n' "$app_data" | awk 'NF{n++} END{print n+0}')
 
-    jq -r '
-        .[] | [
-            "is_enabled="      + ((.is_enabled // false) | @sh),
-            "app_name="        + ((.name // "") | @sh),
-            "url="             + ((.url // "") | @sh),
-            "description="     + ((.description // "") | @sh),
-            "description_ext=" + ((.description_ext // "") | @sh),
-            "registration="    + ((.registration // "") | @sh),
-            "properties="      + ((.properties // []) | join(" ") | @sh),
-            "uuid_type="       + ((.uuid_type // "") | @sh)
-        ] | join(" ")
-    ' "$JSON_FILE" | while IFS= read -r config_entry; do
+    printf '%s\n' "$app_data" | while IFS= read -r config_entry; do
         eval "$config_entry" || continue
 
         [ "$is_enabled" = "false" ] && continue
@@ -81,9 +72,9 @@ process_entries() {
         is_new_app=true
 
         display_banner
-        printf "\nTotal applications: ${RED}$total_entries${NC}\n"
-        printf "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$num_entries${NC}\n"
-        printf "\n[ ${GREEN}$app_name${NC} ]\n"
+        printf "\nTotal applications: ${RED}$TOTAL_APPS${NC}\n"
+        printf "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$total_enabled_apps${NC}\n"
+        printf "\n[ ${GREEN}$name${NC} ]\n"
         [ -n "$url" ] && printf "Go to $BLUE$url$NC to register an account. (CTRL + Click)\n"
         [ -n "$description" ] && printf "Description: ${YELLOW}$description${NC}\n"
         [ -n "$description_ext" ] && printf "${YELLOW}$description_ext${NC}\n"
@@ -98,7 +89,7 @@ process_entries() {
                 [ "$require_uuid" = "#" ] && process_uuid_user_choice || input_new_value
             done
         else
-            printf "Press Enter to continue..."; read -r input < /dev/tty
+            printf "Press Enter to continue..."; read -r _ < /dev/tty
         fi
     done
 
@@ -115,15 +106,15 @@ process_entries() {
 if [ -f "$ENV_FILE" ]; then
     printf "Credentials will be stored in '${RED}$ENV_FILE${NC}'\n"
     printf "\nStart the application setup process? (Y/N): "; read -r input
-    if [ "$input" = "y" ]; then
-        process_entries
-    else
-        printf "\nNo changes made to '${RED}$ENV_FILE${NC}'.\n"
-    fi
+
+    case "$input" in
+        y|Y) process_entries ;;
+        *) printf "\nNo changes made to '${RED}$ENV_FILE${NC}'.\n" ;;
+    esac
 else
     printf "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating new one...\n\n"
     sleep 1.4
     touch "$ENV_FILE"
     process_entries
 fi
-printf "\nPress Enter to continue..."; read -r input < /dev/tty
+printf "\nPress Enter to continue..."; read -r _ < /dev/tty
