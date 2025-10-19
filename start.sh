@@ -279,17 +279,22 @@ manage_tool() {
                 done
 
                 display_banner
-                rm -rf "$ENV_FILE" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE" "$ENV_IMAGE_TAG_FILE"
+                rm -rf "$ENV_FILE" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE" "$ENV_IMAGE_TAG_FILE" "$ENV_PLATFORM_OVERRIDE_FILE"
+                
+                # Re-init some default setups
                 sh scripts/init.sh > /dev/null 2>&1
                 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
                 $APP_SELECTION --default
+                run_arch_image_tag
+                run_platform_override
 
                 printf "All settings have been reset. Please run ${PINK}Setup Configuration${NC} again.\n"
-                printf "Resource limits will need re-applying if previously set.\n"
+                printf "Resource limits will need to be re-applied if previously set.\n"
+                printf "Settings for Income Generator Proxy are left alone.\n"
                 printf "\nWhat settings can be restored?\n"
-                printf "  - Application credentials if backed up.\n"
-                printf "  - State of applications that's been enabled/disabled for use.\n"
-                printf "\nPress Enter to continue..."; read -r input
+                printf "  - Application credentials if previously backed up.\n"
+                printf "  - State of applications that's been ${GREEN}enabled${NC}/${RED}disabled${NC} for use.\n"
+                printf "\nPress Enter to continue..."; read -r _
                 ;;
             5)
                 run_updater
