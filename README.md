@@ -17,7 +17,9 @@
 If you like this project, don't forget to leave a star. ⭐
 </div>
 
-![image](https://github.com/user-attachments/assets/4f4dddc3-3156-460e-91c2-e8d9cfce0ef8)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/883c4584-3c71-4040-a45d-da02bded1174" alt="image" />
+</p>
 
 **Income Generator (IGM)** is an all-in-one feature-rich tool that allows generating passive income by leveraging income generating applications and unused internet bandwidth with minimal system resource.
 
