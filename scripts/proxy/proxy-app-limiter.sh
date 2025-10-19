@@ -13,13 +13,13 @@ proxy_app_limiter() {
 
     while true; do
         display_banner
-        printf "Proxy Application Limiter\n\n"
+        printf "Applications will not be installed more\nthan the limit if set, default unlimited.\n\n"
 
         __load_limit_data
         display_app_table "$limit_data" limit
 
         printf "\nOptions:\n"
-        printf "  ${GREEN}r${NC} = ${GREEN}default all${NC}\n"
+        printf "  ${GREEN}r${NC} = ${GREEN}reset all to default${NC}\n"
         printf "  ${RED}0${NC} = ${RED}exit${NC}\n"
         printf "\nSelect application to apply limit (1-$total_apps): "; read -r choice
 
