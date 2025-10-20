@@ -126,13 +126,14 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[WIPTER](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                |Unlimited|Unlimited| Crypto |
 
 ### Additional Applications
-These are applications currently without support via IGM. You can start running these alongside IGM to start earning until they become supported.
+These apps aren’t supported by IGM yet. You can run them alongside IGM to earn in the meantime. Once supported, they will be added to IGM.
 
 | Application | Major Payout Type |
 | --- | :---: |
-| **[ByteLixir](https://tinyurl.com/2uhz58ae)** | Crypto |
-| **[Earn.CC](https://tinyurl.com/y57x29nt)**  | Crypto |
-| **[UpRock](https://tinyurl.com/2tk9ppz7)**    | Crypto |
+| **[PassiveApp](https://tinyurl.com/3ufkk4kc)** | PayPal, Crypto |
+| **[ByteLixir](https://tinyurl.com/2uhz58ae)**  | Crypto |
+| **[Earn.CC](https://tinyurl.com/y57x29nt)**    | Crypto |
+| **[UpRock](https://tinyurl.com/2tk9ppz7)**     | Crypto |
 
 The applcations are usually a desktop GUI application.
 
