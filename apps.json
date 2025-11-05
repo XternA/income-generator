@@ -25,7 +25,9 @@
         "is_enabled": true,
         "service_enabled": true,
         "service_tag": {
-            "arm32": "arm32v7"
+            "amd64": "igm",
+            "arm64": "igm",
+            "arm32": "igm"
         },
         "install_limit": 10
     },
