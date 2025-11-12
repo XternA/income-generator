@@ -5,20 +5,12 @@ set ARGS="%*"
 set REPO="https://github.com/XternA/income-generator.git"
 set TOOL_DIR="~/.igm"
 
-where winget >nul 2>&1
-if %errorlevel% neq 0 (
+where winget >nul 2>&1 || (
     echo No winget found on the system. Please install winget before proceeding.
     exit /b 1
 )
 
-where winget >nul 2>&1
-if %errorlevel% neq 0 (
-    echo No git found on the system. Attempting to install git...
-    winget install -i Git.Git
-)
-
-where wsl >nul 2>&1
-if %errorlevel% neq 0 (
+where wsl >nul 2>&1 || (
     echo No Windows Subsystem for Linux found on the system. Ensure WSL is enabled before proceeding.
     exit /b 1
 )
@@ -30,12 +22,10 @@ exit /b 0
 
 REM -- Sub-calls -------------
 :CheckAndRegisterAlias
-wsl -e sh -c "[ -f $HOME/.aliases ]"
-if %errorlevel% equ 0 (
-    wsl grep -q "alias igm=" "$HOME/.aliases" || call :RegisterToAliases
-) else (
-    wsl grep -q "alias igm=" "$HOME/.${SHELL##*/}rc" || call :RegisterToRC
-)
+wsl -e sh -c "if [ -f $HOME/.aliases ]; then grep -q 'alias igm=' $HOME/.aliases || echo 'REGISTER_ALIASES'; else grep -q 'alias igm=' $HOME/.${SHELL##*/}rc || echo 'REGISTER_RC'; fi" > %TEMP%\igm_check.tmp
+findstr /C:"REGISTER_ALIASES" %TEMP%\igm_check.tmp >nul 2>&1 && call :RegisterToAliases
+findstr /C:"REGISTER_RC" %TEMP%\igm_check.tmp >nul 2>&1 && call :RegisterToRC
+del %TEMP%\igm_check.tmp >nul 2>&1
 exit /b 0
 
 :RegisterToAliases
