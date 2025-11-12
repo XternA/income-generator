@@ -15,7 +15,7 @@ services:
         dns:
             - 1.1.1.1
             - 8.8.8.8
-        cpus: $ALT_MIN_CPU_LIMIT
+        cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
@@ -51,7 +51,7 @@ services:
 
     packetshare-pot:
         container_name: packetshare-pot
-        image: ghcr.io/xterna/packetshare-pot
+        image: ghcr.io/xterna/packetshare-pot${PACKETSHARE_SERVICE_TAG:-}
         restart: always
         hostname: $DEVICE_ID
         labels:
@@ -65,7 +65,7 @@ services:
         dns:
             - 1.1.1.1
             - 8.8.8.8
-        cpus: $ALT_MIN_CPU_LIMIT
+        cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:

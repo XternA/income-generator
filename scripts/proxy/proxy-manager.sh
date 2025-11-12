@@ -275,7 +275,7 @@ install_proxy_instance() {
 
         echo
         set_host_suffix "-${install_count}"
-        $CONTAINER_ALIAS container prune -f > /dev/null 2>&1
+        $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
         $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d
         install_count=$((install_count + 1))
         proxy_entry_pointer=$((proxy_entry_pointer + 1))
@@ -363,7 +363,7 @@ remove_proxy_instance() {
     done < "$PROXY_FILE"
 
     $WATCHTOWER restore
-    $CONTAINER_ALIAS volume prune -a -f > /dev/null 2>&1
+    $CONTAINER_ALIAS volume prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
     rm -rf $PROXY_FOLDER_ACTIVE
 
     echo "Proxy application uninstall complete."

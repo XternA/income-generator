@@ -73,71 +73,6 @@ option_2() {
     done
 }
 
-option_7() {
-    while true; do
-        display_banner
-        options="(1-3)"
-
-        echo "1. Docker Housekeeping"
-        echo "2. Install Docker"
-        echo "3. Uninstall Docker"
-        echo "0. Return to Main Menu"
-        echo
-        printf "Select an option $options: "; read -r option
-
-        case $option in
-            1)
-                while true; do
-                    display_banner
-                    printf "About to clean up orphaned applications and downloaded images.\n"
-                    printf "Running orphaned applications won't be cleaned up unless stopped.\n\n"
-                    printf "Do you want to perform clean up? (Y/N): "; read -r yn
-
-                    case $yn in
-                        [Yy]*)
-                            display_banner
-                            printf "Removing orphaned applications, volumes and downloaded images...\n\n"
-                            $CONTAINER_ALIAS system prune -a -f --volumes
-                            printf "\nCleanup completed.\n"
-                            printf "\nPress Enter to continue..."; read -r input
-                            break
-                            ;;
-                        [Nn]*)
-                            break
-                            ;;
-                        *)
-                            printf "\nPlease input yes (Y/y) or no (N/n).\n"
-                            printf "\nPress Enter to continue..."; read -r input
-                            ;;
-                    esac
-                done
-                ;;
-            2)
-                display_banner
-                printf "Installing Docker...\n\n"
-                sh scripts/$CONTAINER_ALIAS-install.sh
-                sh scripts/runtime/container-config.sh --register
-                sh scripts/emulation-layer.sh --add
-                printf "\nPress Enter to continue..."; read -r input
-                ;;
-            3)
-                display_banner
-                printf "Uninstalling Docker...\n\n"
-                sh scripts/$CONTAINER_ALIAS-uninstall.sh
-                sh scripts/emulation-layer.sh --remove
-                printf "\nPress Enter to continue..."; read -r input
-                ;;
-            0)
-                break  # Return to the main menu
-                ;;
-            *)
-                printf "\nInvalid option. Please select a valid option $options.\n"
-                printf "\nPress Enter to continue..."; read -r input
-                ;;
-        esac
-    done
-}
-
 option_8() {
     while true; do
         display_banner
@@ -404,7 +339,7 @@ case "$1" in
         echo "  igm show    [app|proxy|group]   List installed and running applications, optionally grouped."
         echo "  igm deploy                      Launch the install manager for deploying applications."
         echo "  igm redeploy                    Redeploy the last installed application state."
-        echo "  igm clean                       Cleanup orphaned applications, volumes and downloaded images."
+        echo "  igm clean   [all]               Cleanup orphaned applications, volumes. (all: include orphaned images)."
 
         printf "\n[${BLUE}Proxy${NC}]\n"
         echo "  igm proxy                       Launch the proxy tool menu."
@@ -503,8 +438,8 @@ case "$1" in
         ;;
     clean)
         display_banner
-        printf "Cleaning up orphaned applications, volumes and images...\n\n"
-        $CONTAINER_ALIAS system prune -a -f --volumes
+        igm_cleanup "$2" --cli
+        clear
         ;;
     app|service)
         $APP_SELECTION --import

@@ -30,6 +30,10 @@ export COMPOSE_DIR="$ROOT_DIR/compose"
 export PROXY_FILE="$ROOT_DIR/proxies.txt"
 export PROXY_INSTALL_LIMIT="$ROOT_DIR/.env.proxy.limit"
 
+# Shared Docker labels for scoped operations
+export IGM_PROJECT_LABEL="project=standard"
+export IGM_PROXY_PROJECT_LABEL="project=proxy"
+
 # Shared system files
 export SYSTEM_ENV_FILES="
 --env-file $ENV_FILE
