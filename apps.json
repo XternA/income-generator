@@ -228,7 +228,11 @@
             "PACKETSHARE_PASSWORD"
         ],
         "is_enabled": true,
-        "service_enabled": true
+        "service_enabled": true,
+        "service_tag": {
+            "amd64": "igm",
+            "arm64": "igm"
+        }
     },
     {
         "name": "NETWORK3",
