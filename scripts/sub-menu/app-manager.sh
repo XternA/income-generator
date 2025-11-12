@@ -201,12 +201,12 @@ install_applications() {
         printf "Pulling latest image...\n\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
 
-        proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+        proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
         [ "$proxy_is_active" ] && $WATCHTOWER modify_only
 
         $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
         echo
-        $CONTAINER_ALIAS container prune -f
+        $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
         sleep 1.5
 
         display_banner
@@ -240,12 +240,12 @@ reinstall_applications() {
                 display_banner
                 printf "Pulling latest image...\n\n"
 
-                proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+                proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
                 [ "$proxy_is_active" ] && $WATCHTOWER modify_only
 
                 $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
                 echo
-                $CONTAINER_ALIAS container prune -f
+                $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
                 sleep 1.5
 
                 display_banner
@@ -297,7 +297,7 @@ stop_applications() {
     printf "Stopping applications...\n\n"
 
     compose_files=$ALL_COMPOSE_FILES
-    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
     [ "$proxy_is_active" ] && compose_files=$APP_COMPOSE_FILES
 
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
@@ -333,10 +333,10 @@ remove_applications() {
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
 
-    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)"
+    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
     [ "$proxy_is_active" ] && $WATCHTOWER deploy
 
-    $CONTAINER_ALIAS container prune -f
+    $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
     printf "\nAll installed applications and volumes removed.\n"
     printf "\nPress Enter to continue..."; read -r input
 }
@@ -354,6 +354,78 @@ remove_application() {
 show_application_log() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
     $CONTAINER_ALIAS logs --since "$(date '+%Y-%m-%d')T00:00:00" "$1"
+    printf "\nPress Enter to continue..."; read -r _
+}
+
+igm_cleanup() {
+    clean_all=false
+    cli_mode=false
+
+    for arg in "$@"; do
+        case "$arg" in
+            --all|all) clean_all=true ;;
+            --cli) cli_mode=true ;;
+        esac
+    done
+
+    printf "Cleaning up IGM resources...\n\n"
+    if [ "$cli_mode" = true ]; then        
+        if [ "$clean_all" = true ]; then
+            printf "${RED}Mode: ${YELLOW}Deep cleanup\n  - Remove stopped applications and images${NC}\n\n"
+        else
+            printf "${RED}Mode: ${YELLOW}Light cleanup\n  - Remove stopped applications, keep images${NC}\n\n"
+        fi
+    fi
+
+    # Remove stopped containers
+    if [ "$clean_all" = true ]; then
+        printf "${BLUE}[1/4] Removing stopped/orphaned applications${NC}\n"
+    else
+        printf "${BLUE}[1/3] Removing stopped/orphaned applications${NC}\n"
+    fi
+    $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
+    printf "\n"
+
+    # Remove unused images (if --all flag)
+    if [ "$clean_all" = true ]; then
+        printf "${BLUE}[2/4] Removing unused application images${NC}\n"
+
+        # Extract, strip variables, deduplicate
+        igm_images=$(awk '/^[[:space:]]*image:/ {img=$2; gsub(/\$\{[^}]*\}/,"",img); if(img!="" && !seen[img]++) print img}' "$COMPOSE_DIR"/*.yml 2>/dev/null)
+
+        # Collect all IGM image IDs (batch operation)
+        if [ -n "$igm_images" ]; then
+            all_img_ids=""
+            for img in $igm_images; do
+                img_ids=$($CONTAINER_ALIAS images -q "$img" 2>/dev/null || true)
+                all_img_ids="$all_img_ids $img_ids"
+            done
+            # Remove all collected image IDs in one call
+            if [ -n "$all_img_ids" ]; then
+                $CONTAINER_ALIAS rmi $all_img_ids 2>/dev/null || true
+            fi
+        fi
+        printf "\n"
+    fi
+
+    # Remove unused volumes
+    if [ "$clean_all" = true ]; then
+        printf "${BLUE}[3/4] Removing unused volumes${NC}\n"
+    else
+        printf "${BLUE}[2/3] Removing unused volumes${NC}\n"
+    fi
+    $CONTAINER_ALIAS volume prune -f --filter "label=$IGM_PROJECT_LABEL"
+    printf "\n"
+
+    # Remove unused networks
+    if [ "$clean_all" = true ]; then
+        printf "${BLUE}[4/4] Removing unused networks${NC}\n"
+    else
+        printf "${BLUE}[3/3] Removing unused networks${NC}\n"
+    fi
+    $CONTAINER_ALIAS network prune -f --filter "label=$IGM_PROJECT_LABEL"
+
+    printf "\n${GREEN}Cleanup completed.${NC}\n"
     printf "\nPress Enter to continue..."; read -r _
 }
 

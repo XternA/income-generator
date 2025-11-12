@@ -78,10 +78,7 @@ _runtime_cleanup() {
         case $yn in
             [Yy]*)
                 display_banner
-                printf "Removing orphaned applications, volumes and downloaded images...\n\n"
-                $CONTAINER_ALIAS system prune -a -f --volumes
-                printf "\nCleanup completed.\n"
-                printf "\nPress Enter to continue..."; read -r _
+                igm_cleanup --all
                 break
                 ;;
             ""|[Nn]*)
