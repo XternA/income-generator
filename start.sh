@@ -74,21 +74,20 @@ option_2() {
 }
 
 option_8() {
-    while true; do
-        display_banner
-        options="(1-5)"
+    options="(1-5)"
 
-        printf "Pick a new resource limit utilization based on current hardware limits.\n\n"
-        printf "%s\n" "$STATS"
-        echo
+    while true; do
+        display_banner    
+
+        printf "Pick a new resource limit utilization based\non the current hardware limits.\n\n"
+        printf "%s\n\n" "$STATS"
         echo "1. BASE   -->   350MB RAM"
         echo "2. MIN    -->   12.5% Total RAM"
         echo "3. LOW    -->   18.75% Total RAM"
         echo "4. MID    -->   25% Total RAM"
         echo "5. MAX    -->   50% Total RAM"
         [ "$1" = "quick_menu" ] && echo "0. Exit" || echo "0. Return to Main Menu"
-        echo
-        printf "Select an option $options: "; read -r option
+        printf "\nSelect an option $options: "; read -r option
 
         case $option in
             1|2|3|4|5)
@@ -106,13 +105,11 @@ option_8() {
                 printf "\nRedeploy applications for new limits to take effect.\n"
                 ;;
             0)
-                break  # Return to the main menu
-                ;;
+                break ;; # Return to the main menu
             *)
-                printf "\nInvalid option. Please select a valid option $options.\n"
-                ;;
+                printf "\nInvalid option. Please select a valid option $options.\n" ;;
         esac
-        printf "\nPress Enter to continue..."; read -r input
+        printf "\nPress Enter to continue..."; read -r _
     done
 }
 
