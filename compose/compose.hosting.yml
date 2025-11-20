@@ -206,5 +206,31 @@ services:
                 max-size: 10k
                 max-file: 1
 
+    proxybase:
+        container_name: proxybase
+        image: proxybase/proxybase
+        restart: always
+        platform: linux/amd64
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
+        environment:
+            - USER_ID=${PROXYBASE_USER_ID:-}
+            - DEVICE_NAME=${DEVICE_ID:-}
+        profiles:
+            - ${PROXYBASE:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1
+
 volumes:
     bitping-data:

@@ -103,27 +103,28 @@ App registration can also be done in the tool via `Setup Configuration` process.
 
 | Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
 | --- | :---: | :---: | :---: | :---: | :---: |
-| **[EARNAPP](https://tinyurl.com/nhc97kh6)**         | :white_check_mark: | :x:                |15|1               | PayPal |
-| **[HONEYGAIN](https://tinyurl.com/4pz24raa")**      | :white_check_mark: | :x:                |10|1               | PayPal, Crypto |
-| **[PEER2PROFIT](https://tinyurl.com/3besa7wy)**     | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
-| **[TRAFFMONETIZER](https://tinyurl.com/4n9d4r54)**  | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
-| **[PAWNS](https://tinyurl.com/3m25k4av)**           | :white_check_mark: | :x:                |Unlimited|1        | PayPal, Crypto |
-| **[REPOCKET](https://tinyurl.com/3w6ekwyx)**        | :white_check_mark: | :white_check_mark: |Unlimited|2        | PayPal, Wise |
-| **[PACKETSTREAM](https://tinyurl.com/22wccert)**    | :white_check_mark: | :x:                |Unlimited|1        | PayPal |
-| **[PROXYRACK](https://tinyurl.com/4ypm8wya)**       | :white_check_mark: | :white_check_mark: |500|1              | PayPal |
-| **[PROXYLITE](https://tinyurl.com/ynhxy5we)**       | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
-| **[EARNFM](https://tinyurl.com/3pxam34v)**          | :white_check_mark: | :white_check_mark: |Unlimited|1        | PayPal, Crypto |
-| **[SPEEDSHARE](https://tinyurl.com/bdddwn9e)**      | :white_check_mark: | :x:                |Unlimited|1        | PayPal, Crypto |
-| **[SPIDE](https://tinyurl.com/y3xtfd9z)**           | :white_check_mark: | :x:                |Unlimited|Unlimited| PayPal, Crpyto |
-| **[GRASS](https://tinyurl.com/msfkrace)**           | :white_check_mark: | :x:                |Unlimited|1        | Crypto |
-| **[MYSTERIUM](https://tinyurl.com/5dkekpmc)**       | :white_check_mark: | :white_check_mark: |Unlimited|Unlimited| Crypto |
-| **[BITPING](https://tinyurl.com/2h5jam3b)**         | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
-| **[GAGANODE](https://tinyurl.com/mr2fb8jf)**        | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
-| **[NODEPAY](https://tinyurl.com/uhd3a9xw)**         | :white_check_mark: | :x:                |250|Unlimited      | Coming Soon |
-| **[BEARSHARE](https://tinyurl.com/4568a69a)**       | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
-| **[PACKETSHARE](https://tinyurl.com/bdhdvaex)**     | :white_check_mark: | :x:                |Unlimited|1        | PayPal |
-| **[NETWORK3](https://tinyurl.com/fe8knv3t)**        | :white_check_mark: | :white_check_mark: |Unlimited|1        | Crypto |
-| **[WIPTER](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                |Unlimited|Unlimited| Crypto |
+| **[EARNAPP](https://tinyurl.com/nhc97kh6)**         | :white_check_mark: | :x:                | 15        | 1         | PayPal |
+| **[HONEYGAIN](https://tinyurl.com/4pz24raa")**      | :white_check_mark: | :x:                | 10        | 1         | PayPal, Crypto |
+| **[PEER2PROFIT](https://tinyurl.com/3besa7wy)**     | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
+| **[TRAFFMONETIZER](https://tinyurl.com/4n9d4r54)**  | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
+| **[PAWNS](https://tinyurl.com/3m25k4av)**           | :white_check_mark: | :x:                | Unlimited | 1         | PayPal, Crypto |
+| **[REPOCKET](https://tinyurl.com/3w6ekwyx)**        | :white_check_mark: | :white_check_mark: | Unlimited | 2         | PayPal, Wise |
+| **[PACKETSTREAM](https://tinyurl.com/22wccert)**    | :white_check_mark: | :x:                | Unlimited | 1         | PayPal |
+| **[PROXYRACK](https://tinyurl.com/4ypm8wya)**       | :white_check_mark: | :white_check_mark: | 500       | 1         | PayPal |
+| **[PROXYLITE](https://tinyurl.com/ynhxy5we)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[EARNFM](https://tinyurl.com/3pxam34v)**          | :white_check_mark: | :white_check_mark: | Unlimited | 1         | PayPal, Crypto |
+| **[SPEEDSHARE](https://tinyurl.com/bdddwn9e)**      | :white_check_mark: | :x:                | Unlimited | 1         | PayPal, Crypto |
+| **[SPIDE](https://tinyurl.com/y3xtfd9z)**           | :white_check_mark: | :x:                | Unlimited | Unlimited | PayPal, Crpyto |
+| **[GRASS](https://tinyurl.com/msfkrace)**           | :white_check_mark: | :x:                | Unlimited | 1         | Crypto |
+| **[MYSTERIUM](https://tinyurl.com/5dkekpmc)**       | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
+| **[BITPING](https://tinyurl.com/2h5jam3b)**         | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[GAGANODE](https://tinyurl.com/mr2fb8jf)**        | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[NODEPAY](https://tinyurl.com/uhd3a9xw)**         | :white_check_mark: | :x:                | 250       | Unlimited | Crypto |
+| **[BEARSHARE](https://tinyurl.com/4568a69a)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[PACKETSHARE](https://tinyurl.com/bdhdvaex)**     | :white_check_mark: | :x:                | Unlimited | 1         | PayPal |
+| **[NETWORK3](https://tinyurl.com/fe8knv3t)**        | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[WIPTER](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                | Unlimited | Unlimited | Crypto |
+| **[PROXYBASE](https://tinyurl.com/bdf56ajm)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 
 ### Additional Applications
 These apps aren’t supported by IGM yet. You can run them alongside IGM to earn in the meantime. Once supported, they will be added to IGM.
