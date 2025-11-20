@@ -254,5 +254,14 @@
             "VNC_PASS"
         ],
         "is_enabled": true
+    },
+    {
+        "name": "PROXYBASE",
+        "url": "https://tinyurl.com/ye233yts",
+        "description": " Log into dashboard to obtain account User ID.",
+        "properties": [
+            "PROXYBASE_USER_ID"
+        ],
+        "is_enabled": true
     }
 ]
