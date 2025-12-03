@@ -4,7 +4,7 @@
 __UUID_GENERATOR=1
 
 generate_uuid() {
-    if [ "$(uname)" = "Darwin" ]; then
+    if [ "$OS_IS_DARWIN" = "true" ]; then
         uuid="$(uuidgen | tr 'A-Z' 'a-z')"
     else
         uuid="$(cat /proc/sys/kernel/random/uuid)"

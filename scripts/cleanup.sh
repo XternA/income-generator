@@ -1,3 +1,3 @@
 #!/bin/sh
 
-[ "$(uname)" = 'Darwin' ] && rm -rf "$ENV_FILE.bk" "$ENV_SYSTEM_FILE.bk"
+[ "$OS_IS_DARWIN" = "true" ] && rm -rf "$ENV_FILE.bk" "$ENV_SYSTEM_FILE.bk"

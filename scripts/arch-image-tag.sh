@@ -1,14 +1,6 @@
 #!/bin/sh
 
-ARCH="$(uname -m)"
-
-case "$ARCH" in
-    x86_64|amd64) ARCH="amd64" ;;
-    arm64|aarch64) ARCH="arm64" ;;
-    armv7l|armv6l) ARCH="arm32" ;;
-esac
-
-APP_DATA=$(jq -r --arg ARCH "$ARCH" '
+APP_DATA=$(jq -r --arg ARCH "$OS_DOCKER_ARCH" '
     .[] | select(.image_tag != null or .service_tag != null) |
     {name: .name, image_tag: .image_tag[$ARCH], service_tag: .service_tag[$ARCH]} |
     "\(.name) \(.image_tag) \(.service_tag)"

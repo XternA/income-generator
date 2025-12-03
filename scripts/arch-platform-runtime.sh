@@ -1,11 +1,5 @@
 #!/bin/sh
 
-case $(uname -m) in
-    x86_64|amd64) ARCH=amd64 ;;
-    arm64|aarch64) ARCH=arm64 ;;
-    armv7l|armv6l) ARCH=arm32 ;;
-esac
-
 run_platform_override() {
     : > "$ENV_PLATFORM_OVERRIDE_FILE"
     extract_all_app_data .platform_override | while read -r app_name array; do
@@ -17,7 +11,7 @@ run_platform_override() {
         old_ifs=$IFS
         IFS=','
         for arch in $values; do
-            if [ "$arch" = "$ARCH" ]; then
+            if [ "$arch" = "$OS_DOCKER_ARCH" ]; then
                 printf "%s_PLATFORM=linux/%s\n" "$app_name" "$key" >> "$ENV_PLATFORM_OVERRIDE_FILE"
             fi
         done

@@ -42,6 +42,9 @@ export SYSTEM_ENV_FILES="
 --env-file $ENV_PLATFORM_OVERRIDE_FILE
 "
 
+# Pre-source components ----------------
+. scripts/system-detect.sh
+
 # Declared util component ----------------
 export SYS_INFO="sh scripts/arch.sh"
 export ENCRYPTOR="sh scripts/encryptor.sh"
@@ -53,16 +56,13 @@ export BACKUP_RESTORE="sh scripts/backup-restore.sh"
 export SET_LIMIT="sh scripts/set-limit.sh"
 export UPDATE_CHECKER="sh scripts/check-tool-update.sh"
 export VIEW_CONFIG="sh scripts/config-viewer.sh"
-export OS="$(sh scripts/platform.sh --platform)"
-export OS_ARCH="$(sh scripts/platform.sh --arch)"
-export IS_ARM_ARCH="$(sh scripts/platform.sh --is-arm)"
 
 # Declared quick util operation ----------------
 export ENCRYPT_CRED="$ENCRYPTOR -es $ENV_FILE"
 export DECRYPT_CRED="$ENCRYPTOR -ds $ENV_FILE"
 
 # Declare tool alias ----------------
-case "$(uname)" in
+case "$OS_DISPLAY" in
     Linux) export SED_INPLACE="sed -i" ;;
     Darwin) export SED_INPLACE="gsed -i" ;;
 esac

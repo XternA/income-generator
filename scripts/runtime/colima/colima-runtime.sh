@@ -13,7 +13,7 @@ _has_colima_runtime() {
 
 _colima() {
     set -- "$@"
-    if [ "$IS_ARM_ARCH" = "false" ]; then
+    if [ "$OS_IS_ARM" = "false" ]; then
         colima start --cpu "$1" --memory "$2" --disk "$3" --vm-type=qemu
     else
         colima start --cpu "$1" --memory "$2" --disk "$3" --vm-type=vz --vz-rosetta
