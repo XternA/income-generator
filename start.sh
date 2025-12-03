@@ -318,44 +318,7 @@ $DECRYPT_CRED
 case "$1" in
     -h|--help|help)
         display_banner
-        printf "Quick action menu of common operations.\n\n"
-        echo "Usage: igm ${RED}|${NC} igm [option] ${RED}|${NC} igm [option] [arg]"
-
-        printf "\n[${BLUE}General${NC}]\n"
-        echo "  igm                             Launch the Income Generator tool."
-        echo "  igm help                        Display this help usage guide."
-        echo "  igm version                     Show the current version of Income Generator tool."
-        echo "  igm update                      Check and update Income Generator tool if available."
-
-        printf "\n[${BLUE}Manage${NC}]\n"
-        echo "  igm start   [name]              Start one or all currently deployed applications."
-        echo "  igm stop    [name]              Stop one or all currently deployed running applications."
-        echo "  igm restart [name]              Restart a currently deployed running application."
-        echo "  igm remove  [name]              Stop and remove one or all currently deployed applications."
-        echo "  igm logs    [name]              Show logs for the selected application."
-        echo "  igm show    [app|proxy|group]   List installed and running applications, optionally grouped."
-        echo "  igm deploy                      Launch the install manager for deploying applications."
-        echo "  igm redeploy                    Redeploy the last installed application state."
-        echo "  igm clean   [all]               Cleanup orphaned applications, volumes. (all: include orphaned images)."
-
-        printf "\n[${BLUE}Proxy${NC}]\n"
-        echo "  igm proxy                       Launch the proxy tool menu."
-        echo "  igm proxy setup                 Setup and define list of proxy entries."
-        echo "  igm proxy app                   Enable or disable proxy applications for deployment."
-        echo "  igm proxy install               Install selected proxy applications."
-        echo "  igm proxy remove                Remove all currently deployed proxy applications."
-        echo "  igm proxy reset                 Clear all proxy entries and remove proxy file."
-        echo "  igm proxy id                    Show active applications with multi-UUIDs and instructions."
-        echo "  igm proxy limit                 Configure proxy application install limit."
-
-        printf "\n[${BLUE}Configuration${NC}]\n"
-        echo "  igm app|service                 Enable or disable applications/services for deployment."
-        echo "  igm setup                       Setup credentials for applications to be deployed."
-        echo "  igm view                        View all configured application credentials."
-        echo "  igm edit                        Edit configured credentials and config file directly."
-        echo "  igm limit                       Set the application resource limits."
-        echo "  igm editor                      Change the default editor tool to use."
-        echo "  igm runtime                     Configure or manage the container runtime engine."
+        . scripts/help.sh
         ;;
     -v|--version|version)
         ver=$(git describe --tags --abbrev=0 2>/dev/null || echo "unknown")
