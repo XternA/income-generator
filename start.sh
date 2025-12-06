@@ -114,19 +114,21 @@ option_8() {
 }
 
 run_updater() {
+    display_banner
     case "$1" in
         --cli)
-            display_banner
             $UPDATE_CHECKER --update
             ;;
+        --force)
+            $UPDATE_CHECKER --force
+            ;;
         *)
-            display_banner
             $UPDATE_CHECKER --update
             unset NEW_UPDATE
             ;;
     esac
     $APP_SELECTION --import
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 manage_tool() {
@@ -431,7 +433,10 @@ case "$1" in
         clear
         ;;
     update)
-        run_updater --cli
+        case "$2" in
+            --force) run_updater --force ;;
+            *) run_updater --cli ;;
+        esac
         clear
         ;;
     runtime)
