@@ -380,7 +380,6 @@ case "$1" in
         fi
         ;;
     logs)
-        display_banner
         show_application_log "$2"
         clear
         ;;

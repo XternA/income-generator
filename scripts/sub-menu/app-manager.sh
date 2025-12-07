@@ -353,7 +353,14 @@ remove_application() {
 
 show_application_log() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    $CONTAINER_ALIAS logs --since "$(date '+%Y-%m-%d')T00:00:00" "$1"
+
+    clear
+    logs_48h=$($CONTAINER_ALIAS logs --since 48h "$1" 2>&1)
+    if [ -n "$logs_48h" ]; then
+        printf "%s\n" "$logs_48h"
+    else
+        $CONTAINER_ALIAS logs "$1"
+    fi
     printf "\nPress Enter to continue..."; read -r _
 }
 
