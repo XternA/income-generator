@@ -9,16 +9,22 @@ is_update_available() {
     [ "$V2" -gt "$V1" ]
 }
 
+get_current_version() {
+    ver=$(git describe --tags 2>/dev/null)
+    echo "${ver%%-*}"
+}
+
 case "$1" in
-    --force) 
+    --force)
         printf "Forcing update to latest version...\n"
-        git fetch --quiet && git reset --hard --quiet && git pull --quiet 2>/dev/null
+        { git fetch --quiet && git reset --hard --quiet && git pull --quiet; } 2>/dev/null
         printf "\nUpdate complete ✅\n"
         ;;
     --update)
         printf "Checking for new updates available...\n\n"
 
-        CURRENT=$(git describe --tags --abbrev=0 2>/dev/null)
+        git fetch --tags --quiet 2>/dev/null
+        CURRENT=$(get_current_version)
         LATEST=$(curl -s --connect-timeout 3 --max-time 3 "$URL/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null)
 
         if is_update_available "$CURRENT" "$LATEST"; then
@@ -29,11 +35,12 @@ case "$1" in
             case "$choice" in
                 [Yy]*)
                     printf "\nUpdating to latest version..."
-                    git fetch --tags --quiet 2>/dev/null && git checkout "$LATEST" --quiet 2>/dev/null
+                    git fetch --depth=1 origin tag "$LATEST" --quiet 2>/dev/null && git reset --hard "$LATEST" --quiet 2>/dev/null
                     if [ $? -eq 0 ]; then
                         sleep 1.2
                         printf "\rUpdate complete ✅            \n"
-                    else 
+                        rm -f /tmp/igm_updater
+                    else
                         printf "\rUpdate failed ❌              \n"
                         exit 1
                     fi
@@ -56,8 +63,8 @@ case "$1" in
             [ "$NOW" -gt 0 ] && [ "$CACHE_TIME" -gt 0 ] 2>/dev/null && [ $((NOW - CACHE_TIME)) -lt 900 ] && tail -n +2 "$CACHE" && exit 0
         fi
 
-        # Quick check (1 second timeout)
-        CURRENT=$(git describe --tags --abbrev=0 2>/dev/null)
+        git fetch --tags --quiet 2>/dev/null
+        CURRENT=$(get_current_version)
         LATEST=$(curl -s --connect-timeout 1 --max-time 1 "$URL/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null)
 
         # Store timestamp on first line, message on remaining lines
@@ -65,11 +72,11 @@ case "$1" in
         if is_update_available "$CURRENT" "$LATEST"; then
             {
                 echo "$NOW"
-                printf "\033[1m\033[5m\033[91m%s\033[0m" "New tool update available! 🚀"
-                printf "\nCurrent version: %s → Update to: %s\n" "$CURRENT" "$LATEST"
+                printf "\033[1m\033[5m\033[91m%s\033[0m\n" "New tool update available! 🚀"
             } > "$CACHE"
+            tail -n +2 "$CACHE"
         else
-            echo "$NOW" > "$CACHE"  # Timestamp only = no update
+            echo "$NOW" > "$CACHE"
         fi
         ;;
 esac
