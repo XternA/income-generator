@@ -1,15 +1,12 @@
 #!/bin/sh
 
-case "$(uname)" in
-    Linux)
-        DIR_STR="/data"
-        DIR_ESCAPED="\/data"
-        ;;
-    Darwin)
-        DIR_STR="/usr/local/data"
-        DIR_ESCAPED="\/usr\/local\/data"
-        ;;
-esac
+if [ "$OS_IS_DARWIN" = "true" ]; then
+    DIR_STR="/usr/local/data"
+    DIR_ESCAPED="\/usr\/local\/data"
+else
+    DIR_STR="/data"
+    DIR_ESCAPED="\/data"
+fi
 
 if [ -f "$ENV_SYSTEM_FILE" ]; then
     if grep -q "^DATA_DIR=" "$ENV_SYSTEM_FILE"; then

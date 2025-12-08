@@ -23,7 +23,7 @@ remove_cron_job() {
 }
 
 # Main scripts
-if [ "$(uname -m)" != "x86_64" ]; then
+if [ "$OS_DOCKER_ARCH" != "amd64" ]; then
     case "$1" in
         --add) add_cron_job ;;
         --remove) remove_cron_job ;;

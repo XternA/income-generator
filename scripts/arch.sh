@@ -1,22 +1,19 @@
 #!/bin/sh
 
-HOST="$(hostname)"
-OS="$(uname -s)"
-RAW_ARCH="$(uname -m)"
+. scripts/system-detect.sh
 
-case $RAW_ARCH in
-    arm64|aarch64) ARCH="arm64v8" ;;
-    armv7l) ARCH="arm32v7" ;;
-    *) ARCH="latest" ;;
-esac
+OS="$OS_DISPLAY"
+RAW_ARCH="$OS_RAW_ARCH"
+ARCH="$OS_DOCKER_ARCH"
 
-if [ "$OS" = "Darwin" ]; then
+if [ "$OS_IS_DARWIN" = "true" ]; then
     DISTRO="$OS"
     OS="$(sw_vers -productName)"
     VERSION="$(sw_vers -productVersion)"
-
-    CODENAME=$(awk '/SOFTWARE LICENSE AGREEMENT FOR macOS/ {print $NF}' \
-        /System/Library/CoreServices/Setup\ Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf | sed 's/.$//')
+    CODENAME=$(
+        awk '/SOFTWARE LICENSE AGREEMENT FOR macOS/ {printf "%s", substr($NF, 1, length($NF)-1)}' \
+        /System/Library/CoreServices/Setup\ Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf
+    )
 elif [ -f /etc/os-release ]; then
     while IFS='=' read -r key val; do
         val=${val%\"}; val=${val#\"}
@@ -40,18 +37,10 @@ elif [ -f /etc/issue ]; then
     DISTRO=$(echo "$DISTRO" | tr A-Z a-z)
     CODENAME=""
 else
-    DISTRO=$(uname -s | tr A-Z a-z)
+    DISTRO=$(echo "$OS" | tr A-Z a-z)
     CODENAME=""
     VERSION=""
 fi
-
-DISPLAY_ARCH="$RAW_ARCH ($ARCH)"
-
-echo "Hostname:         $HOST"
-echo "Platform:         $OS ($DISTRO)"
-echo "Distro Ver:       $CODENAME $VERSION"
-echo "Architecture:     $DISPLAY_ARCH"
-echo
 
 if [ -f "$ENV_SYSTEM_FILE" ]; then
     $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=$HOST/" "$ENV_SYSTEM_FILE" || echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
@@ -60,3 +49,10 @@ else
     echo "DEVICE_ID=$HOST" >> "$ENV_SYSTEM_FILE"
     echo "ARCH=$ARCH" >> "$ENV_SYSTEM_FILE"
 fi
+
+# Display system information
+printf "Hostname:         $HOST
+Platform:         $OS ($DISTRO)
+Distro Ver:       $CODENAME $VERSION
+Architecture:     $RAW_ARCH ($OS_DISPLAY_ARCH)
+"

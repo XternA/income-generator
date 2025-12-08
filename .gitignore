@@ -1,4 +1,5 @@
+.DS_Store
 .env
 .env.*
 proxies.txt
-proxy_uuid/*
+proxy_uuid/

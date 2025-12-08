@@ -1,18 +1,5 @@
 #!/bin/sh
 
-has_docker=$(command -v docker 2> /dev/null 1>&1)
-
-if [ "$(uname)" = "Linux" ]; then
-    if [ -n "$WSL_DISTRO_NAME" ]; then
-        OS="wsl"
-        has_docker="$(where.exe docker 2> /dev/null >&1)"
-    else
-        OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
-    fi
-elif [ "$(uname)" = "Darwin" ]; then
-    OS="darwin"
-fi
-
 remove_centos() {
     sudo yum remove -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
     sudo rm -rf /var/lib/docker
@@ -52,8 +39,14 @@ remove_wsl() {
 }
 
 # -----[ Main ]----------------------------------------------------------
+if [ "$OS_TYPE" = "wsl" ]; then
+    has_docker="$(where.exe docker 2> /dev/null >&1)"
+else
+    has_docker="$(command -v docker 2> /dev/null 1>&1)"
+fi
+
 if [ "$has_docker" ]; then
-    case $OS in
+    case $OS_TYPE in
         centos | rhel)
             remove_centos
             ;;
@@ -76,7 +69,7 @@ if [ "$has_docker" ]; then
             remove_wsl
             ;;
         *)
-            echo "Unsupported Unix distribution: $OS"
+            echo "Unsupported Unix distribution: $OS_TYPE"
             exit 1
             ;;
     esac

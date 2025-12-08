@@ -7,7 +7,7 @@ _install_runtime() {
     case "$1" in
         --docker)
             sh scripts/$CONTAINER_ALIAS-install.sh
-            [ ! "$OS" = "darwin" ] && [ "$IS_ARM_ARCH" = "true" ] && sh scripts/emulation-layer.sh --add
+            [ ! "$OS_TYPE" = "darwin" ] && [ "$OS_IS_ARM" = "true" ] && sh scripts/emulation-layer.sh --add
             ;;
         --colima) setup_runtime ;;
     esac
@@ -24,7 +24,7 @@ _uninstall_runtime() {
 }
 
 _setup_runtime() {
-    if [ "$OS" != "darwin" ]; then
+    if [ "$OS_TYPE" != "darwin" ]; then
         _install_runtime --docker
         printf "\nPress Enter to continue..."; read -r _
         return
@@ -60,7 +60,7 @@ _setup_runtime() {
 
 _remove_runtime() {
     display_banner
-    if [ "$OS" != "darwin" ]; then
+    if [ "$OS_TYPE" != "darwin" ]; then
         _install_runtime --docker
         return
     fi

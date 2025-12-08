@@ -1,7 +1,7 @@
 services:
     watchtower-igm:
         container_name: watchtower-igm
-        image: containrrr/watchtower
+        image: nickfedor/watchtower
         restart: always
         read_only: true
         security_opt:

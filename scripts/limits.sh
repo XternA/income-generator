@@ -2,10 +2,10 @@
 
 LIMIT_TYPE=${1:-min}
 
-if [ $(uname) = 'Linux' ]; then
+if [ "$OS_IS_LINUX" = "true" ]; then
     CPU_CORES=$(nproc)
     TOTAL_RAM=$(free -k | awk '/^Mem:/{print $2}')
-elif [ $(uname) = 'Darwin' ]; then
+elif [ "$OS_IS_DARWIN" = "true" ]; then
     CPU_CORES=$(sysctl -n hw.physicalcpu)
     TOTAL_RAM=$(sysctl -n hw.memsize)
     TOTAL_RAM=$((TOTAL_RAM / 1050))

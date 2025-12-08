@@ -1,15 +1,5 @@
 #!/bin/sh
 
-if [ "$(uname)" = "Linux" ]; then
-    if [ -n "$WSL_DISTRO_NAME" ]; then
-        OS="wsl"
-    else
-        OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"')
-    fi
-elif [ "$(uname)" = "Darwin" ]; then
-    OS="darwin"
-fi
-
 # CentOS/RHEL
 install_centos() {
     sudo yum install -y yum-utils
@@ -81,7 +71,7 @@ install_wsl() {
 
 # -----[ Main ]----------------------------------------------------------
 if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
-    case $OS in
+    case $OS_TYPE in
         centos | rhel)
             install_centos
             ;;
@@ -104,11 +94,11 @@ if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
             install_wsl
             ;;
         *)
-            echo "Unsupported Unix distribution: $OS"
+            echo "Unsupported Unix distribution: $OS_TYPE"
             exit 1
             ;;
     esac
-    if [ "$(uname)" = 'Linux' ]; then
+    if [ "$OS_IS_LINUX" = "true" ]; then
         sudo usermod -aG docker "$(whoami)"
         newgrp docker
     fi
