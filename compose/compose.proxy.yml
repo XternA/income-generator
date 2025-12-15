@@ -10,9 +10,13 @@ services:
         environment:
             - LOGLEVEL=info
             - PROXY=${PROXY_URL:-}
-            - EXTRA_COMMANDS=ip rule add iif lo ipproto udp dport 53 lookup main;
+            - TCP_AUTO_TUNING=1
+            - MTU=1500
         cap_add:
             - NET_ADMIN
+        security_opt:
+            - no-new-privileges:true
+        pids_limit: 200
         network_mode: bridge
         dns:
             - 1.1.1.1
