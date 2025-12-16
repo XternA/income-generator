@@ -440,6 +440,7 @@ show_applications() {
     display_banner --noline
 
     if [ -z "$HAS_CONTAINER_RUNTIME" ]; then
+        echo
         print_no_runtime
         return
     fi
