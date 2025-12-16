@@ -15,25 +15,24 @@ $(awk '
 EOF
 
 generate_uuid_files() {
-    app_data="jq -r '.[] | select(.is_enabled == true and .uuid_type != null) | \"\(.name) \(.uuid_type)\"' \"$JSON_FILE\""
-
     [ -d "$PROXY_FOLDER" ] || mkdir -p "$PROXY_FOLDER_ACTIVE"
 
+    app_data=$(jq -r '.[] | select(.is_enabled == true and .uuid_type != null) | "\(.name) \(.uuid_type)"' "$JSON_FILE")
     counter=1
-    while true; do
-        echo "$(eval $app_data)" | while read -r name uuid_type; do
+    
+    while [ "$counter" -le "$TOTAL_PROXIES" ]; do
+        echo "$app_data" | while read -r name uuid_type; do
             proxy_file="${PROXY_FOLDER}/${name}.uuid"
             uuid="$(generate_uuid "$uuid_type")"
 
             if [ -f "$proxy_file" ]; then
-                current_uuid_count="$(awk 'BEGIN {count=0} NF {count++} END {print count}' "$proxy_file")"
-                [ "$current_uuid_count" -lt "$TOTAL_PROXIES" ] && printf "${uuid}\n" >> "$proxy_file"
+                current_uuid_count=$(grep -c '[^[:space:]]' "$proxy_file" 2>/dev/null || echo 0)
+                [ "$current_uuid_count" -lt "$TOTAL_PROXIES" ] && echo "$uuid" >> "$proxy_file"
             else
-                printf "${uuid}\n" > "$proxy_file"
+                echo "$uuid" > "$proxy_file"
             fi
         done
-
-        [ "$counter" -ge "$TOTAL_PROXIES" ] && break || counter=$((counter + 1))
+        counter=$((counter + 1))
     done
 }
 
@@ -81,14 +80,14 @@ view_proxy_uuids() {
 }
 
 get_proxy_file() {
-    local app_name="$1"
+    app_name="$1"
     [ -f "${PROXY_FOLDER}/${app_name}.uuid" ] && echo "${PROXY_FOLDER}/${app_name}.uuid"
 }
 
 export_active_uuid() {
-    local uuid="$1"
-    local app_name="$2"
-    
+    uuid="$1"
+    app_name="$2"
+
     [ -d "$PROXY_FOLDER_ACTIVE" ] || mkdir -p "$PROXY_FOLDER_ACTIVE"
     echo "$uuid" >> "$PROXY_FOLDER_ACTIVE/${app_name}.uuid"
 }
