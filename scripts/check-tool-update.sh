@@ -35,7 +35,7 @@ case "$1" in
             case "$choice" in
                 [Yy]*)
                     printf "\nUpdating to latest version..."
-                    git fetch --depth=1 origin tag "$LATEST" --quiet 2>/dev/null && git reset --hard "$LATEST" --quiet 2>/dev/null
+                    git fetch --depth=1 origin "+refs/tags/$LATEST:refs/tags/$LATEST" --force --quiet 2>/dev/null && git reset --hard "$LATEST" --quiet 2>/dev/null
                     if [ $? -eq 0 ]; then
                         sleep 1.2
                         printf "\rUpdate complete ✅            \n"
@@ -72,7 +72,7 @@ case "$1" in
         if is_update_available "$CURRENT" "$LATEST"; then
             {
                 echo "$NOW"
-                printf "\033[1m\033[5m\033[91m%s\033[0m\n" "New tool update available! 🚀\n"
+                printf "\033[1m\033[5m\033[91m%s\033[0m\n" "New tool update available! 🚀"
             } > "$CACHE"
             tail -n +2 "$CACHE"
         else
