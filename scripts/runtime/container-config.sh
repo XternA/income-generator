@@ -1,7 +1,7 @@
 #!/bin/sh
 
 print_no_runtime() {
-    printf "No $CONTAINER_ALIAS runtime installed.\nPlease install container runtime from tool menu.\n"
+    printf "No $CONTAINER_ALIAS runtime installed.\nPlease install runtime engine from tool menu.\n"
     printf "\nPress Enter to continue..."; read -r input
 }
 

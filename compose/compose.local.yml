@@ -1,7 +1,7 @@
 services:
     earnapp:
         container_name: earnapp
-        image: ghcr.io/xterna/earnapp:alpine
+        image: ghcr.io/xterna/earnapp${EARNAPP_TAG:-}
         restart: always
         hostname: $DEVICE_ID
         labels:
