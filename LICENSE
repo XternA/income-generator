@@ -191,6 +191,28 @@ not agree to these terms and conditions, do not download, install, or use the so
    right to seek remedies and enforce compliance through legal or administrative means as
    deemed necessary by the Licensor.
 
+16. Third-Party Components and Services:
+
+   This Software may utilize, interact with, or depend upon third-party software, services,
+   APIs, applications, or resources ("Third-Party Components") that are subject to their own
+   separate terms of service, licenses, and policies. Such Third-Party Components include,
+   but are not limited to, containerization platforms, system utilities, external APIs, and
+   third-party applications integrated within or alongside the Software.
+
+   Licensee acknowledges and agrees that:
+      a. Licensor makes no representations or warranties regarding the availability,
+         functionality, accuracy, security, or legality of any Third-Party Components.
+
+      b. Licensee is solely responsible for reviewing and complying with all terms of
+         service, licenses, and policies governing Third-Party Components.
+
+      c. Licensor shall not be liable for any issues, damages, losses, or claims arising
+         from the use, unavailability, modification, or termination of any Third-Party
+         Components.
+
+      d. The inclusion or integration of Third-Party Components does not constitute an
+         endorsement by Licensor, and Licensee assumes all risks associated with their use.
+
 Please review this Agreement carefully before downloading, installing, or using the
 Software. By using the Software, you acknowledge that you have read, understood, and
 agree to be bound by the terms and conditions of this Agreement.
