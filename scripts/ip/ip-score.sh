@@ -1,6 +1,5 @@
 #!/bin/sh
 
-. scripts/shared-component.sh
 . scripts/ip/ip-util.sh
 
 display_banner() {

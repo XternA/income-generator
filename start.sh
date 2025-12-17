@@ -443,7 +443,7 @@ case "$1" in
         clear
         ;;
     ip)
-        sh scripts/ip/ip-score.sh
+        . scripts/ip/ip-score.sh
         clear
         ;;
     *)
