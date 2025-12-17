@@ -442,6 +442,10 @@ case "$1" in
         runtime_menu
         clear
         ;;
+    ip)
+        . scripts/ip/ip-score.sh
+        clear
+        ;;
     *)
         echo "igm: '$1' is not a valid command. See 'igm help'."
         ;;

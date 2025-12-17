@@ -31,6 +31,9 @@ Usage: igm ${RED}|${NC} igm [option] ${RED}|${NC} igm [option] [arg]
   igm proxy id                      Show active applications with multi-UUIDs and instructions.
   igm proxy limit                   Configure proxy application install limit.
 
+[${BLUE}IP Quality${NC}]
+  igm ip                            Analyse IP quality for real IP and all active proxies.
+
 [${BLUE}Configuration${NC}]
   igm app|service                   Enable or disable applications/services for deployment.
   igm setup                         Setup credentials for applications to be deployed.
