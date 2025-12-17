@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Cache totals to avoid recomputing on every sourcing
+[ -n "$__APP_IMPORT_READER_CACHED" ] && return
+__APP_IMPORT_READER_CACHED=1
+
+# Cache totals to avoid recomputing
 if [ -z "$TOTAL_APPS" ] || [ -z "$TOTAL_SERVICES" ]; then
     __TOTALS=$(jq -r 'length as $total | map(select(has("service_enabled"))) | length as $services | "\($total) \($services)"' "$JSON_FILE")
     TOTAL_APPS=${__TOTALS%% *}

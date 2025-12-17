@@ -1,5 +1,8 @@
 #!/bin/sh
 
+[ -n "$__SHARED_COMPONENT_CACHED" ] && return
+__SHARED_COMPONENT_CACHED=1
+
 if [ "$COLORTERM" = "truecolor" ] || [ "$COLORTERM" = "24bit" ]; then
     export RED='\033[1;38;2;255;105;135m'
     export GREEN='\033[1;38;2;120;255;180m'
