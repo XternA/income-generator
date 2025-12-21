@@ -55,6 +55,14 @@ extract_and_map_app_data_field() {
     file="$JSON_FILE"
     filter=".is_enabled == true"
 
+    # Smart filtering: check if service_enabled field is requested
+    for f in "$@"; do
+        if [ "$f" = ".service_enabled" ]; then
+            filter="(.is_enabled == true or .service_enabled == true)"
+            break
+        fi
+    done
+
     # Build mapping expression efficiently
     set -- "$@"  # Save original args
     mapping=""
