@@ -60,13 +60,20 @@ process_uuid_user_choice() {
 }
 
 process_entries() {
-    app_data=$(extract_and_map_app_data_field .name .url .description .description_ext .registration .properties:array .uuid_type)
+    app_data=$(extract_and_map_app_data_field .name .is_enabled .service_enabled .url .description .description_ext .registration .properties:array .uuid_type)
     total_enabled_apps=$(printf '%s\n' "$app_data" | awk 'NF{n++} END{print n+0}')
+
+    if [ "$total_enabled_apps" -eq 0 ]; then
+        display_banner
+        printf "\n${YELLOW}No applications currently enabled.${NC}\n\n"
+        printf "Please select and enable applications first\nto configure their credentials.\n"
+        return
+    fi
 
     printf '%s\n' "$app_data" | while IFS= read -r config_entry; do
         eval "$config_entry" || continue
 
-        [ "$is_enabled" = "false" ] && continue
+        [ "$is_enabled" = "false" ] && [ "$service_enabled" != "true" ] && continue
         entry_count=$((entry_count + 1))
         is_update=false
         is_new_app=true
