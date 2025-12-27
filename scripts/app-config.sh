@@ -1,10 +1,10 @@
 #!/bin/sh
 
+[ -n "$__APP_CONFIG_CACHED" ] && return
+__APP_CONFIG_CACHED=1
+
 . scripts/util/uuid-generator.sh
 . scripts/util/app-import-reader.sh
-
-FILE_CHANGED='.app_marker'
-trap 'rm -f $FILE_CHANGED' INT
 
 display_banner() {
     clear
@@ -27,7 +27,6 @@ write_entry() {
             echo "$entry_name=$input" >>"$ENV_FILE"
         fi
     fi
-    : > "$FILE_CHANGED"
 }
 
 input_new_value() {
@@ -50,12 +49,16 @@ process_new_entry() {
 process_uuid_user_choice() {
     printf "Do you want to auto-generate a new UUID for $RED$entry_name$NC? (Y/N): "; read -r input < /dev/tty
     case "$input" in
-        y|Y) process_new_entry ;;
+        [yY]) process_new_entry ;;
         *)
             printf "Do you want to define an existing UUID? (Y/N): "; read -r input < /dev/tty
             case "$input" in
-                y|Y) input_new_value ;;
+                [yY])
+                    input_new_value
+                    break
+                    ;;
             esac
+            ;;
     esac
 }
 
@@ -69,6 +72,9 @@ process_entries() {
         printf "Please select and enable applications first\nto configure their credentials.\n"
         return
     fi
+
+    : > "$REF_FILE"
+    existing_entries=$([ -f "$ENV_FILE" ] && awk -F '=' '{print $1}' "$ENV_FILE" | tr '\n' '|')
 
     printf '%s\n' "$app_data" | while IFS= read -r config_entry; do
         eval "$config_entry" || continue
@@ -89,10 +95,21 @@ process_entries() {
 
         if [ -n "$properties" ]; then
             for entry in $properties; do
-                entry_name=$(echo "$entry" | sed 's/^"//' | sed 's/"$//' | tr -d "#") # Remove surrounding quotes and denoter
-                require_uuid=$(echo "${entry%${entry#?}}")
+                case "$entry" in
+                    "#"*)
+                        require_uuid="#"
+                        entry_name="${entry#\#}"
+                        ;;
+                    *)
+                        require_uuid=""
+                        entry_name="$entry"
+                        ;;
+                esac
 
-                [ -n "$(grep "^$entry_name=" "$ENV_FILE")" ] && is_update=true
+                case "|$existing_entries|" in
+                    *"|$entry_name|"*) is_update=true ;;
+                esac
+
                 [ "$require_uuid" = "#" ] && process_uuid_user_choice || input_new_value
             done
         else
@@ -101,27 +118,78 @@ process_entries() {
     done
 
     display_banner
-    if [ -e "$FILE_CHANGED" ]; then
-        printf "\nDone configuring config file '${RED}$ENV_FILE${NC}'.\n"
+    if [ "$ENV_FILE" -nt "$REF_FILE" ]; then
+        printf "\n${YELLOW}Done configuring config file.${NC}\n"
     else
-        printf "\nNo changes made to '${RED}$ENV_FILE${NC}'.\n"
+        printf "\n${RED}No changes made to config file.${NC}\n"
     fi
-    rm -f "$FILE_CHANGED"
+    rm -f "$REF_FILE"
+}
+
+configure_app_inline() {
+    app_name="$1"
+
+    app_data=$(extract_and_map_single_app_field "$app_name" .name .url .description .description_ext .properties:array .uuid_type .registration)
+    eval "$app_data"
+
+    is_update=false
+    : > "$REF_FILE"
+
+    display_banner
+    printf "\nSetting up credentials for...\n"
+    printf "\n[ ${GREEN}$name${NC} ]\n"
+    [ -n "$url" ] && printf "Go to ${BLUE}$url${NC} to register an account. (CTRL + Click)\n"
+    [ -n "$description" ] && printf "Description: ${YELLOW}$description${NC}\n"
+    [ -n "$description_ext" ] && printf "${YELLOW}$description_ext${NC}\n"
+    echo
+
+    if [ -n "$properties" ]; then
+        existing_entries=$([ -f "$ENV_FILE" ] && awk -F '=' '{print $1}' "$ENV_FILE" | tr '\n' '|')
+
+        for entry in $properties; do
+            case "$entry" in
+                "#"*)
+                    require_uuid="#"
+                    entry_name="${entry#\#}"
+                    ;;
+                *)
+                    require_uuid=""
+                    entry_name="$entry"
+                    ;;
+            esac
+
+            case "|$existing_entries|" in
+                *"|$entry_name|"*) is_update=true ;;
+            esac
+
+            [ "$require_uuid" = "#" ] && process_uuid_user_choice || input_new_value
+        done
+    fi
+
+    if [ "$ENV_FILE" -nt "$REF_FILE" ]; then
+        printf "\nDone configuring ${GREEN}$name${NC}.\n"
+    else
+        printf "\n${GREEN}$name${NC} not configured.\n"
+    fi
+    rm -f "$REF_FILE"
+
+    printf "\nPress Enter to continue..."; read -r _ < /dev/tty
+    return 0
 }
 
 # Main script
-if [ -f "$ENV_FILE" ]; then
-    printf "Credentials will be stored in '${RED}$ENV_FILE${NC}'\n"
-    printf "\nStart the application setup process? (Y/N): "; read -r input
+REF_FILE="/tmp/.igm_config_ref_$$"
+trap 'rm -f $REF_FILE' INT
 
-    case "$input" in
-        y|Y) process_entries ;;
-        *) printf "\nNo changes made to '${RED}$ENV_FILE${NC}'.\n" ;;
-    esac
+[ ! -f "$ENV_FILE" ] && : > "$ENV_FILE"
+
+if [ "$1" = "--config" ] && [ -n "$2" ]; then
+    configure_app_inline "$2"
 else
-    printf "Dotenv file '${RED}$ENV_FILE${NC}' not found. Creating new one...\n\n"
-    sleep 1.4
-    touch "$ENV_FILE"
-    process_entries
+    printf "Start application setup process? (Y/N): "; read -r input
+    case "$input" in
+        [yY]) process_entries ;;
+        *) printf "\n${RED}No changes made to config file.${NC}\n" ;;
+    esac
+    printf "\nPress Enter to continue..."; read -r _ < /dev/tty
 fi
-printf "\nPress Enter to continue..."; read -r _ < /dev/tty

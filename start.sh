@@ -43,7 +43,7 @@ option_2() {
         case $option in
             1)
                 display_banner
-                printf "Setting up application configuration...\n"
+                printf "Setting up application configuration...\n\n"
                 $APP_CONFIG
                 ;;
             2)
@@ -390,6 +390,10 @@ case "$1" in
     deploy)
         $APP_SELECTION --import
         install_applications quick_menu
+        clear
+        ;;
+    install)
+        install_single_application
         clear
         ;;
     redeploy)
