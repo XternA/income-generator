@@ -1,7 +1,11 @@
 #!/bin/sh
 
 INSTALLED="false"
-OS="$OS_TYPE"
+
+case $(uname) in
+    Linux) OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"') ;;
+    Darwin) OS='darwin' ;;
+esac
 
 install_homebrew() {
     case $OS in
