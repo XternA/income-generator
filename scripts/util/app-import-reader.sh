@@ -11,6 +11,33 @@ if [ -z "$TOTAL_APPS" ] || [ -z "$TOTAL_SERVICES" ]; then
     export TOTAL_APPS TOTAL_SERVICES
 fi
 
+# Cache app properties requirements (for validation)
+if [ -z "$APP_PROPERTIES_INDEX" ]; then
+    APP_PROPERTIES_INDEX=$(jq -r '.[] | select(.properties != null) | "\(.name)=\(.properties | map(ltrimstr("#")) | join(" "))"' "$JSON_FILE")
+    export APP_PROPERTIES_INDEX
+fi
+
+__build_field_mapping() {
+    mapping=""
+    separator=""
+
+    # Build mapping expression efficiently
+    for arg; do
+        field="${arg%%:*}"
+        type="${arg#*:}"
+        [ "$field" = "$type" ] && type="string"
+        field="${field#.}"
+
+        if [ "$type" = "array" ]; then
+            mapping="$mapping$separator\"${field}=\" + ((.${field} // []) | join(\" \") | @sh)"
+        else
+            mapping="$mapping$separator\"${field}=\" + ((.${field} // \"\") | @sh)"
+        fi
+        separator=","
+    done
+    echo "$mapping"
+}
+
 __extract_app_data_field() {
     jq -r ".[] | select(has(\"$field_name\")) | \"\(.name) \(.${field_name})\"" "$JSON_FILE"
 }
@@ -63,26 +90,16 @@ extract_and_map_app_data_field() {
         fi
     done
 
-    # Build mapping expression efficiently
-    set -- "$@"  # Save original args
-    mapping=""
-    separator=""
-
-    for arg; do
-        field="${arg%%:*}"
-        type="${arg#*:}"
-        [ "$field" = "$type" ] && type="string"
-        field="${field#.}"
-
-        if [ "$type" = "array" ]; then
-            mapping="$mapping$separator\"${field}=\" + ((.${field} // []) | join(\" \") | @sh)"
-        else
-            mapping="$mapping$separator\"${field}=\" + ((.${field} // \"\") | @sh)"
-        fi
-        separator=","
-    done
-
+    mapping=$(__build_field_mapping "$@")
     jq -r ".[] | select($filter) | [ $mapping ] | join(\" \")" "$file"
+}
+
+extract_and_map_single_app_field() {
+    app_name="$1"
+    shift
+
+    mapping=$(__build_field_mapping "$@")
+    jq -r --arg app "$app_name" ".[] | select(.name==\$app) | [ $mapping ] | join(\" \")" "$JSON_FILE"
 }
 
 display_app_table() {
