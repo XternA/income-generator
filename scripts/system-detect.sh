@@ -32,6 +32,7 @@ case "$__SYS_OS" in
             OS_DISPLAY="WSL Linux"
         else
             OS_TYPE="$__SYS_OS"
+            OS_DISPLAY="$__SYS_OS"
         fi
         OS_IS_LINUX="true"
         OS_IS_DARWIN="false"
