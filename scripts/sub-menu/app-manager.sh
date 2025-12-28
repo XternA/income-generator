@@ -608,6 +608,7 @@ install_single_application() {
         app_type=${selected_app##*:}
 
         # Validate credentials
+        validated=false
         if ! validate_app_credentials "$app_name" > /dev/null; then
             if sh scripts/app-config.sh --config "$app_name"; then
                 display_banner
@@ -622,8 +623,11 @@ install_single_application() {
                     printf "\nPress Enter to continue..."; read -r _
                     continue
                 fi
+                validated=true
             fi
             display_banner --noline
+        else
+            validated=true
         fi
 
         type_display="App"
@@ -631,9 +635,18 @@ install_single_application() {
 
         printf "\n${GREEN}Ready to install:${NC}\n"
         printf "  ${YELLOW}$app_name${NC} ($type_display)\n"
+        if [ "$validated" = true ]; then
+            printf "\nOption:\n  ${RED}e${NC} = ${RED}edit credentials${NC}\n"
+        fi
         printf "\nProceed with installation? (Y/N): "; read -r user_input
 
         case "$user_input" in
+            e)
+                if [ "$validated" = true ]; then
+                    sh scripts/app-config.sh --config "$app_name"
+                    continue
+                fi
+                ;;
             [Yy]*)
                 display_banner
                 printf "${GREEN}Installing $app_name ($type_display)...${NC}\n\n"
