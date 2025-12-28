@@ -38,7 +38,7 @@ print_total_apps_info() {
 display_install_info() {
     display_banner
 
-    local is_reinstall_state="$1"
+    is_reinstall_state="$1"
 
     install_type="installed"
     [ "$is_reinstall_state" = "redeploy" ] && install_type="redeployed"
@@ -449,8 +449,8 @@ show_applications() {
         return
     fi
 
-    local proxy_number="${2:-}"
-    local proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
+    proxy_number="${2:-}"
+    proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
 
     has_apps() {
         if [ ! -z "$proxy_number" ]; then
@@ -532,13 +532,16 @@ show_applications() {
 
     case "$1" in
         ""|"group")
-            if [ -z "$(has_apps standard)" ] && [ -z "$(has_apps proxy)" ]; then
+            has_standard="$(has_apps standard)"
+            has_proxy="$(has_apps proxy)"
+
+            if [ -z "$has_standard" ] && [ -z "$has_proxy" ]; then
                 printf "\nNo applications installed.\n"
             else
-                if [ -n "$(has_apps standard)" ]; then
+                if [ -n "$has_standard" ]; then
                     show_apps standard
                 fi
-                if [ -n "$(has_apps proxy)" ]; then
+                if [ -n "$has_proxy" ]; then
                     if [ "$1" = "group" ]; then
                         show_apps proxy group
                     else
