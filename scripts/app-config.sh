@@ -28,7 +28,7 @@ __reorder_config_file() {
     # Exit early if file already correctly ordered
     expected_order=$(printf '%s\n' "$ordered_app_metadata" | awk -F'|' '{apps = apps (apps ? "," : "") $1} END {print apps}')
 
-    awk -F'=' -v exp="$expected_order" '
+    awk -F'=' -v expected="$expected_order" '
     /^[A-Z_]+=[^[:space:]]/ {
         split($1, parts, "_")
         if (parts[1] != prev && parts[1] != "") {
@@ -36,7 +36,7 @@ __reorder_config_file() {
             prev = parts[1]
         }
     }
-    END { exit (apps == exp ? 0 : 1) }
+    END { exit (apps == expected ? 0 : 1) }
     ' "$ENV_FILE" && return 0
 
     TEMP_ENV=".igm_config_reorg_$$"
