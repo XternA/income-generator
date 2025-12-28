@@ -578,6 +578,7 @@ show_applications() {
 }
 
 install_single_application() {
+    display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
     app_data=$(extract_all_app_data ".service_enabled != null" ".is_enabled != null")
