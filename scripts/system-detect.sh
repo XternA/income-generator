@@ -72,19 +72,10 @@ export OS_ID                         # OS ID (ubuntu/debian/fedora/etc)
 export OS_CODENAME                   # OS codename (noble/sequoia/etc)
 export OS_DISTRO_VERSION             # OS codename distro version number
 export OS_ARCH="$__SYS_ARCH"         # Raw architecture string (x86_64/arm64/arm32/etc)
+export OS_IS_LINUX                   # Boolean: true/false
+export OS_IS_DARWIN                  # Boolean: true/false
+export OS_IS_ARM                     # Boolean: true/false
 
 # Container Runtime Info
 export OS_DOCKER_ARCH                # Docker arch format (latest/arm64/arm32v7/etc)
 export OS_DOCKER_DISPLAY_ARCH        # Display Docker arch format (amd64/arm64v8/arm32v7/etc)
-
-
-# TDDO - Remap from System Info and from Container Runtime Info above and then scrap all the below
-# export HOST="$__HOST"                 # Hostname
-# export OS_DISPLAY="$__SYS_OS"         # Platform string (Linux/Darwin/etc)
-# export OS_RAW_ARCH="$__SYS_ARCH"  # Raw architecture string (x86_64/arm64/arm32)
-# export OS_TYPE                        # Platform string (darwin/wsl/ubuntu/etc)
-# export OS_DOCKER_ARCH                 # Docker arch format (latest/arm64/arm32v7/etc)
-# export OS_DOCKER_DISPLAY_ARCH                # Display Docker arch format (amd64/arm64v8/arm32v7/etc)
-export OS_IS_ARM                      # Boolean: true/false
-export OS_IS_DARWIN                   # Boolean: true/false
-export OS_IS_LINUX                    # Boolean: true/false
