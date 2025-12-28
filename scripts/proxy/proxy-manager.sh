@@ -22,8 +22,6 @@ COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.single.yml
 "
 
-HOST="$(hostname)"
-
 display_banner() {
     clear
     printf "Income Generator Proxy Manager\n"
@@ -38,9 +36,9 @@ set_host_suffix() {
     local suffix="${1:-}"
 
     if grep -q "^DEVICE_ID=" "$ENV_SYSTEM_FILE"; then
-        $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=${HOST}${suffix}/" "$ENV_SYSTEM_FILE"
+        $SED_INPLACE "s/^DEVICE_ID=.*/DEVICE_ID=${HOSTNAME}${suffix}/" "$ENV_SYSTEM_FILE"
     else
-        echo "DEVICE_ID=${HOST}${suffix}" >> "$ENV_SYSTEM_FILE"
+        echo "DEVICE_ID=${HOSTNAME}${suffix}" >> "$ENV_SYSTEM_FILE"
     fi
 }
 
