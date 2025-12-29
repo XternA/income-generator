@@ -247,7 +247,9 @@ process_entries() {
     done
 
     display_banner
-    if [ "$ENV_FILE" -nt "$REF_FILE" ]; then
+    if [ "$config_interrupted" = "true" ]; then
+        printf "\n${RED}Configuration cancelled.${NC}\n"
+    elif [ "$ENV_FILE" -nt "$REF_FILE" ]; then
         __reorder_config_file
         printf "\n${YELLOW}Done configuring config file.${NC}\n"
     else
@@ -299,7 +301,9 @@ configure_app_inline() {
         done
     fi
 
-    if [ "$ENV_FILE" -nt "$REF_FILE" ]; then
+    if [ "$config_interrupted" = "true" ]; then
+        printf "\n${RED}Configuration cancelled.${NC}\n"
+    elif [ "$ENV_FILE" -nt "$REF_FILE" ]; then
         __reorder_config_file
         printf "\nDone configuring ${GREEN}$name${NC}.\n"
     else
@@ -313,7 +317,8 @@ configure_app_inline() {
 
 # Main script
 REF_FILE=".igm_config_ref_$$"
-trap 'rm -f $REF_FILE' INT
+config_interrupted=false
+trap 'config_interrupted=true; rm -f $REF_FILE' INT
 
 [ ! -f "$ENV_FILE" ] && : > "$ENV_FILE"
 
