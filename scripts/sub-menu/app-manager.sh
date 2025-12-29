@@ -655,6 +655,8 @@ install_single_application() {
                 selected_app=$(printf '%s' "$app_name" | tr 'A-Z' 'a-z')
                 [ "$app_type" = "service" ] && selected_app="${selected_app}-pot"
 
+                $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES pull "$selected_app"
+                echo
                 $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up -d "$selected_app"
 
                 if [ $? -eq 0 ]; then
