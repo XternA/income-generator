@@ -22,6 +22,48 @@ COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.single.yml
 "
 
+__cleanup_proxy_installation() {
+    # Kill any running docker process immediately
+    [ -n "$docker_bg_pid" ] && kill -TERM $docker_bg_pid 2>/dev/null && wait $docker_bg_pid 2>/dev/null
+
+    printf "\n\n${YELLOW}Installation interrupted. Cleaning up...${NC}\n"
+
+    # Restore all backup files
+    for compose_file in $COMPOSE_FILES; do
+        [ "$compose_file" != "-f" ] && [ -f "${compose_file}.bak" ] && mv "${compose_file}.bak" "$compose_file"
+    done
+    [ -f "${TUNNEL_COMPOSE_FILE}.bak" ] && mv "${TUNNEL_COMPOSE_FILE}.bak" "$TUNNEL_COMPOSE_FILE"
+    [ -f "${ENV_FILE}.bak" ] && mv "${ENV_FILE}.bak" "$ENV_FILE"
+    [ -f "$TMP_ENV_DEPLOY_PROXY_FILE" ] && mv "$TMP_ENV_DEPLOY_PROXY_FILE" "$ENV_DEPLOY_PROXY_FILE" 2>/dev/null
+
+    # Collect all proxy container IDs
+    all_containers=""
+    batch=1
+    while [ "$batch" -le "$install_count" ]; do
+        containers=$($CONTAINER_ALIAS ps -a -q -f "label=com.docker.compose.project=proxy-app-${batch}" 2>/dev/null)
+        [ -n "$containers" ] && all_containers="$all_containers $containers"
+        batch=$((batch + 1))
+    done
+
+    # Batch remove all containers
+    if [ -n "$all_containers" ]; then
+        $CONTAINER_ALIAS rm -f $all_containers > /dev/null 2>&1
+        $CONTAINER_ALIAS volume prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
+        $CONTAINER_ALIAS network prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
+    fi
+
+    # Remove temporary files
+    temp_files="$ENV_PROXY_FILE ${TUNNEL_COMPOSE_FILE}.bk"
+    for compose_file in $COMPOSE_FILES; do
+        [ "$compose_file" != "-f" ] && temp_files="$temp_files ${compose_file}.bk"
+    done
+    rm -f $temp_files 2>/dev/null
+
+    printf "${GREEN}Cleanup complete.${NC}\n"
+    sleep 3
+    exit 130
+}
+
 display_banner() {
     clear
     printf "Income Generator Proxy Manager\n"
@@ -181,9 +223,14 @@ install_proxy_instance() {
     cp "$TUNNEL_COMPOSE_FILE" "$TUNNEL_COMPOSE_FILE.bak"
     cp "$ENV_FILE" "$ENV_FILE.bak"
 
+    # Set trap to cleanup on interrupt
+    trap '__cleanup_proxy_installation' INT
+
     display_banner
     printf "Pulling latest image...\n\n"
-    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_COMPOSE_FILE pull
+    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_COMPOSE_FILE pull &
+    docker_bg_pid=$!
+    wait $docker_bg_pid
     sleep 1.5
 
     display_banner
@@ -251,8 +298,13 @@ install_proxy_instance() {
                             skip_ports && !/^[[:space:]]*-/ { skip_ports = 0 }
                             { print }
                         ' "$compose_file" > tmp && mv tmp "$compose_file"
-
-                        # Batch all sed operations into ONE call
+        
+                        # ==== Batch sed operations ====
+                        # Set project to proxy
+                        # Replace DNS with proxy network
+                        # Update container name
+                        # Update proxy network and depends on
+                        # Update volume dir
                         new_app_name="${app_name}-${install_count}"
                         $SED -i \
                             -e "s/project=standard/project=proxy/" \
@@ -305,7 +357,9 @@ install_proxy_instance() {
         echo
         set_host_suffix "-${install_count}"
         $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d
+        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d &
+        docker_bg_pid=$!
+        wait $docker_bg_pid
 
         # Wait for containers to be ready before next proxy batch
         if [ "$ACTIVE_PROXIES" -gt 1 ] && [ "$install_count" -lt "$ACTIVE_PROXIES" ]; then
@@ -331,8 +385,10 @@ install_proxy_instance() {
     mv "${ENV_FILE}.bak" "$ENV_FILE"
     rm -f "${TUNNEL_COMPOSE_FILE}.bk" "$ENV_PROXY_FILE"
 
+    trap - INT # Clear trap (installation completed successfully)
+
     echo "Proxy application install complete."
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 remove_proxy_instance() {
