@@ -58,6 +58,7 @@ __cleanup_proxy_installation() {
         [ "$compose_file" != "-f" ] && temp_files="$temp_files ${compose_file}.bk"
     done
     rm -f $temp_files 2>/dev/null
+    rm -rf $PROXY_FOLDER_ACTIVE
 
     printf "${GREEN}Cleanup complete.${NC}\n"
     sleep 3
