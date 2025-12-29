@@ -267,7 +267,10 @@ configure_app_inline() {
     display_banner
     printf "\nSetting up credentials for...\n"
     printf "\n[ ${GREEN}$name${NC} ]\n"
-    [ -n "$url" ] && printf "Go to ${BLUE}$url${NC} to register an account. (CTRL + Click)\n"
+    if [ -n "$url" ]; then
+        [ "$OS_IS_DARWIN" = "true" ] && key_modifier="Command" || key_modifier="CTRL"
+        printf "Go to $BLUE$url$NC to register an account. ($key_modifier + Click)\n"
+    fi
     [ -n "$description" ] && printf "Description: ${YELLOW}$description${NC}\n"
     [ -n "$description_ext" ] && printf "${YELLOW}$description_ext${NC}\n"
     echo
