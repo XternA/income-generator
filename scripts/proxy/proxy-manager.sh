@@ -42,6 +42,34 @@ set_host_suffix() {
     fi
 }
 
+__wait_for_proxy_containers() {
+    proxy_batch="$1"
+
+    deployed_containers=$($CONTAINER_ALIAS ps -a -q -f "label=com.docker.compose.project=proxy-app-${proxy_batch}")
+    [ -z "$deployed_containers" ] && return 0
+
+    printf " ${YELLOW}→${NC} Waiting for containers to initialise..."
+    max_wait=25
+    elapsed=0
+
+    while [ $elapsed -lt $max_wait ]; do
+        statuses=$($CONTAINER_ALIAS inspect -f '{{.State.Status}}' $deployed_containers 2>/dev/null)
+
+        all_running=true
+        for status in $statuses; do
+            [ "$status" != "running" ] && all_running=false && break
+        done
+
+        [ "$all_running" = "true" ] && printf " ${GREEN}ready (${elapsed}s)${NC}\n" && return 0
+
+        sleep 2
+        elapsed=$((elapsed + 2))
+    done
+
+    printf " ${YELLOW}continuing (${elapsed}s)${NC}\n"
+    return 0
+}
+
 display_info() {
     display_banner
     type="$1"
@@ -205,14 +233,6 @@ install_proxy_instance() {
                     grep -q "$app_name" "$compose_file" || continue
 
                     if ! grep -q "${app_name}-[0-9]:" "$compose_file"; then
-                        # Set project to proxy
-                        $SED_INPLACE "s/project=standard/project=proxy/" "$compose_file"
-
-                        # Replace DNS with proxy network
-                        $SED_INPLACE "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" "$compose_file"
-                        $SED_INPLACE "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" "$compose_file"
-                        $SED_INPLACE "/hostname:/d" "$compose_file"
-
                         # Add depends on service
                         if ! grep -q "depends_on:" "$compose_file"; then
                             awk '/restart:/ {
@@ -231,18 +251,29 @@ install_proxy_instance() {
                             skip_ports && !/^[[:space:]]*-/ { skip_ports = 0 }
                             { print }
                         ' "$compose_file" > tmp && mv tmp "$compose_file"
+
+                        # Batch all sed operations into ONE call
+                        new_app_name="${app_name}-${install_count}"
+                        $SED -i \
+                            -e "s/project=standard/project=proxy/" \
+                            -e "/^\([[:space:]]*\)- [0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}$/d" \
+                            -e "s/dns:/network_mode: \"container:${PROXY_APP_NAME}-${install_count}\"/" \
+                            -e "/hostname:/d" \
+                            -e "s/^\([[:space:]]*\)${app_name}\(-[0-9][0-9]*\)\?:[[:space:]]*/\1${new_app_name}:/" \
+                            -e "s/container_name: ${app_name}\(-[0-9][0-9]*\)\?/container_name: ${new_app_name}/" \
+                            -e "s/\(${PROXY_APP_NAME}-\)[0-9]*/\1${install_count}/g" \
+                            -e "s#\(\$DATA_DIR/\)$app_name\(-[^:/]*\)\?:#\1$new_app_name:#" \
+                            "$compose_file"
+                    else
+                        # For already-numbered apps, just update the number
+                        new_app_name="${app_name}-${install_count}"
+                        $SED -i \
+                            -e "s/^\([[:space:]]*\)${app_name}\(-[0-9][0-9]*\)\?:[[:space:]]*/\1${new_app_name}:/" \
+                            -e "s/container_name: ${app_name}\(-[0-9][0-9]*\)\?/container_name: ${new_app_name}/" \
+                            -e "s/\(${PROXY_APP_NAME}-\)[0-9]*/\1${install_count}/g" \
+                            -e "s#\(\$DATA_DIR/\)$app_name\(-[^:/]*\)\?:#\1$new_app_name:#" \
+                            "$compose_file"
                     fi
-
-                    # Update container name
-                    new_app_name="${app_name}-${install_count}"
-                    $SED_INPLACE "s/^\([[:space:]]*\)${app_name}\(-[0-9][0-9]*\)\?:[[:space:]]*/\1${new_app_name}:/" "$compose_file"
-                    $SED_INPLACE "s/container_name: ${app_name}\(-[0-9][0-9]*\)\?/container_name: ${new_app_name}/" "$compose_file"
-
-                    # Update proxy network and depends on
-                    $SED_INPLACE "s/\(${PROXY_APP_NAME}-\)[0-9]*/\1${install_count}/g" "$compose_file"
-
-                    # Update volume dir
-                    $SED_INPLACE "s#\(\$DATA_DIR/\)$app_name\(-[^:/]*\)\?:#\1$new_app_name:#" "$compose_file"
                 fi
             done
 
@@ -275,16 +306,15 @@ install_proxy_instance() {
         set_host_suffix "-${install_count}"
         $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
         $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d
+
+        # Wait for containers to be ready before next proxy batch
+        if [ "$ACTIVE_PROXIES" -gt 1 ] && [ "$install_count" -lt "$ACTIVE_PROXIES" ]; then
+            __wait_for_proxy_containers "$install_count"
+        fi
+
         install_count=$((install_count + 1))
         proxy_entry_pointer=$((proxy_entry_pointer + 1))
         echo
-
-        # Pause to give time for apps to load
-        if [ "$ACTIVE_PROXIES" -gt 1 ] && [ "$install_count" -lt "$ACTIVE_PROXIES" ]; then
-            sleep_time=$((10 + (install_count - 1) * 2))
-            [ "$sleep_time" -gt 20 ] && sleep_time=20
-            sleep "$sleep_time"
-        fi
     done < "$PROXY_FILE"
 
     $WATCHTOWER deploy

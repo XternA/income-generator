@@ -66,6 +66,12 @@ export DECRYPT_CRED="$ENCRYPTOR -ds $ENV_FILE"
 
 # Declare tool alias ----------------
 case "$OS" in
-    Linux) export SED_INPLACE="sed -i" ;;
-    Darwin) export SED_INPLACE="gsed -i" ;;
+    Linux)
+        export SED="sed" 
+        export SED_INPLACE="sed -i"
+        ;;
+    Darwin) 
+        export SED="gsed"
+        export SED_INPLACE="gsed -i"
+        ;;
 esac
