@@ -127,24 +127,26 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[PROXYBASE](https://tinyurl.com/bdf56ajm)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 
 ### Additional Applications
-These apps aren’t supported by IGM yet. You can run them alongside IGM to earn in the meantime. Once supported, they will be added to IGM.
+These applications current aren’t supported via IGM yet as they're desktop-GUI only versions. You can run them alongside IGM to earn in the meantime. Once supported, they will be integrated into IGM.
 
-| Application | Major Payout Type |
-| --- | :---: |
-| **[PassiveApp](https://tinyurl.com/3ufkk4kc)** | PayPal, Crypto |
-| **[ByteLixir](https://tinyurl.com/2uhz58ae)**  | Crypto |
-| **[Earn.CC](https://tinyurl.com/y57x29nt)**    | Crypto |
-| **[UpRock](https://tinyurl.com/2tk9ppz7)**     | Crypto |
+| Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
+| --- | :---: | :---: | :---: | :---: | :---: |
+| **[PassiveApp](https://tinyurl.com/3ufkk4kc)**  | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | PayPal, Crypto |
+| **[ByteLixir](https://tinyurl.com/2uhz58ae)**   | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto         |
+| **[ByteBenefit](https://tinyurl.com/5actkn8m)** | :white_check_mark: | :x:                | Unlimited | 1         | PayPal, Stripe |
+| **[Earn.cc](https://tinyurl.com/y57x29nt)**     | :white_check_mark: | :x:                | Unlimited | 1         | Crypto         |
+| **[UpRock](https://tinyurl.com/2tk9ppz7)**      | :white_check_mark: | :x:                | Unlimited | 1         | Crypto         |
 
-The applcations are usually a desktop GUI application.
+## Tested Environments ✅
+IGM has been tested on the following environments and should run on any host that supports a container runtime such as Docker.
 
-## Supported Environments ✅
-The tool has been tried and tested on the following environments and should be runnable if the host instances is capable of supporting container runtime such as Docker.
+| Platform | Architecture | Device Type | Fully Supported |
+| :------- | :----------- | :---------- | :-------------: |
+| Windows, WSL2 (Ubuntu)  | amd64, arm64   | Desktop, Laptop PC                 | 🟢 |
+| Linux Ubuntu, Debian    | amd64, arm64   | Desktop, Laptop PC, Raspberry Pi 4 | 🟢 |
+| macOS                   | amd64, arm64   | MacBook Pro                        | 🟢 |
 
-| Windows WSL2 (x86_64 / amd64) | Linux Ubuntu (x86_64 / amd64) | Raspbian OS (arm32/64) | Intel macOS (x86_64) | Apple Silicon (arm64) |
-| :---: | :---: | :---: | :---: | :---: |
-| :green_circle: | :green_circle: | :green_circle: | :green_circle: | :green_circle: |
-| Desktop / Laptop | Desktop / Laptop | Raspberry Pi 3/4 | MacBook Pro | MacBook Pro |
+Older SBC devices, such as the Raspberry Pi 3 (arm32v7), can run IGM. However, due to hardware limitations, some applications may not work and overall performance may be reduced, though this will not prevent other applications from running.
 
 ## Like The Project? 🫶
 Your efforts and interest are well appreciated if you would like to contribute and improve the tool or compatibility and enable it widely available and easy to use.
@@ -154,7 +156,6 @@ Even if you do not wish to contribute, you can still show your support by giving
 ### Donations 💸
 - **Bitcoin (BTC)** - `bc1qq993w3mxsf5aph5c362wjv3zaegk37tcvw7rl4`
 - **Ethereum (ETH)** - `0x2601B9940F9594810DEDC44015491f0f9D6Dd1cA`
-- **Binance (BNB)** - `bnb1dj3l3fp24z05vtwtjpaatjyz9sll4elu9lkjww`
 - **Binance Smart Chain (BSC)** - `0x2601B9940F9594810DEDC44015491f0f9D6Dd1cA`
 - **Solana (SOL)** - `Ap5aiAbnsLtR2XVJB3sp37qdNP5VfqydAgUThvdEiL5i`
 - **PayPal** - [@xterna](https://paypal.me/xterna)
