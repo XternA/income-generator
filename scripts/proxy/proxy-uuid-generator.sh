@@ -1,5 +1,8 @@
 #!/bin/sh
 
+[ -n "$__PROXY_UUID_GENERATOR_CACHED" ] && return
+__PROXY_UUID_GENERATOR_CACHED=1
+
 . scripts/util/uuid-generator.sh
 
 export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"

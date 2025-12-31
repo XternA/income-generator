@@ -2,36 +2,19 @@
 
 INSTALLED="false"
 
-case $(uname) in
-    Linux) OS=$(awk -F= '/^ID=/{print $2}' /etc/os-release | tr -d '"') ;;
-    Darwin) OS='darwin' ;;
-esac
-
 install_homebrew() {
-    case $OS in
-        darwin)
-            if ! command -v brew > /dev/null 2>&1; then
-                echo "Homebrew is not installed, attempting to install..."
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                printf "Homebrew have been installed successfully.\n\n"
-                INSTALLED="true"
-            fi
-            ;;
-    esac
+    if ! command -v brew > /dev/null 2>&1; then
+        echo "Homebrew is not installed, attempting to install..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        printf "Homebrew have been installed successfully.\n\n"
+        INSTALLED="true"
+    fi
 }
 
 install_sed() {
     if ! command -v gsed > /dev/null 2>&1; then
-        echo "Binay 'gsed' is not installed, attempting to install..."
-        case $OS in
-            darwin)
-                brew install gnu-sed > /dev/null 2>&1
-                ;;
-            *)
-                echo "Unsupported Unix distribution: $OS"
-                exit 1
-                ;;
-        esac
+        echo "Binary 'gsed' is not installed, attempting to install..."
+        brew install gnu-sed > /dev/null 2>&1
         printf "GNU 'sed' have been installed successfully.\n\n"
         INSTALLED="true"
     fi
@@ -40,7 +23,7 @@ install_sed() {
 install_jq() {
     if ! command -v jq > /dev/null 2>&1; then
         echo "Binary 'jq' is not installed, attempting to install..."
-        case $OS in
+        case $OS_ID in
             centos | rhel)
                 sudo yum install -y jq > /dev/null 2>&1
                 ;;
@@ -69,9 +52,7 @@ install_jq() {
     fi
 }
 
-
-# Entrypoint
-# Run install dependencies
-[ "$OS" = "darwin" ] && install_homebrew && install_sed
+# Entrypoint - Install dependencies
+[ "$OS_IS_DARWIN" = "true" ] && install_homebrew && install_sed
 install_jq
 [ "$INSTALLED" = "true" ] && sleep 2.5

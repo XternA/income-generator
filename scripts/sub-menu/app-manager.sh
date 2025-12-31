@@ -1,6 +1,10 @@
 #!/bin/sh
 
+[ -n "$__APP_MANAGER_CACHED" ] && return
+__APP_MANAGER_CACHED=1
+
 . scripts/util/app-import-reader.sh
+. scripts/util/app-credential-validator.sh
 
 WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
@@ -34,7 +38,7 @@ print_total_apps_info() {
 display_install_info() {
     display_banner
 
-    local is_reinstall_state="$1"
+    is_reinstall_state="$1"
 
     install_type="installed"
     [ "$is_reinstall_state" = "redeploy" ] && install_type="redeployed"
@@ -445,8 +449,8 @@ show_applications() {
         return
     fi
 
-    local proxy_number="${2:-}"
-    local proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
+    proxy_number="${2:-}"
+    proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
 
     has_apps() {
         if [ ! -z "$proxy_number" ]; then
@@ -528,13 +532,16 @@ show_applications() {
 
     case "$1" in
         ""|"group")
-            if [ -z "$(has_apps standard)" ] && [ -z "$(has_apps proxy)" ]; then
+            has_standard="$(has_apps standard)"
+            has_proxy="$(has_apps proxy)"
+
+            if [ -z "$has_standard" ] && [ -z "$has_proxy" ]; then
                 printf "\nNo applications installed.\n"
             else
-                if [ -n "$(has_apps standard)" ]; then
+                if [ -n "$has_standard" ]; then
                     show_apps standard
                 fi
-                if [ -n "$(has_apps proxy)" ]; then
+                if [ -n "$has_proxy" ]; then
                     if [ "$1" = "group" ]; then
                         show_apps proxy group
                     else
@@ -568,4 +575,102 @@ show_applications() {
             ;;
     esac
     printf "\nPress Enter to continue..."; read -r _
+}
+
+install_single_application() {
+    display_banner
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+
+    app_data=$(extract_all_app_data ".service_enabled != null" ".is_enabled != null")
+    total_apps=$(($TOTAL_APPS + $TOTAL_SERVICES))
+
+    while :; do
+        display_banner
+        printf "Select an application to install.\n\n"
+        display_app_table "$app_data" "install"
+        printf "\nEnter number to install (0 to cancel): "; read -r user_input
+
+        if [ -z "$user_input" ] || [ "$user_input" = "0" ]; then
+            return
+        fi
+
+        if ! [ "$user_input" -ge 1 ] 2>/dev/null || ! [ "$user_input" -le "$total_apps" ] 2>/dev/null; then
+            printf "\nInvalid input. Enter number between 1 and $total_apps.\n\nPress enter to continue... "; read -r _
+            continue
+        fi
+
+        # Find the selected app
+        selected_app=$(printf '%s\n' "$app_data" | awk -v n="$user_input" 'BEGIN { c = 1 }
+        {
+            if ($3 == "true") { if (c == n) { print $1":app"; exit }; c++ }
+            if ($2 == "true") { if (c == n) { print $1":service"; exit }; c++ }
+        }')
+        app_name=${selected_app%:*}
+        app_type=${selected_app##*:}
+
+        # Validate credentials
+        validated=false
+        if ! validate_app_credentials "$app_name" > /dev/null; then
+            if sh scripts/app-config.sh --config "$app_name"; then
+                display_banner
+                unfilled_fields=$(validate_app_credentials "$app_name" --list)
+                if [ -n "$unfilled_fields" ]; then
+                    printf "${RED}Ensure all fields are filled in and try again.${NC}\n"
+                    printf "${RED}Required fields still missing:${NC}\n\n"
+                    for field in $unfilled_fields; do
+                        printf "  ${YELLOW}- $field${NC}\n"
+                    done
+                    printf "\nUnable to proceed with installation.\n"
+                    printf "\nPress Enter to continue..."; read -r _
+                    continue
+                fi
+                validated=true
+            fi
+            display_banner --noline
+        else
+            validated=true
+        fi
+
+        type_display="App"
+        [ "$app_type" = "service" ] && type_display="Service"
+
+        printf "\n${GREEN}Ready to install:${NC}\n"
+        printf "  ${YELLOW}$app_name${NC} ($type_display)\n"
+        if [ "$validated" = true ]; then
+            printf "\nOption:\n  ${RED}e${NC} = ${RED}edit credentials${NC}\n"
+        fi
+        printf "\nProceed with installation? (Y/N): "; read -r user_input
+
+        case "$user_input" in
+            e)
+                if [ "$validated" = true ]; then
+                    sh scripts/app-config.sh --config "$app_name"
+                    continue
+                fi
+                ;;
+            [Yy]*)
+                display_banner
+                printf "${GREEN}Installing $app_name ($type_display)...${NC}\n\n"
+
+                selected_app=$(printf '%s' "$app_name" | tr 'A-Z' 'a-z')
+                [ "$app_type" = "service" ] && selected_app="${selected_app}-pot"
+
+                $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES pull "$selected_app"
+                echo
+                $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up -d "$selected_app"
+
+                if [ $? -eq 0 ]; then
+                    printf "\n${GREEN}✓ $app_name installed successfully!${NC}\n"
+                    printf "\nInstall another application? (Y/N): "; read -r user_input
+                    case "$user_input" in
+                        [Yy]*) continue ;;
+                        *) break ;;
+                    esac
+                else
+                    printf "\n${RED}✗ Installation failed.${NC}\n\nPress Enter to continue..."; read -r _
+                    continue
+                fi
+                ;;
+        esac
+    done
 }

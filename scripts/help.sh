@@ -19,6 +19,7 @@ Usage: igm ${RED}|${NC} igm [option] ${RED}|${NC} igm [option] [arg]
   igm show      [app|proxy|group]   List installed and running applications, optionally grouped.
   igm deploy                        Launch the install manager for deploying applications.
   igm redeploy                      Redeploy the last installed application state.
+  igm install                       Install single or multiple applications.
   igm clean     [all]               Cleanup orphaned applications, volumes. (all: include orphaned images).
 
 [${BLUE}Proxy${NC}]
