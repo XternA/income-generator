@@ -232,5 +232,29 @@ services:
                 max-size: 10k
                 max-file: 1
 
+    wizardgain:
+        container_name: wizardgain
+        image: wizardgain/worker
+        restart: always
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
+        environment:
+            - EMAIL=${WIZARDGAIN_EMAIL:-}
+        profiles:
+            - ${WIZARDGAIN:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1
+
 volumes:
     bitping-data:
