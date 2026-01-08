@@ -268,5 +268,14 @@
             "PROXYBASE_USER_ID"
         ],
         "is_enabled": true
+    },
+    {
+        "name": "WIZARDGAIN",
+        "url": "https://tinyurl.com/mw962kkv",
+        "description": null,
+        "properties": [
+            "WIZARDGAIN_EMAIL"
+        ],
+        "is_enabled": true
     }
 ]
