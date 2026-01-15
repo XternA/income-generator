@@ -256,5 +256,33 @@ services:
                 max-size: 10k
                 max-file: 1
 
+    antgain:
+        container_name: antgain
+        image: pinors/antgain-cli
+        restart: always
+        hostname: $DEVICE_ID
+        platform: linux/amd64
+        labels:
+            - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
+        environment:
+            - ANTGAIN_API_KEY=${ANTGAIN_API_KEY:-}
+        profiles:
+            - ${ANTGAIN:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        volumes:
+            - antgain-data:/data
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1
+
 volumes:
     bitping-data:
+    antgain-data:

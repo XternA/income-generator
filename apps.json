@@ -277,5 +277,14 @@
             "WIZARDGAIN_EMAIL"
         ],
         "is_enabled": true
+    },
+    {
+        "name": "ANTGAIN",
+        "url": "https://tinyurl.com/usdtrrus",
+        "description": " Log into dashboard, then profile tab to obtain API key.",
+        "properties": [
+            "ANTGAIN_API_KEY"
+        ],
+        "is_enabled": true
     }
 ]
