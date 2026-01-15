@@ -126,7 +126,7 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[WIPTER](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                | Unlimited | Unlimited | Crypto |
 | **[PROXYBASE](https://tinyurl.com/bdf56ajm)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[WIZARDGAIN](https://tinyurl.com/mw962kkv)**      | :white_check_mark: | :white_check_mark: | Unlimited | 1         | PayPal, Crypto |
-| **[ANTGAIN](https://tinyurl.com/usdtrrus)**         | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[ANTGAIN](https://tinyurl.com/usdtrrus)**         | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
 
 ### Additional Applications
 These applications current aren’t supported via IGM yet as they're desktop-GUI only versions. You can run them alongside IGM to earn in the meantime. Once supported, they will be integrated into IGM.
