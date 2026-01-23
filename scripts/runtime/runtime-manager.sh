@@ -7,11 +7,23 @@ _install_runtime() {
     case "$1" in
         --docker)
             sh scripts/$CONTAINER_ALIAS-install.sh
-            [ ! "$OS_TYPE" = "darwin" ] && [ "$OS_IS_ARM" = "true" ] && sh scripts/emulation-layer.sh --add
+            install_result=$?
+
+            if [ $install_result -eq 0 ]; then
+                if [ "$OS_IS_DARWIN" = "false" ] && [ "$OS_IS_ARM" = "true" ]; then
+                    newgrp docker <<'EOF'
+sh scripts/emulation-layer.sh --add
+EOF
+                fi
+            fi
             ;;
-        --colima) setup_runtime ;;
+        --colima)
+            setup_runtime
+            ;;
     esac
-    sh scripts/runtime/container-config.sh --register
+
+    reregister_runtime
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 _uninstall_runtime() {
@@ -21,12 +33,14 @@ _uninstall_runtime() {
        --colima) remove_runtime ;;
     esac
     sh scripts/emulation-layer.sh --remove
+
+    reregister_runtime
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 _setup_runtime() {
     if [ "$OS_TYPE" != "darwin" ]; then
         _install_runtime --docker
-        printf "\nPress Enter to continue..."; read -r _
         return
     fi
 
@@ -44,11 +58,9 @@ _setup_runtime() {
             0) break ;;
             1)
                 _install_runtime --docker
-                printf "\nPress Enter to continue..."; read -r _
                 ;;
             2)
                 _install_runtime --colima
-                printf "\nPress Enter to continue..."; read -r _
                 ;;
             *)
                 printf "\nInvalid option. Please select a valid option $options.\n"
@@ -61,14 +73,18 @@ _setup_runtime() {
 _remove_runtime() {
     display_banner
     if [ "$OS_TYPE" != "darwin" ]; then
-        _install_runtime --docker
+        _uninstall_runtime --docker
         return
     fi
     _uninstall_runtime --colima
-    printf "\nPress Enter to continue..."; read -r _
 }
 
 _runtime_cleanup() {
+    if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
+        display_banner
+        print_no_runtime && return
+    fi
+
     while true; do
         display_banner
         printf "About to clean up orphaned applications and downloaded images.\n"

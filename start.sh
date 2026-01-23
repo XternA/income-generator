@@ -13,13 +13,6 @@ sh scripts/init.sh
 SYS_INFO=$($SYS_INFO)
 STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
 
-display_banner() {
-    clear
-    printf "Income Generator Application Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--noline" ] && echo
-}
-
 stats() {
     printf "%s\n\n" "$SYS_INFO"
     printf "%s\n" "$STATS"

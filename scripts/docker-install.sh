@@ -1,109 +1,142 @@
 #!/bin/sh
 
+[ -n "$DOCKER_INSTALL_CACHED" ] && return
+DOCKER_INSTALL_CACHED=1
+
 # CentOS/RHEL
 install_centos() {
     sudo yum install -y yum-utils
     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    sudo yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    sudo systemctl start docker
+    sudo yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin || return 1
+    sudo systemctl start docker || return 1
     sudo systemctl enable docker
+    return 0
 }
 
 # Debian/Ubuntu/Raspbian
 install_debian_ubuntu() {
-    sudo apt update
-    sudo apt install -y ca-certificates curl lsb-release
-    sudo install -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg -o /etc/apt/keyrings/docker.asc
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/$(. /etc/os-release && echo "$ID") $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt update
-    sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    sudo systemctl start docker
-    sudo systemctl enable docker
+    printf "${BLUE}Installing Docker Engine...${NC}\n\n"
+
+    sudo apt update -qq
+    sudo apt install -y ca-certificates curl || return 1
+    sudo install -m 0755 -d /etc/apt/keyrings || return 1
+    sudo curl -fsSL "https://download.docker.com/linux/$OS_ID/gpg" -o /etc/apt/keyrings/docker.asc || return 1
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    printf '%s\n' \
+        'Types: deb' \
+        "URIs: https://download.docker.com/linux/$OS_ID" \
+        "Suites: $OS_CODENAME" \
+        'Components: stable' \
+        'Signed-By: /etc/apt/keyrings/docker.asc' |
+    sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null
+
+    sudo apt update -qq
+    sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || return 1
+
+    # Systemd handling (with WSL-specific error messages)
+    if sudo systemctl start docker && sudo systemctl enable docker 2>/dev/null; then
+        if [ "$OS_IS_WSL" = "true" ]; then
+            printf "\n${GREEN}Docker Engine installed natively in WSL.${NC}\n"
+            printf "${GREEN}Systemd will automatically start Docker on WSL boot.${NC}\n"
+
+            # Setup Windows CLI wrappers
+            . scripts/runtime/wsl/wsl-docker-wrapper.sh
+            setup_docker_windows_wrappers
+        fi
+    else
+        if [ "$OS_IS_WSL" = "true" ]; then
+            printf "\n${YELLOW}Warning: Could not enable systemd auto-start.${NC}\n"
+            printf "${YELLOW}You may need to enable systemd in ${RED}/etc/wsl.conf${NC}\n"
+            printf "\n${BLUE}Docker installed successfully but requires manual start.${NC}\n"
+        else
+            return 1
+        fi
+    fi
+    return 0
 }
 
 # Fedora
 install_fedora() {
     sudo dnf install -y dnf-plugins-core
     sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    sudo systemctl start docker
+    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin || return 1
+    sudo systemctl start docker || return 1
     sudo systemctl enable docker
+    return 0
 }
 
 # SLES
 install_sles() {
     sudo zypper install -y container-suseconnect
     sudo SUSEConnect -p sle-module-containers/15.3/x86_64
-    sudo zypper install -y docker docker-compose-plugin
-    sudo systemctl start docker
+    sudo zypper install -y docker docker-compose-plugin || return 1
+    sudo systemctl start docker || return 1
     sudo systemctl enable docker
+    return 0
 }
 
 # Arch Linux
 install_arch() {
-    sudo pacman -Syu --noconfirm docker docker-compose-plugin
-    sudo systemctl start docker
+    sudo pacman -Syu --noconfirm docker docker-compose-plugin || return 1
+    sudo systemctl start docker || return 1
     sudo systemctl enable docker
+    return 0
 }
 
 # macOS
 install_darwin() {
-    brew install --cask docker
+    brew install --cask docker || return 1
     echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
     echo "Make sure Docker Engine is fully running before proceeding..."
     open -a Docker
-}
-
-# Windows WSL
-install_wsl() {
-    if [ -e "$(which winget.exe 2> /dev/null)" ]; then
-        winget.exe install -e --id Docker.DockerDesktop
-        $("/mnt/c/Program Files/Docker/Docker/Docker Desktop.exe")
-        echo "\nLaunching Docker Desktop in order to start the Docker Engine..."
-        echo "Make sure Docker Engine is fully running before proceeding..."
-    else
-        echo "Winget Package Manager is not found. Make sure Winget is installed before trying again."
-        echo "\nDocker is not installed.".
-        exit
-    fi
+    return 0
 }
 
 # -----[ Main ]----------------------------------------------------------
 if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
-    case $OS_TYPE in
+    install_failed=0
+
+    case $OS_ID in
         centos | rhel)
-            install_centos
+            install_centos || install_failed=1
             ;;
         debian | ubuntu | raspbian)
-            install_debian_ubuntu
+            if [ "$OS_IS_WSL" = "true" ]; then
+                . scripts/runtime/wsl/wsl-runtime.sh
+                setup_wsl_runtime || install_failed=1
+            else
+                install_debian_ubuntu || install_failed=1
+            fi
             ;;
         fedora)
-            install_fedora
+            install_fedora || install_failed=1
             ;;
         sles)
-            install_sles
+            install_sles || install_failed=1
             ;;
         arch)
-            install_arch
+            install_arch || install_failed=1
             ;;
         darwin)
-            install_darwin
-            ;;
-        wsl)
-            install_wsl
+            install_darwin || install_failed=1
             ;;
         *)
-            echo "Unsupported Unix distribution: $OS_TYPE"
+            echo "Unsupported Unix distribution: $OS_ID"
+            echo "You may need to install Docker manually."
             exit 1
             ;;
     esac
-    if [ "$OS_IS_LINUX" = "true" ]; then
-        sudo usermod -aG docker "$(whoami)"
-        newgrp docker
+
+    if [ $install_failed -eq 0 ]; then
+        if [ "$OS_IS_LINUX" = "true" ]; then
+            sudo usermod -aG docker "$(id -un)"
+            printf "\nRestart your terminal or log out/in to apply Docker group changes.\n"
+        fi
+        printf "\n${GREEN}Docker has been installed successfully.${NC}\n"
     fi
-    echo "\nDocker has been installed successfully."
-    echo "\nRestart host if docker doesn't start."
+    
+    [ $install_failed -eq 1 ] && exit 1
 else
     echo "Docker is already installed."
 fi
