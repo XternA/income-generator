@@ -39,7 +39,7 @@ _uninstall_runtime() {
 }
 
 _setup_runtime() {
-    if [ "$OS_TYPE" != "darwin" ]; then
+    if [ "$OS_IS_DARWIN" = "false" ]; then
         _install_runtime --docker
         return
     fi
@@ -72,7 +72,7 @@ _setup_runtime() {
 
 _remove_runtime() {
     display_banner
-    if [ "$OS_TYPE" != "darwin" ]; then
+    if [ "$OS_IS_DARWIN" = "false" ]; then
         _uninstall_runtime --docker
         return
     fi
