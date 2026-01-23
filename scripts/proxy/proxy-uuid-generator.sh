@@ -9,12 +9,16 @@ export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
 export PROXY_FOLDER_ACTIVE="$PROXY_FOLDER/active"
 
 read TOTAL_PROXIES ACTIVE_PROXIES <<EOF
-$(awk '
-  BEGIN { total=0; active=0 }
-  NF { total++ }
-  /^[^#]/ && NF { active++ }
-  END { print total, active }
-' "$PROXY_FILE")
+$(if [ -f "$PROXY_FILE" ]; then
+    awk '
+      BEGIN { total=0; active=0 }
+      NF { total++ }
+      /^[^#]/ && NF { active++ }
+      END { print total, active }
+    ' "$PROXY_FILE"
+else
+    echo "0 0"
+fi)
 EOF
 
 generate_uuid_files() {
