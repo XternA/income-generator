@@ -1,4 +1,7 @@
-#!/bin/sh)
+#!/bin/sh
+
+[ -n "$__PROXY_APP_LIMITED_CACHED" ] && return
+__PROXY_APP_LIMITED_CACHED=1
 
 __populate_proxy_limit_entries() {
     extract_all_app_data .install_limit | awk '{ val = ($2=="null"?"-":$2); print $1 "=" val }' > "$PROXY_INSTALL_LIMIT"
@@ -134,6 +137,7 @@ get_app_install_limit() {
         fi
         shift 2
     done
+    echo "null" # Return null if app not found
 }
 
 # Init

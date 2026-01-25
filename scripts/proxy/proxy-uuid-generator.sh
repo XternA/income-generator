@@ -8,38 +8,35 @@ __PROXY_UUID_GENERATOR_CACHED=1
 export PROXY_FOLDER="${ROOT_DIR}/proxy_uuid"
 export PROXY_FOLDER_ACTIVE="$PROXY_FOLDER/active"
 
-read TOTAL_PROXIES ACTIVE_PROXIES <<EOF
-$(if [ -f "$PROXY_FILE" ]; then
-    awk '
-      BEGIN { total=0; active=0 }
-      NF { total++ }
-      /^[^#]/ && NF { active++ }
-      END { print total, active }
-    ' "$PROXY_FILE"
-else
-    echo "0 0"
-fi)
+if [ -f "$PROXY_FILE" ]; then
+    read TOTAL_PROXIES ACTIVE_PROXIES <<EOF
+$(awk 'END {print NR, active+0} /^[^#]/ && NF {active++}' "$PROXY_FILE" 2>/dev/null)
 EOF
+else
+    TOTAL_PROXIES=0
+    ACTIVE_PROXIES=0
+fi
 
 generate_uuid_files() {
+    app_data=$(jq -r '.[] | select(.is_enabled == true and .uuid_type != null) | "\(.name) \(.uuid_type)"' "$JSON_FILE")
+    [ -z "$app_data" ] && return
+
     [ -d "$PROXY_FOLDER" ] || mkdir -p "$PROXY_FOLDER_ACTIVE"
 
-    app_data=$(jq -r '.[] | select(.is_enabled == true and .uuid_type != null) | "\(.name) \(.uuid_type)"' "$JSON_FILE")
-    counter=1
-    
-    while [ "$counter" -le "$TOTAL_PROXIES" ]; do
-        echo "$app_data" | while read -r name uuid_type; do
-            proxy_file="${PROXY_FOLDER}/${name}.uuid"
-            uuid="$(generate_uuid "$uuid_type")"
+    echo "$app_data" | while IFS=' ' read -r name uuid_type; do
+        proxy_file="${PROXY_FOLDER}/${name}.uuid"
 
-            if [ -f "$proxy_file" ]; then
-                current_uuid_count=$(grep -c '[^[:space:]]' "$proxy_file" 2>/dev/null || echo 0)
-                [ "$current_uuid_count" -lt "$TOTAL_PROXIES" ] && echo "$uuid" >> "$proxy_file"
-            else
-                echo "$uuid" > "$proxy_file"
-            fi
-        done
-        counter=$((counter + 1))
+        existing_count=$(awk 'NF {n++} END {print n+0}' "$proxy_file" 2>/dev/null)
+        proxies_needed=$((TOTAL_PROXIES - existing_count))
+
+        [ "$proxies_needed" -le 0 ] && continue
+
+        # Generate all needed UUIDs in batch
+        counter=0
+        while [ "$counter" -lt "$proxies_needed" ]; do
+            generate_uuid "$uuid_type"
+            counter=$((counter + 1))
+        done >> "$proxy_file"
     done
 }
 
@@ -51,31 +48,26 @@ view_proxy_uuids() {
             filename="${file##*/}"
             app_name="${filename%%.*}" # Remove extension
 
-            echo "[ ${RED}${app_name}${NC} ]${NC}"
-            counter=0
-            while IFS= read -r line; do
-                [ $(( counter % 2 )) -eq 0 ] && echo "${YELLOW}$line" || echo "${BLUE}$line"
-                counter=$((counter + 1))
-            done < "$file"
-            echo "$NC"
+            printf "[ ${RED}${app_name}${NC} ]${NC}\n"
+            awk -v yellow="$YELLOW" -v blue="$BLUE" -v nc="$NC" '{ printf "%s%s%s\n", (NR % 2 ? yellow : blue), $0, nc }' "$file"
+            printf "${NC}\n"
         done
         return
     fi
 
-    echo "Active Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n"
-
+    printf "Active Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
     if [ "$1" = "active" ]; then
         app_data=$(jq -r '.[] | select(.is_enabled == true and .proxy_uuid != null) | "\(.name) \(.proxy_uuid.description)"' "$JSON_FILE")
 
-        [ -z "$app_data" ] && echo "No active application with multi-UUID currently in use.\n" && return
+        [ -z "$app_data" ] && printf "No active application with multi-UUID currently in use.\n\n" && return
 
         echo "$app_data" | while read -r name description; do
             file="${PROXY_FOLDER_ACTIVE}/${name}.uuid"
 
             [ -f "$file" ] || continue
 
-            echo "[ ${GREEN}${name}${NC} ]${NC}"
-            [ "$description" != null ] && echo "${PINK}$description${NC}\n"
+            printf "[ ${GREEN}${name}${NC} ]${NC}\n"
+            [ "$description" != null ] && printf "%b%s%b\n\n" "${PINK}" "$description" "${NC}"
 
             while IFS= read -r line; do
                 echo " ${GREEN}-> ${YELLOW}$line${NC}"

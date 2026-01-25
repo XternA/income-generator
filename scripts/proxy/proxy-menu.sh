@@ -1,10 +1,17 @@
 #!/bin/sh
 
+[ -n "$__PROXY_MENU_LOADED" ] && return
+__PROXY_MENU_LOADED=1
+
 . scripts/proxy/proxy-uuid-generator.sh
 . scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
 
-HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
+if [ "$HAS_CONTAINER_RUNTIME" ]; then
+    HAS_PROXY_APPS='$CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1'
+else
+    HAS_PROXY_APPS=":"
+fi
 
 display_banner() {
     clear
@@ -66,7 +73,7 @@ remove_proxy_app() {
 }
 
 edit_proxy_file() {
-    while true; do
+    while :; do
         display_banner
 
         if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
@@ -122,17 +129,16 @@ edit_proxy_file() {
 }
 
 manage_uuids() {
-    while true; do
-        display_banner
+    options="(1-3)"
 
-        options="(1-3)"
+    while :; do
+        display_banner
         echo "1. View all generated UUID"
         echo "2. Edit generated UUIDs"
         echo "3. Clear generated UUIDs"
         echo "0. Return to Main Menu"
-        echo
+        printf "\nSelect an option $options: "; read -r choice
 
-        printf "Select an option $options: "; read -r choice
         case $choice in
             0) break ;;
             1)
@@ -269,11 +275,11 @@ run_proxy_app_limiter() {
 }
 
 manage_proxy() {
+    options="(1-2)"
+
     while :; do
         display_banner
         printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
-
-        options="(1-2)"
         echo "1. Manage UUIDs"
         echo "2. Reset Proxies"
         echo "0. Return to Main Menu"
@@ -294,11 +300,10 @@ manage_proxy() {
 main_menu() {
     get_and_update_proxy_entries
 
+    options="(1-9)"
     while :; do
         display_banner
         printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
-
-        options="(1-9)"
         echo "1. Setup Proxies"
         echo "2. Select Applications"
         echo "3. Install Proxy Applications"
