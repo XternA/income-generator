@@ -113,8 +113,11 @@ _uninstall_docker_desktop() {
         [ -n "$path" ] && sudo rm -f "$path" >/dev/null 2>&1 || true
     done
 
+    printf "\nRemoving Docker Desktop plugin symlinks...\n"
+    sudo rm -rf /usr/local/lib/docker/cli-plugins 2>/dev/null || true
+
     printf "\nRemoving Docker data directory from WSL...\n"
-    sudo rm -rf /var/lib/docker-desktop $HOME/.docker
+    sudo rm -rf /var/lib/docker-desktop $HOME/.docker 2>/dev/null || true
 
     if [ $uninstall_failed -eq 0 ]; then
         printf "\n${YELLOW}You may need to restart your system to complete the removal.${NC}\n"
