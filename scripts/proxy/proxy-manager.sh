@@ -1,5 +1,7 @@
 #!/bin/sh
 
+BANNER_MODE=proxy
+. scripts/banner.sh
 . scripts/proxy/proxy-uuid-generator.sh
 . scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
@@ -65,11 +67,6 @@ __cleanup_proxy_installation() {
     exit 130
 }
 
-display_banner() {
-    clear
-    printf "Income Generator Proxy Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n\n"
-}
 
 retrieve_app_data() {
     APP_DATA=$(extract_app_data .alias .is_enabled .proxy_uuid)

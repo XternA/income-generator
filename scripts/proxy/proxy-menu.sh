@@ -3,6 +3,8 @@
 [ -n "$__PROXY_MENU_LOADED" ] && return
 __PROXY_MENU_LOADED=1
 
+BANNER_MODE=proxy
+. scripts/banner.sh
 . scripts/proxy/proxy-uuid-generator.sh
 . scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
@@ -12,13 +14,6 @@ if [ "$HAS_CONTAINER_RUNTIME" ]; then
 else
     HAS_PROXY_APPS=":"
 fi
-
-display_banner() {
-    clear
-    printf "Income Generator Proxy Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--noline" ] && echo
-}
 
 get_and_update_proxy_entries() {
     ACTIVE_PROXIES=$(if [ -e "$PROXY_FILE" ]; then grep -c '^[^#]' "$PROXY_FILE"; else echo 0; fi)

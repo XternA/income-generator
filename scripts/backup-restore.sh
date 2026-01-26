@@ -1,16 +1,14 @@
 #!/bin/sh
 
+BANNER_MODE=backup
+. scripts/banner.sh
+
 TEMP_FILE="$ENV_FILE.tmp"
 BACKUP_FILE="$ENV_FILE.backup"
 
 ENCRYPT_BACKUP="$ENCRYPTOR -es $BACKUP_FILE"
 DECRYPT_BACKUP="$ENCRYPTOR -ds $BACKUP_FILE"
 
-display_banner() {
-    clear
-    printf "Backup & Restore Config Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n\n"
-}
 
 backup_config() {
     if [ -f "$BACKUP_FILE" ]; then
