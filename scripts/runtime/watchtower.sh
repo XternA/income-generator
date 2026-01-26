@@ -20,7 +20,7 @@ deploy_for_proxy() {
     restore_watchtower
 }
 
-restore_for_standard() {
+sync_watchtower_state() {
     have_active_apps="$($CONTAINER_ALIAS ps -a --filter "label=project=standard" --format "{{.Names}}" | grep -v "$WATCHTOWER_ALIAS" | head -n 1)"
 
     if [ ! -z "$have_active_apps" ]; then
@@ -33,7 +33,7 @@ restore_for_standard() {
 
 case "$1" in
     deploy) deploy_for_proxy ;;
-    restore) restore_for_standard ;;
+    sync) sync_watchtower_state ;;
     modify_only) modify_watchtower ;;
     restore_only) restore_watchtower ;;
 esac

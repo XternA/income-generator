@@ -447,7 +447,7 @@ remove_proxy_instance() {
         echo
     done < "$PROXY_FILE"
 
-    $WATCHTOWER restore
+    $WATCHTOWER sync
     $CONTAINER_ALIAS volume prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
     rm -rf $PROXY_FOLDER_ACTIVE
 
