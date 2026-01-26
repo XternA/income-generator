@@ -1,21 +1,19 @@
 #!/bin/sh
 
+[ -n "$__ARCH_PLATFORM_RUNTIME_CACHED" ] && return
+__ARCH_PLATFORM_RUNTIME_CACHED=1
+
 run_platform_override() {
     : > "$ENV_PLATFORM_OVERRIDE_FILE"
-    extract_all_app_data .platform_override | while read -r app_name array; do
-        [ "x$array" = "xnull" ] && continue
 
-        clean=${array#\{}; clean=${clean%\}}; clean=$(echo "$clean" | tr -d '"')
-        key=${clean%%:*}; values=${clean#*:}; values=${values#\[}; values=${values%\]}
-
-        old_ifs=$IFS
-        IFS=','
-        for arch in $values; do
-            if [ "$arch" = "$OS_DOCKER_ARCH" ]; then
-                printf "%s_PLATFORM=linux/%s\n" "$app_name" "$key" >> "$ENV_PLATFORM_OVERRIDE_FILE"
-            fi
-        done
-        IFS=$old_ifs
+    jq -r --arg arch "$OS_DOCKER_ARCH" '
+        .[] | select(.platform_override != null) |
+        . as $app |
+        .platform_override | to_entries[] |
+        select(.value | index($arch) != null) |
+        "\($app.name) \(.key)"
+    ' "$JSON_FILE" | while read -r app_name platform; do
+        printf "%s_PLATFORM=linux/%s\n" "$app_name" "$platform" >> "$ENV_PLATFORM_OVERRIDE_FILE"
     done
 }
 
