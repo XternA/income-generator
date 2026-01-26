@@ -25,7 +25,7 @@ restore_for_standard() {
 
     if [ ! -z "$have_active_apps" ]; then
         CONTAINER_EXIST="$CONTAINER_ALIAS ps -a -q -f 'name=$WATCHTOWER_ALIAS'"
-        [ -z "$(eval $CONTAINER_EXISTS)" ] && eval $COMMAND > /dev/null 2>&1
+        [ -z "$(eval $CONTAINER_EXIST)" ] && eval $COMMAND > /dev/null 2>&1
     else
         $CONTAINER_ALIAS rm -f $WATCHTOWER_ALIAS > /dev/null 2>&1
     fi

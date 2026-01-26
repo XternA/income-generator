@@ -350,6 +350,7 @@ remove_application() {
     result="$($CONTAINER_ALIAS rm -f -v "$1" 2>&1)"
     if [ "$result" = "$1" ]; then
         printf "Removing application ${RED}$1${NC}\n"
+        $WATCHTOWER restore # Clean up if no apps remain
     else
         printf "Failed to remove application ${RED}$1${NC}\n$result\n"
     fi
@@ -657,9 +658,11 @@ install_single_application() {
 
                 $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES pull "$selected_app"
                 echo
-                $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up -d "$selected_app"
+                $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up --force-recreate -d "$selected_app"
 
                 if [ $? -eq 0 ]; then
+                    $WATCHTOWER restore
+                    
                     printf "\n${GREEN}✓ $app_name installed successfully!${NC}\n"
                     printf "\nInstall another application? (Y/N): "; read -r user_input
                     case "$user_input" in
