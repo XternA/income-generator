@@ -553,15 +553,17 @@ show_applications() {
             ;;
         proxy)
             if [ -z "$(has_apps proxy)" ]; then
-                if [ "$proxy_number" = "group" ]; then
-                    show_apps proxy group
-                elif [ -n "$proxy_number" ]; then
+                if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
                     printf "\nNo proxy set ${RED}%s${NC} applications installed.\n" "$proxy_number"
                 else
                     printf "\nNo proxy applications installed.\n"
                 fi
             else
-                show_apps proxy
+                if [ "$proxy_number" = "group" ]; then
+                    show_apps proxy group
+                else
+                    show_apps proxy
+                fi
             fi
             ;;
         app)
