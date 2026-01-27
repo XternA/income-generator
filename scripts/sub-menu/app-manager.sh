@@ -454,7 +454,7 @@ show_applications() {
     proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
 
     has_apps() {
-        if [ ! -z "$proxy_number" ]; then
+        if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
             $CONTAINER_ALIAS ps -a -q -f "label=${proxy_project}" | head -n 1
         else
             $CONTAINER_ALIAS ps -a -q -f "label=project=${1}" | head -n 1
@@ -511,7 +511,7 @@ show_applications() {
                 i=$((i+1))
             done
         else
-            if [ -n "$proxy_number" ]; then
+            if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
                 filter_label="label=com.docker.compose.project=${container_type}-app-${proxy_number}"
             else
                 filter_label="label=project=${container_type}"
