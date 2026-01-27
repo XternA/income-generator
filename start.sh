@@ -434,7 +434,7 @@ case "$1" in
         clear
         ;;
     runtime)
-        runtime_menu
+        runtime_menu --cli
         clear
         ;;
     ip)

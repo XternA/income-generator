@@ -108,6 +108,11 @@ _runtime_cleanup() {
 }
 
 runtime_menu() {
+    case "$1" in
+        --cli) exit_option="Exit" ;;
+        *) exit_option="Return to Main Menu" ;;
+    esac
+
     while true; do
         display_banner
         _has_colima_runtime && has_colima_runtime=1 || has_colima_runtime=0
@@ -123,7 +128,7 @@ runtime_menu() {
             echo "2. Install Runtime"
             echo "3. Uninstall Runtime"
         fi
-        echo "0. Return to Main Menu"
+        echo "0. $exit_option"
         printf "\nSelect an option $options: "; read -r option
 
         case $option in
