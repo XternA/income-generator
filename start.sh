@@ -1,5 +1,6 @@
 #!/bin/sh
 
+. scripts/banner.sh
 . scripts/shared-component.sh
 sh scripts/init.sh
 
@@ -20,9 +21,10 @@ stats() {
 }
 
 option_2() {
+    options="(1-5)"
+    
     while true; do
         display_banner
-        options="(1-5)"
 
         echo "1. Set up configuration"
         echo "2. View config file"
@@ -71,7 +73,6 @@ option_8() {
 
     while true; do
         display_banner    
-
         printf "Pick a new resource limit utilization based\non the current hardware limits.\n\n"
         printf "%s\n\n" "$STATS"
         echo "1. BASE   -->   350MB RAM"
@@ -125,10 +126,10 @@ run_updater() {
 }
 
 manage_tool() {
+    options="(1-6)"
+
     while true; do
         display_banner
-
-        options="(1-6)"
         echo "1. Backup & restore config"
         echo "2. Manage application state"
         echo "3. Reset resource limit"
@@ -136,24 +137,22 @@ manage_tool() {
         echo "5. Check and get update"
         echo "6. Change editor tool"
         echo "0. Return to Main Menu"
-        echo
-        printf "Select an option $options: "; read -r option
+        printf "\nSelect an option $options: "; read -r option
 
         case $option in
             1)
                 $BACKUP_RESTORE
                 ;;
             2)
+                options="(1-2)"
+
                 while true; do
                     display_banner
-                    options="(1-2)"
-
                     printf "Re-enable, restore saved application state.\n\n"
                     echo "1. Re-enable all applications"
                     echo "2. Restore from saved application state"
                     echo "0. Return to Main Menu"
-                    echo
-                    printf "Select an option $options: "; read -r choice
+                    printf "\nSelect an option $options: "; read -r choice
 
                     case $choice in
                         1)
@@ -267,12 +266,12 @@ tool_reset() {
 main_menu() {
     NEW_UPDATE=$($UPDATE_CHECKER)
 
+    options="(1-9)"
+
     while true; do
         display_banner --noline
         stats
         [ -n "$NEW_UPDATE" ] && printf "$NEW_UPDATE\n"
-
-        options="(1-9)"
 
         echo "1. Install & Run Applications"
         echo "2. Setup Configuration"
@@ -284,8 +283,7 @@ main_menu() {
         echo "8. Change Resource Limits"
         echo "9. Manage Tool"
         echo "0. Quit"
-        echo
-        printf "Select an option $options: "; read -r choice
+        printf "\nSelect an option $options: "; read -r choice
 
         case $choice in
             0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;

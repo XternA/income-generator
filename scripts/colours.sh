@@ -1,7 +1,7 @@
 #!/bin/sh
 
-[ -n "$COLOURS_CACHED" ] && return
-COLOURS_CACHED=1
+[ -n "$__COLOURS_CACHED" ] && return
+__COLOURS_CACHED=1
 
 if [ "$COLORTERM" = "truecolor" ] || [ "$COLORTERM" = "24bit" ]; then
     export RED='\033[1;38;2;255;105;135m'

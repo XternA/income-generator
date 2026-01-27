@@ -29,8 +29,6 @@ export SYSTEM_ENV_FILES="
 "
 
 # Pre-source components ----------------
-. scripts/banner.sh
-. scripts/colours.sh
 . scripts/system-detect.sh
 
 # Declared util component ----------------
