@@ -279,10 +279,18 @@ reinstall_applications() {
 start_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+
+    has_apps="$($CONTAINER_ALIAS ps -a --format "{{.Names}}" -f "label=project=standard" | awk '!/^watchtower-igm$/ {print; exit}')"
+    if [ -z "$has_apps" ]; then
+        printf "No installed applications to start.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+
     printf "Starting applications...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     printf "\nAll installed applications started.\n"
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 start_application() {
@@ -298,15 +306,22 @@ start_application() {
 stop_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Stopping applications...\n\n"
 
+    has_running="$($CONTAINER_ALIAS ps --format "{{.Names}}" -f "label=project=standard" | awk '!/^watchtower-igm$/ {print; exit}')"
+    if [ -z "$has_running" ]; then
+        printf "No running applications to stop.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+
+    printf "Stopping applications...\n\n"
     compose_files=$ALL_COMPOSE_FILES
     proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
     [ "$proxy_is_active" ] && compose_files=$APP_COMPOSE_FILES
 
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
     printf "\nAll running applications stopped.\n"
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 stop_application() {
@@ -333,6 +348,13 @@ remove_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
+    has_apps="$($CONTAINER_ALIAS ps -a --format "{{.Names}}" -f "label=project=standard" | awk '!/^watchtower-igm$/ {print; exit}')"
+    if [ -z "$has_apps" ]; then
+        printf "No installed applications to remove.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+
     printf "Stopping and removing applications and volumes...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
@@ -342,7 +364,7 @@ remove_applications() {
 
     $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
     printf "\nAll installed applications and volumes removed.\n"
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 remove_application() {
