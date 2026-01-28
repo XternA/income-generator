@@ -49,11 +49,6 @@ remove_fedora() {
     sudo rm -rf /var/lib/docker
 }
 
-remove_sles() {
-    sudo zypper remove -y docker docker-compose-plugin
-    sudo rm -rf /var/lib/docker
-}
-
 remove_arch() {
     sudo pacman -Rns --noconfirm docker docker-compose-plugin
     sudo rm -rf /var/lib/docker
@@ -89,9 +84,6 @@ if [ "$HAS_CONTAINER_RUNTIME" ]; then
             ;;
         fedora)
             remove_fedora
-            ;;
-        sles)
-            remove_sles
             ;;
         arch)
             remove_arch

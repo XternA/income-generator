@@ -66,16 +66,6 @@ install_fedora() {
     return 0
 }
 
-# SLES
-install_sles() {
-    sudo zypper install -y container-suseconnect
-    sudo SUSEConnect -p sle-module-containers/15.3/x86_64
-    sudo zypper install -y docker docker-compose-plugin || return 1
-    sudo systemctl start docker || return 1
-    sudo systemctl enable docker
-    return 0
-}
-
 # Arch Linux
 install_arch() {
     sudo pacman -Syu --noconfirm docker docker-compose-plugin || return 1
@@ -111,9 +101,6 @@ if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
             ;;
         fedora)
             install_fedora || install_failed=1
-            ;;
-        sles)
-            install_sles || install_failed=1
             ;;
         arch)
             install_arch || install_failed=1
