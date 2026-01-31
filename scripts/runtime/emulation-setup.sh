@@ -1,10 +1,7 @@
 #!/bin/sh
 
 is_emulation_registered() {
-    if [ -f /proc/sys/fs/binfmt_misc/qemu-x86_64 ]; then
-        return 0
-    fi
-    return 1
+    [ -f /proc/sys/fs/binfmt_misc/qemu-x86_64 ]
 }
 
 setup_emulation() {
@@ -46,15 +43,17 @@ setup_emulation() {
 }
 
 remove_emulation() {
+    printf "${BLUE}Removing QEMU emulation layer...${NC}\n\n"
+
     if ! is_emulation_registered; then
-        printf "${GREEN}QEMU emulation already removed.${NC}\n\n"
+        printf "${GREEN}QEMU emulation already removed.${NC}\n"
         return 0
     fi
 
     case "$OS_ID" in
         ubuntu|debian|raspbian)
-            sudo apt purge -y qemu-user-static binfmt-support && \
-            sudo apt autoremove -y
+            sudo apt purge -y qemu-user-static binfmt-support >/dev/null 2>&1 || true && \
+            sudo apt autoremove -y >/dev/null 2>&1
             ;;
         fedora|centos|rhel)
             sudo systemctl stop systemd-binfmt.service 2>/dev/null && \
@@ -62,12 +61,12 @@ remove_emulation() {
             ;;
         *)
             printf "Unsupported Unix distribution: $OS_ID\n"
-            printf "You may need to remove QEMU emulation manually.\n\n"
+            printf "You may need to remove QEMU emulation manually.\n"
             return 1
             ;;
     esac
 
-    printf "\n${GREEN}QEMU emulation layer removed.${NC}\n\n"
+    printf "${GREEN}QEMU emulation layer removed.${NC}\n"
     return 0
 }
 
