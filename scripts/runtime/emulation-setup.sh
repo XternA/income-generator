@@ -10,6 +10,11 @@ is_emulation_registered() {
 setup_emulation() {
     printf "${BLUE}Setting up QEMU emulation layer...${NC}\n\n"
 
+    if is_emulation_registered; then
+        printf "${GREEN}QEMU emulation already configured.${NC}\n\n"
+        return 0
+    fi
+
     case "$OS_ID" in
         ubuntu|debian|raspbian)
             sudo apt update -qq && \
@@ -41,6 +46,11 @@ setup_emulation() {
 }
 
 remove_emulation() {
+    if ! is_emulation_registered; then
+        printf "${GREEN}QEMU emulation already removed.${NC}\n\n"
+        return 0
+    fi
+
     case "$OS_ID" in
         ubuntu|debian|raspbian)
             sudo apt purge -y qemu-user-static binfmt-support && \
@@ -63,11 +73,6 @@ remove_emulation() {
 
 # Main script
 if [ "$OS_IS_ARM" = "true" ] && [ "$OS_IS_DARWIN" = "false" ]; then
-    if is_emulation_registered; then
-        printf "${GREEN}QEMU emulation already configured.${NC}\n\n"
-        return 0
-    fi
-
     case "$1" in
         --setup) setup_emulation ;;
         --remove) remove_emulation ;;
