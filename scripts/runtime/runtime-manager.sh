@@ -6,15 +6,10 @@ _install_runtime() {
     display_banner
     case "$1" in
         --docker)
-            sh scripts/$CONTAINER_ALIAS-install.sh
-            install_result=$?
-
-            if [ $install_result -eq 0 ]; then
-                if [ "$OS_IS_DARWIN" = "false" ] && [ "$OS_IS_ARM" = "true" ]; then
-                    newgrp docker <<'EOF'
-sh scripts/emulation-layer.sh --add
-EOF
-                fi
+            sh scripts/runtime/emulation-setup.sh --setup
+            
+            if [ $? -eq 0 ]; then
+                sh scripts/$CONTAINER_ALIAS-install.sh
             fi
             ;;
         --colima)
@@ -27,12 +22,13 @@ EOF
 }
 
 _uninstall_runtime() {
-    display_banner
     case "$1" in
-       --docker) sh scripts/$CONTAINER_ALIAS-uninstall.sh ;;
+        --docker)
+            sh scripts/runtime/emulation-setup.sh --remove
+            sh scripts/$CONTAINER_ALIAS-uninstall.sh
+            ;;
        --colima) remove_runtime ;;
     esac
-    sh scripts/emulation-layer.sh --remove
 
     reregister_runtime
     printf "\nPress Enter to continue..."; read -r _
@@ -44,10 +40,9 @@ _setup_runtime() {
         return
     fi
 
+    options="(1-2)"
     while true; do
         display_banner
-        options="(1-2)"
-
         printf "Choose a runtime engine to install.\n\n"
         echo "1. Docker"
         echo "2. Colima"
