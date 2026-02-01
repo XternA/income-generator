@@ -43,7 +43,7 @@ setup_emulation() {
 }
 
 remove_emulation() {
-    printf "${BLUE}Removing QEMU emulation layer...${NC}\n\n"
+    printf "\n${BLUE}Removing QEMU emulation layer...${NC}\n\n"
 
     if ! is_emulation_registered; then
         printf "${GREEN}QEMU emulation already removed.${NC}\n"
