@@ -1,11 +1,12 @@
 #!/bin/sh
 
-[ -n "$DOCKER_UNINSTALL_CACHED" ] && return
-DOCKER_UNINSTALL_CACHED=1
+[ -n "$__DOCKER_UNINSTALL_CACHED" ] && return
+__DOCKER_UNINSTALL_CACHED=1
 
+# CentOS/RHEL
 remove_centos() {
-    sudo yum remove -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    sudo rm -rf /var/lib/docker
+    sudo yum remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
+    sudo rm -rf /var/lib/docker /var/lib/containerd
 }
 
 # Debian/Ubuntu/Raspbian
@@ -19,7 +20,7 @@ remove_debian_ubuntu() {
     fi
 
     printf "Removing Docker packages...\n"
-    sudo apt-get purge -y docker-ce docker-ce-cli containerd.io docker-compose-plugin >/dev/null 2>&1 || true
+    sudo apt-get purge -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras >/dev/null 2>&1 || true
     
     for bin in docker docker-compose; do
         path=$(command -v "$bin" 2>/dev/null || true)
@@ -45,15 +46,11 @@ remove_debian_ubuntu() {
 }
 
 remove_fedora() {
-    sudo dnf remove -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    sudo rm -rf /var/lib/docker
+    sudo dnf remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
+    sudo rm -rf /var/lib/docker /var/lib/containerd
 }
 
-remove_arch() {
-    sudo pacman -Rns --noconfirm docker docker-compose-plugin
-    sudo rm -rf /var/lib/docker
-}
-
+# macOS
 remove_darwin() {
     brew uninstall --cask --force docker
     brew uninstall --formula --force docker
@@ -64,17 +61,16 @@ remove_darwin() {
 # -----[ Main ]----------------------------------------------------------
 if [ "$HAS_CONTAINER_RUNTIME" ]; then
     case $OS_ID in
-        centos | rhel)
+        centos|rhel)
             remove_centos
             ;;
-        debian | ubuntu | raspbian)
+        debian|ubuntu|raspbian)
             if [ "$OS_IS_WSL" = "true" ]; then
                 . scripts/runtime/wsl/wsl-runtime.sh
                 if _is_docker_desktop_installed; then
                     remove_docker_desktop
                 else
                     . scripts/runtime/wsl/wsl-docker-wrapper.sh
-
                     remove_debian_ubuntu
                     remove_docker_windows_wrappers
                 fi
@@ -85,9 +81,6 @@ if [ "$HAS_CONTAINER_RUNTIME" ]; then
         fedora)
             remove_fedora
             ;;
-        arch)
-            remove_arch
-            ;;
         darwin)
             remove_darwin
             ;;
@@ -97,7 +90,6 @@ if [ "$HAS_CONTAINER_RUNTIME" ]; then
             exit 1
             ;;
     esac
-
     printf "\n${GREEN}Docker has been uninstalled successfully.${NC}\n"
 else
     echo "Docker is not installed."

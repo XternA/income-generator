@@ -1,15 +1,14 @@
 #!/bin/sh
 
-[ -n "$DOCKER_INSTALL_CACHED" ] && return
-DOCKER_INSTALL_CACHED=1
+[ -n "$__DOCKER_INSTALL_CACHED" ] && return
+__DOCKER_INSTALL_CACHED=1
 
 # CentOS/RHEL
 install_centos() {
     sudo yum install -y yum-utils
     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    sudo yum install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin || return 1
-    sudo systemctl start docker || return 1
-    sudo systemctl enable docker
+    sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || return 1
+    sudo systemctl enable --now docker || return 1
     return 0
 }
 
@@ -56,21 +55,11 @@ install_debian_ubuntu() {
     return 0
 }
 
-# Fedora
 install_fedora() {
     sudo dnf install -y dnf-plugins-core
     sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin || return 1
-    sudo systemctl start docker || return 1
-    sudo systemctl enable docker
-    return 0
-}
-
-# Arch Linux
-install_arch() {
-    sudo pacman -Syu --noconfirm docker docker-compose-plugin || return 1
-    sudo systemctl start docker || return 1
-    sudo systemctl enable docker
+    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin || return 1
+    sudo systemctl enable --now docker || return 1
     return 0
 }
 
@@ -88,10 +77,10 @@ if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
     install_failed=0
 
     case $OS_ID in
-        centos | rhel)
+        centos|rhel)
             install_centos || install_failed=1
             ;;
-        debian | ubuntu | raspbian)
+        debian|ubuntu|raspbian)
             if [ "$OS_IS_WSL" = "true" ]; then
                 . scripts/runtime/wsl/wsl-runtime.sh
                 setup_wsl_runtime || install_failed=1
@@ -102,8 +91,6 @@ if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
         fedora)
             install_fedora || install_failed=1
             ;;
-        arch)
-            install_arch || install_failed=1
             ;;
         darwin)
             install_darwin || install_failed=1
@@ -122,7 +109,7 @@ if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
         fi
         printf "\n${GREEN}Docker has been installed successfully.${NC}\n"
     fi
-    
+
     [ $install_failed -eq 1 ] && exit 1
 else
     echo "Docker is already installed."
