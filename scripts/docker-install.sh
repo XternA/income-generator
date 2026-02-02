@@ -91,7 +91,6 @@ if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
         fedora)
             install_fedora || install_failed=1
             ;;
-            ;;
         darwin)
             install_darwin || install_failed=1
             ;;
