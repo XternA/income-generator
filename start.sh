@@ -11,8 +11,18 @@ sh scripts/init.sh
 . scripts/arch-platform-runtime.sh
 . scripts/runtime/runtime-manager.sh
 
+get_stats() {
+    current_limit=$($SET_LIMIT | awk '{print $NF}')
+
+    if [ "$current_limit" != "$__CACHED_LIMIT" ] || [ -z "$STATS" ]; then
+        STATS="$(sh scripts/limits.sh "$current_limit")"
+        __CACHED_LIMIT="$current_limit"
+    fi
+}
+
 SYS_INFO=$($SYS_INFO)
-STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+__CACHED_LIMIT="" # Cache to avoid redundant limit calculations
+get_stats         # Initialize at startup (cached on subsequent calls)
 
 stats() {
     printf "%s\n\n" "$SYS_INFO"
@@ -69,8 +79,13 @@ option_2() {
 }
 
 option_8() {
-    options="(1-5)"
+    if [ "$1" = "quick_menu" ]; then
+        return_option="0. Exit"
+    else
+        return_option="0. Return to Main Menu"
+    fi
 
+    options="(1-5)"
     while true; do
         display_banner    
         printf "Pick a new resource limit utilization based\non the current hardware limits.\n\n"
@@ -80,7 +95,7 @@ option_8() {
         echo "3. LOW    -->   18.75% Total RAM"
         echo "4. MID    -->   25% Total RAM"
         echo "5. MAX    -->   50% Total RAM"
-        [ "$1" = "quick_menu" ] && echo "0. Exit" || echo "0. Return to Main Menu"
+        echo "$return_option"
         printf "\nSelect an option $options: "; read -r option
 
         case $option in
@@ -95,7 +110,7 @@ option_8() {
                 esac
                 echo
                 $SET_LIMIT "$limit_type"
-                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+                get_stats
                 printf "\nRedeploy applications for new limits to take effect.\n"
                 ;;
             0)
@@ -177,7 +192,7 @@ manage_tool() {
             3)
                 echo
                 $SET_LIMIT low
-                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+                get_stats
                 printf "\nPress Enter to continue..."; read -r input
                 ;;
             4)
@@ -209,7 +224,7 @@ manage_tool() {
                 
                 # Re-init some default setups
                 sh scripts/init.sh > /dev/null 2>&1
-                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+                get_stats
                 $APP_SELECTION --default
                 run_arch_image_tag
                 run_platform_override
