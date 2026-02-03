@@ -30,13 +30,7 @@ generate_uuid_files() {
         proxies_needed=$((TOTAL_PROXIES - existing_count))
 
         [ "$proxies_needed" -le 0 ] && continue
-
-        # Generate all needed UUIDs in batch
-        counter=0
-        while [ "$counter" -lt "$proxies_needed" ]; do
-            generate_uuid "$uuid_type"
-            counter=$((counter + 1))
-        done >> "$proxy_file"
+        generate_uuid_batch "$proxies_needed" "$uuid_type" >> "$proxy_file"
     done
 }
 
