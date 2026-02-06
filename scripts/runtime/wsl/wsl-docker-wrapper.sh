@@ -2,13 +2,10 @@
 
 # Setup Windows CLI wrapper that forwards Docker commands to WSL
 
-[ -n "$WSL_DOCKER_WRAPPER_CACHED" ] && return
-WSL_DOCKER_WRAPPER_CACHED=1
-
 . scripts/colours.sh
 
 setup_docker_windows_wrappers() {
-    [ "$OS_IS_WSL" != "true" ] && return 0
+    printf "\n${BLUE}Setting up Windows Docker CLI wrapper...${NC}\n"
 
     win_appdata=$(cmd.exe /c "echo %APPDATA%" 2>/dev/null | tr -d '\r')
     [ -z "$win_appdata" ] && {
@@ -31,12 +28,9 @@ setup_docker_windows_wrappers() {
         }
     fi
 
-    printf "\n${BLUE}Setting up Windows Docker CLI wrapper...${NC}\n"
-
     # Create docker.bat wrapper
     cat > "$igm_dir/docker.bat" << 'EOF'
 @echo off
-setlocal EnableDelayedExpansion
 
 where wsl >nul 2>&1 || (
     echo ERROR: WSL not found. Docker requires WSL to be installed.
@@ -58,8 +52,6 @@ EOF
 }
 
 remove_docker_windows_wrappers() {
-    [ "$OS_IS_WSL" != "true" ] && return 0
-
     win_appdata=$(cmd.exe /c "echo %APPDATA%" 2>/dev/null | tr -d '\r')
     [ -z "$win_appdata" ] && return 0
 
@@ -81,3 +73,11 @@ remove_docker_windows_wrappers() {
         return 1
     fi
 }
+
+# -- Main --------------------
+if [ $# -gt 0 ]; then
+    case "$1" in
+        --setup) setup_docker_windows_wrappers ;;
+        --remove) remove_docker_windows_wrappers ;;
+    esac
+fi

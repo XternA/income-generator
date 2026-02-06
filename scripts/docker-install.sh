@@ -39,13 +39,13 @@ install_debian_ubuntu() {
             printf "\n${GREEN}Docker Engine installed natively in WSL.${NC}\n"
             printf "${GREEN}Systemd will automatically start Docker on WSL boot.${NC}\n"
 
-            # Setup Windows CLI wrappers
-            . scripts/runtime/wsl/wsl-docker-wrapper.sh
-            setup_docker_windows_wrappers
+            # Setup Windows Docker wrapper and autostart
+            sh scripts/runtime/wsl/wsl-docker-wrapper.sh --setup
+            sh scripts/runtime/wsl/wsl-docker-autostart.sh --setup
         fi
     else
         if [ "$OS_IS_WSL" = "true" ]; then
-            printf "\n${YELLOW}Warning: Could not enable systemd auto-start.${NC}\n"
+            printf "\n${YELLOW}Warning: Could not enable systemd autostart.${NC}\n"
             printf "${YELLOW}You may need to enable systemd in ${RED}/etc/wsl.conf${NC}\n"
             printf "\n${BLUE}Docker installed successfully but requires manual start.${NC}\n"
         else

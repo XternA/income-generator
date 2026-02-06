@@ -70,9 +70,9 @@ if [ "$HAS_CONTAINER_RUNTIME" ]; then
                 if _is_docker_desktop_installed; then
                     remove_docker_desktop
                 else
-                    . scripts/runtime/wsl/wsl-docker-wrapper.sh
                     remove_debian_ubuntu
-                    remove_docker_windows_wrappers
+                    sh scripts/runtime/wsl/wsl-docker-wrapper.sh --remove
+                    sh scripts/runtime/wsl/wsl-docker-autostart.sh --remove
                 fi
             else
                 remove_debian_ubuntu
