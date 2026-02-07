@@ -1,8 +1,5 @@
 #!/bin/sh
 
-[ -n "$__DOCKER_UNINSTALL_CACHED" ] && return
-__DOCKER_UNINSTALL_CACHED=1
-
 # CentOS/RHEL
 remove_centos() {
     sudo yum remove -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras

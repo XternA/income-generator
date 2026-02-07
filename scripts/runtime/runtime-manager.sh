@@ -9,7 +9,7 @@ _install_runtime() {
             sh scripts/runtime/emulation-setup.sh --setup
 
             if [ $? -eq 0 ]; then
-                sh scripts/$CONTAINER_ALIAS-install.sh
+                sh scripts/runtime/docker/$CONTAINER_ALIAS-install.sh
             fi
             ;;
         --colima)
@@ -24,7 +24,7 @@ _install_runtime() {
 _uninstall_runtime() {
     case "$1" in
         --docker)
-            sh scripts/$CONTAINER_ALIAS-uninstall.sh
+            sh scripts/runtime/docker/$CONTAINER_ALIAS-uninstall.sh
             sh scripts/runtime/emulation-setup.sh --remove
             ;;
        --colima) remove_runtime ;;

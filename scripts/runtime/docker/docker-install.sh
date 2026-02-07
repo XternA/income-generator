@@ -1,8 +1,5 @@
 #!/bin/sh
 
-[ -n "$__DOCKER_INSTALL_CACHED" ] && return
-__DOCKER_INSTALL_CACHED=1
-
 # CentOS/RHEL
 install_centos() {
     sudo yum install -y yum-utils
