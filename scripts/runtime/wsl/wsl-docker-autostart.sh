@@ -91,6 +91,7 @@ _register_task_scheduler() {
             \$taskDef.Settings.StopIfGoingOnBatteries = \$false
             \$taskDef.Settings.ExecutionTimeLimit = 'PT5M'  # 5 minutes
             \$taskDef.Settings.Enabled = \$true
+            \$taskDef.Settings.Hidden = \$true
 
             # Register task (6 = CREATE_OR_UPDATE, null = no password needed for current user)
             \$folder.RegisterTaskDefinition('DockerAutostart', \$taskDef, 6, \$null, \$null, 3) | Out-Null
