@@ -33,9 +33,6 @@ install_jq() {
             fedora)
                 sudo dnf install -y jq > /dev/null 2>&1
                 ;;
-            sles)
-                sudo zypper install -y jq > /dev/null 2>&1
-                ;;
             arch)
                 sudo pacman -Syu --noconfirm jq > /dev/null 2>&1
                 ;;
