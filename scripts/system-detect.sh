@@ -60,7 +60,7 @@ case "$__SYS_ARCH" in
         OS_IS_ARM="true"
         ;;
     *)
-        OS_DOCKER_ARCH="latest"
+        OS_DOCKER_ARCH="amd64"
         OS_DOCKER_DISPLAY_ARCH="amd64"
         OS_IS_ARM="false"
         ;;
