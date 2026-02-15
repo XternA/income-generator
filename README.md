@@ -124,7 +124,7 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[PACKETSHARE](https://tinyurl.com/bdhdvaex)**     | :white_check_mark: | :x:                | Unlimited | 1         | PayPal |
 | **[NETWORK3](https://tinyurl.com/fe8knv3t)**        | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[WIPTER](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                | Unlimited | Unlimited | Crypto |
-| **[PROXYBASE](https://tinyurl.com/bdf56ajm)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[PROXYBASE](https://tinyurl.com/54ebzdde)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[WIZARDGAIN](https://tinyurl.com/mw962kkv)**      | :white_check_mark: | :white_check_mark: | Unlimited | 1         | PayPal, Crypto |
 | **[ANTGAIN](https://tinyurl.com/usdtrrus)**         | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto, PayPal (Soon) |
 
