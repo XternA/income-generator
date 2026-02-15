@@ -355,7 +355,7 @@ install_proxy_instance() {
         echo
         set_host_suffix "-${install_count}"
         $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d &
+        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate -d &
         docker_bg_pid=$!
         wait $docker_bg_pid
 

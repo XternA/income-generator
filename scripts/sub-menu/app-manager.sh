@@ -215,7 +215,7 @@ install_applications() {
 
         display_banner
         printf "$install_type\n\n"
-        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
         $WATCHTOWER restore_only
@@ -254,7 +254,7 @@ reinstall_applications() {
 
                 display_banner
                 printf "Redeploying last application install state...\n\n"
-                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate -d
                 [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
                 printf "\nPress Enter to continue..."; read -r input
