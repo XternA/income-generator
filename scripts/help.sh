@@ -1,12 +1,24 @@
 #!/bin/sh
 
+_OS_SPECIFIC_HELP=""
+
+if [ "$OS_IS_WSL" = "true" ]; then
+    _OS_SPECIFIC_HELP="\n  igm help wsl                      Display Windows-specific commands and help."
+    
+    if [ "$2" = "wsl" ]; then
+        . scripts/help/wsl-help.sh
+        return
+    fi
+fi
+
+# --- IGM Help -----------------------------------------------
 printf "Quick action menu of common operations.
 
 Usage: igm ${RED}|${NC} igm [option] ${RED}|${NC} igm [option] [arg]
 
 [${BLUE}General${NC}]
   igm                               Launch the Income Generator tool.
-  igm help                          Display this help usage guide.
+  igm help                          Display this help usage guide.${_OS_SPECIFIC_HELP}
   igm version                       Show the current version of Income Generator tool.
   igm update                        Check and update Income Generator tool if available.
 

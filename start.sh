@@ -456,6 +456,20 @@ case "$1" in
         . scripts/ip/ip-score.sh
         clear
         ;;
+    wsl)
+        case "${OS_IS_WSL}:$2" in
+            true:mirror)
+                sh scripts/runtime/wsl/wsl-networking.sh "$3"
+                ;;
+            true:*)
+                display_banner
+                . scripts/help/wsl-help.sh
+                ;;
+            *)
+                echo "igm: '$1' is not a valid command. See 'igm help'."
+                ;;
+        esac
+        ;;
     *)
         echo "igm: '$1' is not a valid command. See 'igm help'."
         ;;
