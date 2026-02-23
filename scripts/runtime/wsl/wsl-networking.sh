@@ -32,6 +32,11 @@ format_status() {
     esac
 }
 
+display_notice() {
+    printf "\n${YELLOW}Note:${NC} WSL must be started otherwise nothing will run.\n"
+    printf "If you run into networking issues, restart your machine.\n"
+}
+
 enable_wsl_mirrored_networking() {
     wslconfig_path=$(get_wslconfig_path)
     [ -z "$wslconfig_path" ] && { printf "${RED}Error:${NC} Could not determine .wslconfig path.\n"; return 1; }
@@ -70,10 +75,11 @@ prompt_wsl_shutdown() {
     printf "Shutdown WSL now? (Y/N) [Default: N]: "; read -r restart_choice
 
     case "$restart_choice" in
-        [Yy]*)
+        [Yy]*)F%
             printf "\nShutting down WSL...\n"
+            printf "${GREEN}WSL shutdown initiated. ✓${NC}\n\nRun ${BLUE}igm show${NC} to start WSL and application containers.\n"
+            display_notice
             wsl.exe --shutdown 2>/dev/null
-            printf "${GREEN}WSL shutdown initiated. ✓${NC}\n\nRun${BLUE}igm show${NC} to start WSL and application containers.\n"
             ;;
         *)
             printf "\n${BLUE}To activate changes later:${NC}\n"
@@ -81,8 +87,7 @@ prompt_wsl_shutdown() {
             printf "  2. Load WSL to start application containers: ${GREEN}igm show${NC}\n"
             ;;
     esac
-    printf "\n${YELLOW}Note:${NC} WSL must be started otherwise nothing will run.\n"
-    printf "If you run into networking issues, restart your machine.\n"
+    display_notice
 }
 
 handle_mirror_command() {
@@ -93,15 +98,15 @@ handle_mirror_command() {
         return 1
     }
 
+    status=$(get_wsl_networking_status)
+
     case "$1" in
         status)
-            status=$(get_wsl_networking_status)
             printf "WSL Mirrored Networking: "
             format_status "$status"
+            printf "\n"
             ;;
         "")
-            status=$(get_wsl_networking_status)
-
             display_banner
             printf "${GREEN}WSL Mirrored Networking${NC}\n\n"
             printf "Current Status: "
