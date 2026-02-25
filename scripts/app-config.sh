@@ -124,7 +124,6 @@ __reorder_config_file() {
             for (app in app_has_creds) {
                 if (!first_app) print ""
                 first_app = 0
-                print ""
                 print app_creds[app]
             }
         }
