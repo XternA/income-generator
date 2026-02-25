@@ -320,7 +320,7 @@ main_menu() {
 }
 
 # Main script
-trap '$POST_OPS; clear; exit 0' INT
+trap '$POST_OPS; clear; exit 0' INT TERM HUP
 $DECRYPT_CRED
 
 case "$1" in
