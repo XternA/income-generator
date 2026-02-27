@@ -111,7 +111,7 @@ services:
             - com.centurylinklabs.watchtower.scope=igm
         cap_add:
             - NET_ADMIN
-        command: service --agreed-terms-and-conditions
+        command: --ui.address=0.0.0.0 service --agreed-terms-and-conditions
         profiles:
             - ${MYSTERIUM:-DISABLED}
         ports:
