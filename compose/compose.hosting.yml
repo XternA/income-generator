@@ -282,6 +282,8 @@ services:
             options:
                 max-size: 10k
                 max-file: 1
+        healthcheck:
+            disable: true
 
 volumes:
     bitping-data:
