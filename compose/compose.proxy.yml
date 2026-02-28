@@ -12,6 +12,7 @@ services:
             - PROXY=${PROXY_URL:-}
             - TCP_AUTO_TUNING=1
             - MTU=1500
+            - EXTRA_COMMANDS=iptables -t mangle -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j MARK --set-mark 0x22b
         cap_add:
             - NET_ADMIN
         security_opt:
