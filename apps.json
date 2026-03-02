@@ -179,6 +179,10 @@
         "url": "https://tinyurl.com/5dkekpmc",
         "description": " Setup requires going to 'localhost:4449' or '<ip_address_of_instance>:4449' in the browser and follow onboarding process to register node.",
         "properties": null,
+        "proxy_port": {
+            "host": 6000,
+            "container": 4449
+        },
         "is_enabled": true
     },
     {
@@ -229,6 +233,10 @@
             "WIPTER_PASSWORD",
             "VNC_PASS"
         ],
+        "proxy_port": {
+            "host": 5000,
+            "container": 8080
+        },
         "is_enabled": true
     },
     {

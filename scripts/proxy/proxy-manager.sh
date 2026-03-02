@@ -5,6 +5,7 @@ BANNER_MODE=proxy
 . scripts/proxy/proxy-uuid-generator.sh
 . scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
+. scripts/proxy/proxy-port-mapping.sh
 
 PROXY_APP_NAME="tun2socks"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
@@ -70,6 +71,26 @@ __cleanup_proxy_installation() {
 
 retrieve_app_data() {
     APP_DATA=$(extract_app_data .alias .is_enabled .proxy_uuid)
+}
+
+has_installable_apps() {
+    awk -v count="$1" -v app_data="$APP_DATA" -v limit_data="$limit_data" '
+    BEGIN {
+        gsub(/\n/, " ", limit_data)
+        limit_count = split(limit_data, lf, " ")
+        for (j = 1; j <= limit_count; j += 2) if (lf[j] != "") limits[lf[j]] = lf[j+1]
+
+        app_count = split(app_data, al, "\n")
+        for (i = 1; i <= app_count; i++) {
+            if (al[i] == "") continue
+            split(al[i], f, " ")
+            if (f[3] != "true") continue
+            limit_val = limits[f[1]]
+            if (limit_val == "" || limit_val == "-" || count+0 <= limit_val+0) exit 0
+        }
+        exit 1
+    }
+    ' /dev/null
 }
 
 set_host_suffix() {
@@ -247,6 +268,11 @@ install_proxy_instance() {
             continue # Skip entries not in use.
         fi
 
+        if ! has_installable_apps "$install_count"; then
+            proxy_entry_pointer=$((proxy_entry_pointer + 1))
+            continue
+        fi
+
         printf "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}\n"
         display_proxy_info "$proxy_url"
         echo "PROXY_URL=$proxy_url" > "$ENV_PROXY_FILE"
@@ -340,17 +366,7 @@ install_proxy_instance() {
             $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
         fi
 
-        # Update and increment all ports
-        awk '
-            /^[[:space:]]*ports:/ { p=1; print; next }
-            p && /^[[:space:]]*-[[:space:]]*[0-9]+:[0-9]+/ {
-            split($2, a, ":")
-            a[1]++
-            print "            - " a[1] ":" a[2]
-            next
-            }
-            { p=0; print }
-        ' "$TUNNEL_COMPOSE_FILE" > tmp && mv tmp "$TUNNEL_COMPOSE_FILE"
+        sync_port_mapping "$install_count"
 
         echo
         set_host_suffix "-${install_count}"
@@ -446,6 +462,7 @@ remove_proxy_instance() {
 
     $WATCHTOWER sync
     $CONTAINER_ALIAS volume prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
+    strip_port_mapping
     rm -rf $PROXY_FOLDER_ACTIVE
 
     echo "Proxy application uninstall complete."
@@ -454,17 +471,16 @@ remove_proxy_instance() {
 
 check_proxy_file() {
     if [ ! -e "$PROXY_FILE" ]; then
-        echo "Proxy file doesn't exist.\nSetup proxy entries first."
+        printf "Proxy file doesn't exist.\nSetup proxy entries first.\n"
         printf "\nPress Enter to continue..."; read -r input
         exit 0
     elif [ ! -s "$PROXY_FILE" ]; then
-        echo "Proxy file is empty. Add entries first."
+        printf "Proxy file is empty. Add entries first.\n"
         printf "\nPress Enter to continue..."; read -r input
         exit 0
     fi
 
-    # Ensure proxy entries are valid
-    awk -v red="$RED" -v yellow="$YELLOW" -v reset="$NC" '
+    if ! awk -v red="$RED" -v yellow="$YELLOW" -v reset="$NC" '
     /^[^#]/ {
         if ($0 !~ /^(socks5|socks4|http|ss|relay):\/\//) {
             printf "Found missing or invalid schema on line %s%d%s.\n", red, NR, reset
@@ -476,9 +492,7 @@ check_proxy_file() {
             exit 1
         }
     }
-    ' "$PROXY_FILE"
-
-    if [ $? -eq 1 ]; then
+    ' "$PROXY_FILE"; then
         printf "\nPress Enter to continue..."; read -r input
         exit 1
     fi

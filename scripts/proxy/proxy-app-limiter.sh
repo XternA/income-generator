@@ -47,8 +47,8 @@ proxy_app_limiter() {
                 ;;
         esac
 
-        selected_app=$(printf '%s\n' "$limit_data" | awk -v n="$choice" 'NR==n {print $1}')
-        current_value=$(awk -F= -v app="$selected_app" '$1 == app {print $2}' "$PROXY_INSTALL_LIMIT")
+        selected_app=$(awk -F= -v n="$choice" 'NR==n{print $1; exit}' "$PROXY_INSTALL_LIMIT")
+        current_value=$(awk -F= -v n="$choice" 'NR==n{print $2; exit}' "$PROXY_INSTALL_LIMIT")
         default_value=$(extract_app_data_fields_only "$selected_app" .install_limit)
 
         if [ "$current_value" = "-" ]; then
@@ -102,11 +102,6 @@ proxy_app_limiter() {
                     fi
                     ;;
             esac
-
-            # trim leading zeros
-            trimmed_value=$(printf '%s' "$new_value" | sed 's/^0*\([1-9][0-9]*\)$/\1/')
-            [ -z "$trimmed_value" ] && trimmed_value="0"
-            new_value="$trimmed_value"
             break
         done
 
