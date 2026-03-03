@@ -119,8 +119,6 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[Mysterium](https://tinyurl.com/5dkekpmc)**       | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
 | **[Bitping](https://tinyurl.com/2h5jam3b)**         | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[GagaNode](https://tinyurl.com/mr2fb8jf)**        | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
-| **[NodePay](https://tinyurl.com/uhd3a9xw)**         | :white_check_mark: | :x:                | 250       | Unlimited | Crypto |
-| **[Network3](https://tinyurl.com/fe8knv3t)**        | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[Wipter](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                | Unlimited | Unlimited | Crypto |
 | **[ProxyBase](https://tinyurl.com/54ebzdde)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[WizardGain](https://tinyurl.com/mw962kkv)**      | :white_check_mark: | :white_check_mark: | Unlimited | 1         | PayPal, Crypto |
