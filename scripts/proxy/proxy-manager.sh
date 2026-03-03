@@ -74,23 +74,14 @@ retrieve_app_data() {
 }
 
 has_installable_apps() {
-    awk -v count="$1" -v app_data="$APP_DATA" -v limit_data="$limit_data" '
-    BEGIN {
-        gsub(/\n/, " ", limit_data)
-        limit_count = split(limit_data, lf, " ")
-        for (j = 1; j <= limit_count; j += 2) if (lf[j] != "") limits[lf[j]] = lf[j+1]
-
-        app_count = split(app_data, al, "\n")
-        for (i = 1; i <= app_count; i++) {
-            if (al[i] == "") continue
-            split(al[i], f, " ")
-            if (f[3] != "true") continue
-            limit_val = limits[f[1]]
-            if (limit_val == "" || limit_val == "-" || count+0 <= limit_val+0) exit 0
-        }
-        exit 1
+    printf '%s\n%s\n' "$limit_data" "$APP_DATA" | awk -v count="$1" '
+    /=/ { eq_pos=index($0,"="); limits[substr($0,1,eq_pos-1)] = substr($0,eq_pos+1); next }
+    $3 == "true" {
+        limit_val = limits[$1]
+        if (limit_val == "" || limit_val == "-" || count <= limit_val+0) { found=1; exit }
     }
-    ' /dev/null
+    END { exit !found }
+    '
 }
 
 set_host_suffix() {

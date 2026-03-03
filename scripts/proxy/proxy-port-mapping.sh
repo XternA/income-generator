@@ -28,44 +28,47 @@ sync_port_mapping() {
         port_mapping_data_set=1
     fi
 
-    awk -v install_count="$install_count" \
-        -v port_data="$app_data" \
-        -v limit_data="$limit_data" \
+    printf '%s\n%s\n' "$limit_data" "$app_data" | awk \
+        -v install_count="$install_count" \
         -v deployfile="$ENV_DEPLOY_PROXY_FILE" \
-        '
-        BEGIN {
+        -v composefile="$TUNNEL_COMPOSE_FILE" \
+        -v tmpfile="$_TMP_FILE" \
+        'BEGIN {
+            while ((getline) > 0) {
+                if (/=/) { eq_pos=index($0,"="); if (eq_pos>1) limits[substr($0,1,eq_pos-1)] = substr($0,eq_pos+1) }
+                else if (NF == 3) { app_order[++app_count] = $1; base_port[$1] = $2; cont_port[$1] = $3 }
+            }
             while ((getline line < deployfile) > 0) deploy[line] = 1
             close(deployfile)
-
-            gsub(/\n/, " ", limit_data)
-            n = split(limit_data, lf, " ")
-            for (j = 1; j <= n; j += 2) if (lf[j] != "") limits[lf[j]] = lf[j+1]
-
-            m = split(port_data, pl, "\n")
-            for (i = 1; i <= m; i++) {
-                if (pl[i] == "") continue
-                split(pl[i], f, " ")
-                name = f[1]; base_host = f[2]; cport = f[3]
+            for (i = 1; i <= app_count; i++) {
+                name = app_order[i]
                 if (!(name "=ENABLED" in deploy)) continue
-                lval = limits[name]
-                if (lval != "" && lval != "-" && install_count+0 > lval+0) continue
-                host_port = base_host + install_count
-                ports = ports "            - " host_port ":" cport "\n"
-                cports = (cports == "") ? cport : cports "," cport
+                limit_val = limits[name]
+                if (limit_val != "" && limit_val != "-" && install_count > limit_val+0) continue
+                host_port = base_port[name] + install_count
+                ports = ports "            - " host_port ":" cont_port[name] "\n"
+                port_csv = (port_csv == "") ? cont_port[name] : port_csv "," cont_port[name]
             }
-
             if (ports != "") {
                 rule = "iptables -t mangle -A OUTPUT -p tcp"
-                rule = rule (cports ~ /,/ ? " -m multiport --sports " : " --sport ") cports
+                rule = rule (port_csv ~ /,/ ? " -m multiport --sports " : " --sport ") port_csv
                 extra_cmd = "            - EXTRA_COMMANDS=" rule " -j MARK --set-mark 0x22b"
             }
-        }
-        /^[[:space:]]*ports:/ { skip=1; next }
-        skip && /^[[:space:]]*-/ { next }
-        skip && !/^[[:space:]]*-/ { skip=0 }
-        /^[[:space:]]*- EXTRA_COMMANDS=/ { next }
-        /^[[:space:]]*- MTU=/ { print; if (extra_cmd) print extra_cmd; next }
-        ports && /^[[:space:]]*devices:/ { printf "        ports:\n%s", ports }
-        { print }
-        ' "$TUNNEL_COMPOSE_FILE" > "$_TMP_FILE" && mv "$_TMP_FILE" "$TUNNEL_COMPOSE_FILE"
+            while ((getline line < composefile) > 0) {
+                if (line ~ /^[[:space:]]*ports:/) { skip=1; continue }
+                if (skip && line ~ /^[[:space:]]*-/) continue
+                if (skip && line !~ /^[[:space:]]*-/) skip=0
+                if (line ~ /^[[:space:]]*- EXTRA_COMMANDS=/) continue
+                if (line ~ /^[[:space:]]*- MTU=/) {
+                    print line > tmpfile
+                    if (extra_cmd) print extra_cmd > tmpfile
+                    continue
+                }
+                if (ports && line ~ /^[[:space:]]*devices:/) printf "        ports:\n%s", ports > tmpfile
+                print line > tmpfile
+            }
+            close(composefile)
+            close(tmpfile)
+        }'
+    mv "$_TMP_FILE" "$TUNNEL_COMPOSE_FILE"
 }
