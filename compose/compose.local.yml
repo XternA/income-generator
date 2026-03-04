@@ -102,15 +102,15 @@ services:
 
     grass:
         container_name: grass
-        image: mrcolorrain/grass-node
+        image: ghcr.io/xterna/grass-node
         restart: always
         hostname: $DEVICE_ID
         labels:
             - project=standard
             - com.centurylinklabs.watchtower.scope=igm
         environment:
-            - USER_EMAIL=${GRASS_EMAIL:-}
-            - USER_PASSWORD=${GRASS_PASSWORD:-}
+            - USER_ID=${GRASS_USER_ID:-}
+            - LICENSE=IGM
         profiles:
             - ${GRASS:-DISABLED}
         dns:
