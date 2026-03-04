@@ -169,8 +169,7 @@
         "url": "https://tinyurl.com/msfkrace",
         "description": null,
         "properties": [
-            "GRASS_EMAIL",
-            "GRASS_PASSWORD"
+            "GRASS_USER_ID"
         ],
         "is_enabled": true
     },
