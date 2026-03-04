@@ -10,7 +10,7 @@ services:
         environment:
             - EMAIL=${HONEYGAIN_EMAIL:-}
             - PASSWORD=${HONEYGAIN_PASSWORD:-}
-            - LICENSE=XternA-IGM
+            - LICENSE=IGM
         profiles:
             - ${HONEYGAIN_SERVICE:-DISABLED}
         dns:
