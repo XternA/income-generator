@@ -262,7 +262,7 @@ configure_app_inline() {
     : > "$REF_FILE"
 
     display_banner
-    printf "\nSetting up credentials for...\n"
+    printf "Setting up credentials for...\n"
     printf "\n[ ${GREEN}$name${NC} ]\n"
     if [ -n "$url" ]; then
         [ "$OS_IS_DARWIN" = "true" ] && key_modifier="Command" || key_modifier="CTRL"
