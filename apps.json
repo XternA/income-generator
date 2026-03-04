@@ -153,7 +153,7 @@
         "name": "SPIDE",
         "url": "https://tinyurl.com/y3xtfd9z",
         "description": " After installing app, run ' docker logs spide 2>&1 | grep \"Device Key\" ' outside the tool to obtain device key. Log into dashboard to register device.",
-        "description_ext": "Use machine ID for existing device already registered. See guide: https://github.com/XternA/income-generator/wiki/Keys-and-IDs#machine-id",
+        "description_ext": " Use machine ID for existing device already registered. See guide: https://github.com/XternA/income-generator/wiki/Keys-and-IDs#machine-id",
         "properties": [
             "#SPIDE_MACHINE_ID"
         ],
@@ -167,7 +167,8 @@
     {
         "name": "GRASS",
         "url": "https://tinyurl.com/msfkrace",
-        "description": null,
+        "description": " Log into dashboard. open browser DevTools (F12), go to Application → Local Storage. Look for 'userId' key. The long value is the User ID.",
+        "description_ext": " See guide for help: https://github.com/XternA/income-generator/wiki/Grass-Node",
         "properties": [
             "GRASS_USER_ID"
         ],
@@ -207,8 +208,8 @@
     {
         "name": "WIPTER",
         "url": "https://tinyurl.com/mt8rj948",
-        "description": "GUI can be accessed in the browser at 'localhost:8000/vnc.html' or '<ip_address_of_instance>:8000/vnc.html' using the VNC password configured.",
-        "description_ext": "Add wallet address for cash out in the GUI and done just once. Proxy application access starts from port '5001'.",
+        "description": " GUI can be accessed in the browser at 'localhost:8000/vnc.html' or '<ip_address_of_instance>:8000/vnc.html' using the VNC password configured.",
+        "description_ext": " Add wallet address for cash out in the GUI and done just once. Proxy application access starts from port '5001'.",
         "properties": [
             "WIPTER_EMAIL",
             "WIPTER_PASSWORD",
