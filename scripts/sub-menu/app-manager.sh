@@ -511,7 +511,7 @@ show_applications() {
             set_list=$(
                 $CONTAINER_ALIAS ps -a --format '{{.Label "com.docker.compose.project"}}' \
                 | grep "^${container_type}-app-[0-9][0-9]*$" \
-                | sort -u
+                | sort -t '-' -k 3 -n -u
             )
 
             i=1
