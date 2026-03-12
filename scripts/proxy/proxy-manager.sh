@@ -7,7 +7,7 @@ BANNER_MODE=proxy
 . scripts/proxy/proxy-app-limiter.sh
 . scripts/proxy/proxy-port-mapping.sh
 
-PROXY_APP_NAME="tun2socks"
+PROXY_APP_NAME="tun2proxy"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
 TUNNEL_COMPOSE_FILE="$COMPOSE_DIR/compose.proxy.yml"
 WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"

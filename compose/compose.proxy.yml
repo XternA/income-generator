@@ -1,26 +1,26 @@
 services:
-    tun2socks:
-        container_name: tun2socks
-        image: xjasonlyu/tun2socks
+    tun2proxy:
+        container_name: tun2proxy
+        image: ghcr.io/xterna/tun2proxy
         restart: always
         hostname: $DEVICE_ID
         labels:
             - project=proxy
             - com.centurylinklabs.watchtower.scope=igm
         environment:
-            - LOGLEVEL=info
+            - LOGLEVEL=error
             - PROXY=${PROXY_URL:-}
-            - TCP_AUTO_TUNING=1
-            - MTU=1500
+            - DNS=over-tcp
+            - DNS_ADDR=1.1.1.1
+            - TCP_TIMEOUT=300
+            - UDP_TIMEOUT=5
+            - MAX_SESSIONS=200
         cap_add:
             - NET_ADMIN
         security_opt:
             - no-new-privileges:true
         pids_limit: 200
         network_mode: bridge
-        dns:
-            - 1.1.1.1
-            - 8.8.8.8
         devices:
             - /dev/net/tun:/dev/net/tun
         cpus: $ALT_MIN_CPU_LIMIT
