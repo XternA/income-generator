@@ -10,8 +10,6 @@ services:
         environment:
             - LOGLEVEL=error
             - PROXY=${PROXY_URL:-}
-            - DNS=over-tcp
-            - DNS_ADDR=1.1.1.1
             - TCP_TIMEOUT=300
             - UDP_TIMEOUT=5
             - MAX_SESSIONS=200
@@ -21,6 +19,9 @@ services:
             - no-new-privileges:true
         pids_limit: 200
         network_mode: bridge
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
         devices:
             - /dev/net/tun:/dev/net/tun
         cpus: $ALT_MIN_CPU_LIMIT
