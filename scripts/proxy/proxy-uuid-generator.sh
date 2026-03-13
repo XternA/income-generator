@@ -10,7 +10,7 @@ export PROXY_FOLDER_ACTIVE="$PROXY_FOLDER/active"
 
 if [ -f "$PROXY_FILE" ]; then
     read TOTAL_PROXIES ACTIVE_PROXIES <<EOF
-$(awk 'END {print NR, active+0} /^[^#]/ && NF {active++}' "$PROXY_FILE" 2>/dev/null)
+$(awk 'NF {total++} /^[^#]/ && NF {active++} END {print total+0, active+0}' "$PROXY_FILE" 2>/dev/null)
 EOF
 else
     TOTAL_PROXIES=0

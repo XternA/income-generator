@@ -254,10 +254,12 @@ install_proxy_instance() {
     install_count=1
     proxy_entry_pointer=1
     while IFS= read -r proxy_url; do
-        if [ "$(echo "$proxy_url" | cut -c1)" = "#" ]; then
-            proxy_entry_pointer=$((proxy_entry_pointer + 1)) # Skip UUID entry position matching proxy entry.
-            continue # Skip entries not in use.
-        fi
+        case "$proxy_url" in
+            "") continue ;;
+            "#"*)
+                proxy_entry_pointer=$((proxy_entry_pointer + 1)) # Skip UUID entry position matching proxy entry.
+                continue ;;
+        esac
 
         if ! has_installable_apps "$install_count"; then
             proxy_entry_pointer=$((proxy_entry_pointer + 1))
