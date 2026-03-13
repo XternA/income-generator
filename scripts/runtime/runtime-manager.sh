@@ -6,34 +6,43 @@ _install_runtime() {
     display_banner
     case "$1" in
         --docker)
-            sh scripts/$CONTAINER_ALIAS-install.sh
-            [ ! "$OS_TYPE" = "darwin" ] && [ "$OS_IS_ARM" = "true" ] && sh scripts/emulation-layer.sh --add
+            sh scripts/runtime/emulation-setup.sh --setup
+
+            if [ $? -eq 0 ]; then
+                sh scripts/runtime/docker/$CONTAINER_ALIAS-install.sh
+            fi
             ;;
-        --colima) setup_runtime ;;
+        --colima)
+            setup_runtime
+            ;;
     esac
-    sh scripts/runtime/container-config.sh --register
+
+    reregister_runtime
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 _uninstall_runtime() {
-    display_banner
     case "$1" in
-       --docker) sh scripts/$CONTAINER_ALIAS-uninstall.sh ;;
+        --docker)
+            sh scripts/runtime/docker/$CONTAINER_ALIAS-uninstall.sh
+            sh scripts/runtime/emulation-setup.sh --remove
+            ;;
        --colima) remove_runtime ;;
     esac
-    sh scripts/emulation-layer.sh --remove
+
+    reregister_runtime
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 _setup_runtime() {
-    if [ "$OS_TYPE" != "darwin" ]; then
+    if [ "$OS_IS_DARWIN" = "false" ]; then
         _install_runtime --docker
-        printf "\nPress Enter to continue..."; read -r _
         return
     fi
 
+    options="(1-2)"
     while true; do
         display_banner
-        options="(1-2)"
-
         printf "Choose a runtime engine to install.\n\n"
         echo "1. Docker"
         echo "2. Colima"
@@ -44,11 +53,9 @@ _setup_runtime() {
             0) break ;;
             1)
                 _install_runtime --docker
-                printf "\nPress Enter to continue..."; read -r _
                 ;;
             2)
                 _install_runtime --colima
-                printf "\nPress Enter to continue..."; read -r _
                 ;;
             *)
                 printf "\nInvalid option. Please select a valid option $options.\n"
@@ -60,15 +67,19 @@ _setup_runtime() {
 
 _remove_runtime() {
     display_banner
-    if [ "$OS_TYPE" != "darwin" ]; then
-        _install_runtime --docker
+    if [ "$OS_IS_DARWIN" = "false" ]; then
+        _uninstall_runtime --docker
         return
     fi
     _uninstall_runtime --colima
-    printf "\nPress Enter to continue..."; read -r _
 }
 
 _runtime_cleanup() {
+    if [ ! "$HAS_CONTAINER_RUNTIME" ]; then
+        display_banner
+        print_no_runtime && return
+    fi
+
     while true; do
         display_banner
         printf "About to clean up orphaned applications and downloaded images.\n"
@@ -92,6 +103,11 @@ _runtime_cleanup() {
 }
 
 runtime_menu() {
+    case "$1" in
+        --cli) exit_option="Exit" ;;
+        *) exit_option="Return to Main Menu" ;;
+    esac
+
     while true; do
         display_banner
         _has_colima_runtime && has_colima_runtime=1 || has_colima_runtime=0
@@ -107,7 +123,7 @@ runtime_menu() {
             echo "2. Install Runtime"
             echo "3. Uninstall Runtime"
         fi
-        echo "0. Return to Main Menu"
+        echo "0. $exit_option"
         printf "\nSelect an option $options: "; read -r option
 
         case $option in

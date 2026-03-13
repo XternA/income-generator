@@ -8,10 +8,10 @@ services:
             - project=proxy
             - com.centurylinklabs.watchtower.scope=igm
         environment:
-            - LOGLEVEL=info
+            - LOGLEVEL=error
             - PROXY=${PROXY_URL:-}
             - TCP_AUTO_TUNING=1
-            - MTU=1500
+            - MTU=1400
         cap_add:
             - NET_ADMIN
         security_opt:
@@ -21,9 +21,6 @@ services:
         dns:
             - 1.1.1.1
             - 8.8.8.8
-        ports:
-            - 5000:8080
-            - 6000:4449
         devices:
             - /dev/net/tun:/dev/net/tun
         cpus: $ALT_MIN_CPU_LIMIT

@@ -153,7 +153,7 @@
         "name": "SPIDE",
         "url": "https://tinyurl.com/y3xtfd9z",
         "description": " After installing app, run ' docker logs spide 2>&1 | grep \"Device Key\" ' outside the tool to obtain device key. Log into dashboard to register device.",
-        "description_ext": "Use machine ID for existing device already registered. See guide: https://github.com/XternA/income-generator/wiki/Keys-and-IDs#machine-id",
+        "description_ext": " Use machine ID for existing device already registered. See guide: https://github.com/XternA/income-generator/wiki/Keys-and-IDs#machine-id",
         "properties": [
             "#SPIDE_MACHINE_ID"
         ],
@@ -167,10 +167,10 @@
     {
         "name": "GRASS",
         "url": "https://tinyurl.com/msfkrace",
-        "description": null,
+        "description": " Log into dashboard. open browser DevTools (F12), go to Application → Local Storage. Look for 'userId' key. The long value is the User ID.",
+        "description_ext": " See guide for help: https://github.com/XternA/income-generator/wiki/Grass-Node",
         "properties": [
-            "GRASS_EMAIL",
-            "GRASS_PASSWORD"
+            "GRASS_USER_ID"
         ],
         "is_enabled": true
     },
@@ -179,6 +179,10 @@
         "url": "https://tinyurl.com/5dkekpmc",
         "description": " Setup requires going to 'localhost:4449' or '<ip_address_of_instance>:4449' in the browser and follow onboarding process to register node.",
         "properties": null,
+        "proxy_port": {
+            "host": 6000,
+            "container": 4449
+        },
         "is_enabled": true
     },
     {
@@ -202,67 +206,24 @@
         "is_enabled": true
     },
     {
-        "name": "NODEPAY",
-        "url": "https://tinyurl.com/uhd3a9xw",
-        "description": " See the following guide for setup process: https://github.com/XternA/income-generator/wiki/NodePay",
-        "properties": [
-            "NODEPAY_COOKIE"
-        ],
-        "is_enabled": true
-    },
-    {
-        "name": "BEARSHARE",
-        "url": "https://tinyurl.com/4568a69a",
-        "description": " Only 1 device per IP allowed. Use IGM tool to disable app deployment on other machines in same IP network.",
-        "properties": [
-            "BEARSHARE_EMAIL",
-            "BEARSHARE_PASSWORD"
-        ],
-        "is_enabled": true,
-        "service_enabled": true,
-        "image_tag": {
-            "arm64": "latest-arm"
-        }
-    },
-    {
-        "name": "PACKETSHARE",
-        "url": "https://tinyurl.com/bdhdvaex",
-        "description": " Only 1 device per IP allowed. Use IGM tool to disable app deployment on other machines in same IP network.",
-        "properties": [
-            "PACKETSHARE_EMAIL",
-            "PACKETSHARE_PASSWORD"
-        ],
-        "is_enabled": true,
-        "service_enabled": true,
-        "service_tag": {
-            "amd64": "igm",
-            "arm64": "igm"
-        }
-    },
-    {
-        "name": "NETWORK3",
-        "url": "https://tinyurl.com/fe8knv3t",
-        "description": null,
-        "properties": [
-            "NETWORK3_EMAIL"
-        ],
-        "is_enabled": true
-    },
-    {
         "name": "WIPTER",
         "url": "https://tinyurl.com/mt8rj948",
-        "description": "GUI can be accessed in the browser at 'localhost:8000/vnc.html' or '<ip_address_of_instance>:8000/vnc.html' using the VNC password configured.",
-        "description_ext": "Add wallet address for cash out in the GUI and done just once. Proxy application access starts from port '5001'.",
+        "description": " GUI can be accessed in the browser at 'localhost:8000/vnc.html' or '<ip_address_of_instance>:8000/vnc.html' using the VNC password configured.",
+        "description_ext": " Add wallet address for cash out in the GUI and done just once. Proxy application access starts from port '5001'.",
         "properties": [
             "WIPTER_EMAIL",
             "WIPTER_PASSWORD",
             "VNC_PASS"
         ],
+        "proxy_port": {
+            "host": 5000,
+            "container": 8080
+        },
         "is_enabled": true
     },
     {
         "name": "PROXYBASE",
-        "url": "https://tinyurl.com/ye233yts",
+        "url": "https://tinyurl.com/54ebzdde",
         "description": " Log into dashboard to obtain account User ID.",
         "properties": [
             "PROXYBASE_USER_ID"

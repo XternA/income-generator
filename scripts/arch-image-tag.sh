@@ -1,5 +1,8 @@
 #!/bin/sh
 
+[ -n "$__ARCH_IMAGE_TAG_CACHED" ] && return
+__ARCH_IMAGE_TAG_CACHED=1
+
 APP_DATA=$(jq -r --arg ARCH "$OS_DOCKER_ARCH" '
     .[] | select(.image_tag != null or .service_tag != null) |
     {name: .name, image_tag: .image_tag[$ARCH], service_tag: .service_tag[$ARCH]} |
@@ -8,26 +11,10 @@ APP_DATA=$(jq -r --arg ARCH "$OS_DOCKER_ARCH" '
 
 run_arch_image_tag() {
     : > "$ENV_IMAGE_TAG_FILE"
-    echo "$APP_DATA" | while read -r name image_tag service_tag; do
-        if [ "$image_tag" != "null" ]; then
-            image_tag=":${image_tag}"
-            tag_name="${name}_TAG"
-            if grep -q "^${tag_name}=" "$ENV_IMAGE_TAG_FILE"; then
-                $SED_INPLACE "s/^${tag_name}=.*/${tag_name}=${image_tag}/" "$ENV_IMAGE_TAG_FILE"
-            else
-                echo "${tag_name}=${image_tag}" >> "$ENV_IMAGE_TAG_FILE"
-            fi
-        fi
 
-        if [ "$service_tag" != "null" ]; then
-            service_tag=":${service_tag}"
-            tag_name="${name}_SERVICE_TAG"
-            if grep -q "^${tag_name}=" "$ENV_IMAGE_TAG_FILE"; then
-                $SED_INPLACE "s/^${tag_name}=.*/${tag_name}=${service_tag}/" "$ENV_IMAGE_TAG_FILE"
-            else
-                echo "${tag_name}=${service_tag}" >> "$ENV_IMAGE_TAG_FILE"
-            fi
-        fi
+    printf '%s\n' "$APP_DATA" | while read -r name image_tag service_tag; do
+        [ "$image_tag" != "null" ] && printf '%s_TAG=:%s\n' "$name" "$image_tag" >> "$ENV_IMAGE_TAG_FILE"
+        [ "$service_tag" != "null" ] && printf '%s_SERVICE_TAG=:%s\n' "$name" "$service_tag" >> "$ENV_IMAGE_TAG_FILE"
     done
 }
 

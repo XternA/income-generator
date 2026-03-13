@@ -1,12 +1,8 @@
 #!/bin/sh
 
+. scripts/banner.sh
 . scripts/util/app-import-reader.sh
 
-display_banner() {
-    clear
-    printf "Income Generator Application Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n\n"
-}
 
 choose_application_type() {
     if [ "$1" = "service" ]; then

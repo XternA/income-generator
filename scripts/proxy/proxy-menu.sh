@@ -1,17 +1,19 @@
 #!/bin/sh
 
+[ -n "$__PROXY_MENU_LOADED" ] && return
+__PROXY_MENU_LOADED=1
+
+BANNER_MODE=proxy
+. scripts/banner.sh
 . scripts/proxy/proxy-uuid-generator.sh
 . scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
 
-HAS_PROXY_APPS="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
-
-display_banner() {
-    clear
-    printf "Income Generator Proxy Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--noline" ] && echo
-}
+if [ "$HAS_CONTAINER_RUNTIME" ]; then
+    HAS_PROXY_APPS='$CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1'
+else
+    HAS_PROXY_APPS=":"
+fi
 
 get_and_update_proxy_entries() {
     ACTIVE_PROXIES=$(if [ -e "$PROXY_FILE" ]; then grep -c '^[^#]' "$PROXY_FILE"; else echo 0; fi)
@@ -66,7 +68,7 @@ remove_proxy_app() {
 }
 
 edit_proxy_file() {
-    while true; do
+    while :; do
         display_banner
 
         if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
@@ -81,7 +83,7 @@ edit_proxy_file() {
         fi
 
         uuid_files=$(cd "$PROXY_FOLDER" && for f in *; do [ -f "$f" ] && printf '%s\n' "${f%.*}"; done)
-        total_files="$(printf '%s\n' "$uuid_files" | awk 'NF{n++} END{print n+0}')"
+        total_files=$(set -- $uuid_files; echo $#)
         options="(1-${total_files})"
 
         printf "Current applications with multiple UUIDs.\n\n"
@@ -122,17 +124,16 @@ edit_proxy_file() {
 }
 
 manage_uuids() {
-    while true; do
-        display_banner
+    options="(1-3)"
 
-        options="(1-3)"
+    while :; do
+        display_banner
         echo "1. View all generated UUID"
         echo "2. Edit generated UUIDs"
         echo "3. Clear generated UUIDs"
         echo "0. Return to Main Menu"
-        echo
+        printf "\nSelect an option $options: "; read -r choice
 
-        printf "Select an option $options: "; read -r choice
         case $choice in
             0) break ;;
             1)
@@ -269,11 +270,11 @@ run_proxy_app_limiter() {
 }
 
 manage_proxy() {
+    options="(1-2)"
+
     while :; do
         display_banner
         printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
-
-        options="(1-2)"
         echo "1. Manage UUIDs"
         echo "2. Reset Proxies"
         echo "0. Return to Main Menu"
@@ -294,11 +295,10 @@ manage_proxy() {
 main_menu() {
     get_and_update_proxy_entries
 
+    options="(1-9)"
     while :; do
         display_banner
         printf "Available Proxies: ${RED}${ACTIVE_PROXIES}${NC}\n\n"
-
-        options="(1-9)"
         echo "1. Setup Proxies"
         echo "2. Select Applications"
         echo "3. Install Proxy Applications"

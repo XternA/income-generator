@@ -1,5 +1,6 @@
 #!/bin/sh
 
+. scripts/banner.sh
 . scripts/shared-component.sh
 sh scripts/init.sh
 
@@ -10,15 +11,18 @@ sh scripts/init.sh
 . scripts/arch-platform-runtime.sh
 . scripts/runtime/runtime-manager.sh
 
-SYS_INFO=$($SYS_INFO)
-STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+get_stats() {
+    current_limit=$($SET_LIMIT | awk '{print $NF}')
 
-display_banner() {
-    clear
-    printf "Income Generator Application Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n"
-    [ ! "$1" = "--noline" ] && echo
+    if [ "$current_limit" != "$__CACHED_LIMIT" ] || [ -z "$STATS" ]; then
+        STATS="$(sh scripts/limits.sh "$current_limit")"
+        __CACHED_LIMIT="$current_limit"
+    fi
 }
+
+SYS_INFO=$($SYS_INFO)
+__CACHED_LIMIT="" # Cache to avoid redundant limit calculations
+get_stats         # Initialize at startup (cached on subsequent calls)
 
 stats() {
     printf "%s\n\n" "$SYS_INFO"
@@ -27,9 +31,10 @@ stats() {
 }
 
 option_2() {
+    options="(1-5)"
+    
     while true; do
         display_banner
-        options="(1-5)"
 
         echo "1. Set up configuration"
         echo "2. View config file"
@@ -74,11 +79,15 @@ option_2() {
 }
 
 option_8() {
-    options="(1-5)"
+    if [ "$1" = "quick_menu" ]; then
+        return_option="0. Exit"
+    else
+        return_option="0. Return to Main Menu"
+    fi
 
+    options="(1-5)"
     while true; do
         display_banner    
-
         printf "Pick a new resource limit utilization based\non the current hardware limits.\n\n"
         printf "%s\n\n" "$STATS"
         echo "1. BASE   -->   350MB RAM"
@@ -86,7 +95,7 @@ option_8() {
         echo "3. LOW    -->   18.75% Total RAM"
         echo "4. MID    -->   25% Total RAM"
         echo "5. MAX    -->   50% Total RAM"
-        [ "$1" = "quick_menu" ] && echo "0. Exit" || echo "0. Return to Main Menu"
+        echo "$return_option"
         printf "\nSelect an option $options: "; read -r option
 
         case $option in
@@ -101,7 +110,7 @@ option_8() {
                 esac
                 echo
                 $SET_LIMIT "$limit_type"
-                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+                get_stats
                 printf "\nRedeploy applications for new limits to take effect.\n"
                 ;;
             0)
@@ -132,10 +141,10 @@ run_updater() {
 }
 
 manage_tool() {
+    options="(1-6)"
+
     while true; do
         display_banner
-
-        options="(1-6)"
         echo "1. Backup & restore config"
         echo "2. Manage application state"
         echo "3. Reset resource limit"
@@ -143,24 +152,22 @@ manage_tool() {
         echo "5. Check and get update"
         echo "6. Change editor tool"
         echo "0. Return to Main Menu"
-        echo
-        printf "Select an option $options: "; read -r option
+        printf "\nSelect an option $options: "; read -r option
 
         case $option in
             1)
                 $BACKUP_RESTORE
                 ;;
             2)
+                options="(1-2)"
+
                 while true; do
                     display_banner
-                    options="(1-2)"
-
                     printf "Re-enable, restore saved application state.\n\n"
                     echo "1. Re-enable all applications"
                     echo "2. Restore from saved application state"
                     echo "0. Return to Main Menu"
-                    echo
-                    printf "Select an option $options: "; read -r choice
+                    printf "\nSelect an option $options: "; read -r choice
 
                     case $choice in
                         1)
@@ -185,7 +192,7 @@ manage_tool() {
             3)
                 echo
                 $SET_LIMIT low
-                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+                get_stats
                 printf "\nPress Enter to continue..."; read -r input
                 ;;
             4)
@@ -217,7 +224,7 @@ manage_tool() {
                 
                 # Re-init some default setups
                 sh scripts/init.sh > /dev/null 2>&1
-                STATS="$(sh scripts/limits.sh "$($SET_LIMIT | awk '{print $NF}')")"
+                get_stats
                 $APP_SELECTION --default
                 run_arch_image_tag
                 run_platform_override
@@ -274,12 +281,12 @@ tool_reset() {
 main_menu() {
     NEW_UPDATE=$($UPDATE_CHECKER)
 
+    options="(1-9)"
+
     while true; do
         display_banner --noline
         stats
         [ -n "$NEW_UPDATE" ] && printf "$NEW_UPDATE\n"
-
-        options="(1-9)"
 
         echo "1. Install & Run Applications"
         echo "2. Setup Configuration"
@@ -291,8 +298,7 @@ main_menu() {
         echo "8. Change Resource Limits"
         echo "9. Manage Tool"
         echo "0. Quit"
-        echo
-        printf "Select an option $options: "; read -r choice
+        printf "\nSelect an option $options: "; read -r choice
 
         case $choice in
             0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;
@@ -314,7 +320,7 @@ main_menu() {
 }
 
 # Main script
-trap '$POST_OPS; clear; exit 0' INT
+trap '$POST_OPS; clear; exit 0' INT TERM HUP
 $DECRYPT_CRED
 
 case "$1" in
@@ -443,12 +449,26 @@ case "$1" in
         clear
         ;;
     runtime)
-        runtime_menu
+        runtime_menu --cli
         clear
         ;;
     ip)
         . scripts/ip/ip-score.sh
         clear
+        ;;
+    wsl)
+        case "${OS_IS_WSL}:$2" in
+            true:mirror)
+                sh scripts/runtime/wsl/wsl-networking.sh "$3"
+                ;;
+            true:*)
+                display_banner
+                . scripts/help/wsl-help.sh
+                ;;
+            *)
+                echo "igm: '$1' is not a valid command. See 'igm help'."
+                ;;
+        esac
         ;;
     *)
         echo "igm: '$1' is not a valid command. See 'igm help'."

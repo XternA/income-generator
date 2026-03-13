@@ -3,14 +3,10 @@
 [ -n "$__APP_CONFIG_CACHED" ] && return
 __APP_CONFIG_CACHED=1
 
+BANNER_MODE=config
+. scripts/banner.sh
 . scripts/util/uuid-generator.sh
 . scripts/util/app-import-reader.sh
-
-display_banner() {
-    clear
-    printf "Income Generator Credentials Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n"
-}
 
 __reorder_config_file() {
     # Skip if empty or doesn't exist
@@ -128,7 +124,6 @@ __reorder_config_file() {
             for (app in app_has_creds) {
                 if (!first_app) print ""
                 first_app = 0
-                print ""
                 print app_creds[app]
             }
         }
@@ -210,7 +205,7 @@ process_entries() {
         is_new_app=true
 
         display_banner
-        printf "\nTotal applications: ${RED}$TOTAL_APPS${NC}\n"
+        printf "Total applications: ${RED}$TOTAL_APPS${NC}\n"
         printf "\nConfiguring application ${RED}$entry_count${NC} of ${RED}$total_enabled_apps${NC}\n"
         printf "\n[ ${GREEN}$name${NC} ]\n"
         if [ -n "$url" ]; then
@@ -248,12 +243,12 @@ process_entries() {
 
     display_banner
     if [ "$config_interrupted" = "true" ]; then
-        printf "\n${RED}Configuration cancelled.${NC}\n"
+        printf "${RED}Configuration cancelled.${NC}\n"
     elif [ "$ENV_FILE" -nt "$REF_FILE" ]; then
         __reorder_config_file
-        printf "\n${YELLOW}Done configuring config file.${NC}\n"
+        printf "${YELLOW}Done configuring config file.${NC}\n"
     else
-        printf "\n${RED}No changes made to config file.${NC}\n"
+        printf "${RED}No changes made to config file.${NC}\n"
     fi
     rm -f "$REF_FILE"
 }
@@ -267,7 +262,7 @@ configure_app_inline() {
     : > "$REF_FILE"
 
     display_banner
-    printf "\nSetting up credentials for...\n"
+    printf "Setting up credentials for...\n"
     printf "\n[ ${GREEN}$name${NC} ]\n"
     if [ -n "$url" ]; then
         [ "$OS_IS_DARWIN" = "true" ] && key_modifier="Command" || key_modifier="CTRL"

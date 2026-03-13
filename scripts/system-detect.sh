@@ -19,6 +19,7 @@ case "$__SYS_OS" in
         OS_DISTRO_VERSION="$(sw_vers -productVersion)"
         OS_IS_LINUX="false"
         OS_IS_DARWIN="true"
+        OS_IS_WSL="false"
         ;;
     Linux)
         . /etc/os-release 2>/dev/null
@@ -30,9 +31,11 @@ case "$__SYS_OS" in
         if [ -n "$WSL_DISTRO_NAME" ]; then
             OS_TYPE="WSL"
             OS_DISPLAY="WSL Linux"
+            OS_IS_WSL="true"
         else
             OS_TYPE="$__SYS_OS"
             OS_DISPLAY="$__SYS_OS"
+            OS_IS_WSL="false"
         fi
         OS_IS_LINUX="true"
         OS_IS_DARWIN="false"
@@ -57,7 +60,7 @@ case "$__SYS_ARCH" in
         OS_IS_ARM="true"
         ;;
     *)
-        OS_DOCKER_ARCH="latest"
+        OS_DOCKER_ARCH="amd64"
         OS_DOCKER_DISPLAY_ARCH="amd64"
         OS_IS_ARM="false"
         ;;
@@ -75,6 +78,7 @@ export OS_ARCH="$__SYS_ARCH"         # Raw architecture string (x86_64/arm64/arm
 export OS_IS_LINUX                   # Boolean: true/false
 export OS_IS_DARWIN                  # Boolean: true/false
 export OS_IS_ARM                     # Boolean: true/false
+export OS_IS_WSL                     # Boolean: true/false
 
 # Container Runtime Info
 export OS_DOCKER_ARCH                # Docker arch format (latest/arm64/arm32v7/etc)

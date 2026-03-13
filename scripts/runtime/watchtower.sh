@@ -1,7 +1,7 @@
 #!/bin/sh
 
 WATCHTOWER_COMPOSE="$COMPOSE_DIR/compose.yml"
-COMMAND="$CONTAINER_COMPOSE $SYSTEM_ENV_FILES -f $WATCHTOWER_COMPOSE up --force-recreate --build -d"
+COMMAND="$CONTAINER_COMPOSE $SYSTEM_ENV_FILES -f $WATCHTOWER_COMPOSE up --force-recreate -d"
 WATCHTOWER_ALIAS="watchtower-igm"
 
 modify_watchtower() {
@@ -20,12 +20,12 @@ deploy_for_proxy() {
     restore_watchtower
 }
 
-restore_for_standard() {
+sync_watchtower_state() {
     have_active_apps="$($CONTAINER_ALIAS ps -a --filter "label=project=standard" --format "{{.Names}}" | grep -v "$WATCHTOWER_ALIAS" | head -n 1)"
 
     if [ ! -z "$have_active_apps" ]; then
         CONTAINER_EXIST="$CONTAINER_ALIAS ps -a -q -f 'name=$WATCHTOWER_ALIAS'"
-        [ -z "$(eval $CONTAINER_EXISTS)" ] && eval $COMMAND > /dev/null 2>&1
+        [ -z "$(eval $CONTAINER_EXIST)" ] && eval $COMMAND > /dev/null 2>&1
     else
         $CONTAINER_ALIAS rm -f $WATCHTOWER_ALIAS > /dev/null 2>&1
     fi
@@ -33,7 +33,7 @@ restore_for_standard() {
 
 case "$1" in
     deploy) deploy_for_proxy ;;
-    restore) restore_for_standard ;;
+    sync) sync_watchtower_state ;;
     modify_only) modify_watchtower ;;
     restore_only) restore_watchtower ;;
 esac

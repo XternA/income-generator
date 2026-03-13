@@ -1,12 +1,9 @@
 #!/bin/sh
 
+BANNER_MODE=ip
+. scripts/banner.sh
 . scripts/ip/ip-util.sh
 
-display_banner() {
-    clear
-    printf "Income Generator IP Quality Tool\n"
-    printf "${GREEN}------------------------------------------${NC}\n\n"
-}
 
 main() {
     display_banner

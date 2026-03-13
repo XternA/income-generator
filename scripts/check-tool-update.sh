@@ -72,7 +72,7 @@ case "$1" in
         if is_update_available "$CURRENT" "$LATEST"; then
             {
                 echo "$NOW"
-                printf "\033[1m\033[5m\033[91m%s\033[0m\n\n" "New tool update available! 🚀"
+                printf "\033[1;5;31m%s\033[0m\n" "New tool update available! 🚀\n"
             } > "$CACHE"
             tail -n +2 "$CACHE"
         else

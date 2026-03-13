@@ -102,74 +102,21 @@ services:
 
     grass:
         container_name: grass
-        image: mrcolorrain/grass-node
+        image: ghcr.io/xterna/grass-node
         restart: always
         hostname: $DEVICE_ID
         labels:
             - project=standard
             - com.centurylinklabs.watchtower.scope=igm
         environment:
-            - USER_EMAIL=${GRASS_EMAIL:-}
-            - USER_PASSWORD=${GRASS_PASSWORD:-}
+            - USER_ID=${GRASS_USER_ID:-}
+            - LICENSE=IGM
         profiles:
             - ${GRASS:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
         cpus: $ALT_MIN_CPU_LIMIT
-        mem_limit: $RAM_LIMIT
-        mem_reservation: $RAM_RESERVE
-        logging:
-            driver: json-file
-            options:
-                max-size: 10k
-                max-file: 1
-
-    nodepay:
-        container_name: nodepay
-        image: kellphy/nodepay
-        restart: always
-        hostname: $DEVICE_ID
-        labels:
-            - project=standard
-            - com.centurylinklabs.watchtower.scope=igm
-        environment:
-            - NP_COOKIE=${NODEPAY_COOKIE:-}
-        profiles:
-            - ${NODEPAY:-DISABLED}
-        dns:
-            - 1.1.1.1
-            - 8.8.8.8
-        cpus: $CPU_LIMIT
-        mem_limit: $RAM_LIMIT
-        mem_reservation: $RAM_RESERVE
-        logging:
-            driver: json-file
-            options:
-                max-size: 10k
-                max-file: 1
-
-    network3:
-        container_name: network3
-        image: aron666/network3-ai
-        restart: always
-        hostname: $DEVICE_ID
-        labels:
-            - project=standard
-        cap_add:
-            - NET_ADMIN
-        environment:
-            - EMAIL=${NETWORK3_EMAIL:-}
-        profiles:
-            - ${NETWORK3:-DISABLED}
-        dns:
-            - 1.1.1.1
-            - 8.8.8.8
-        devices:
-            - /dev/net/tun
-        volumes:
-            - network3-data:/usr/local/etc/wireguard
-        cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
         logging:
@@ -208,4 +155,3 @@ services:
 
 volumes:
     earnapp-data:
-    network3-data:

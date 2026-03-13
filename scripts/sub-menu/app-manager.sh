@@ -215,7 +215,7 @@ install_applications() {
 
         display_banner
         printf "$install_type\n\n"
-        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate --build -d
+        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
         $WATCHTOWER restore_only
@@ -254,7 +254,7 @@ reinstall_applications() {
 
                 display_banner
                 printf "Redeploying last application install state...\n\n"
-                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate --build -d
+                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate -d
                 [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
                 printf "\nPress Enter to continue..."; read -r input
@@ -279,10 +279,18 @@ reinstall_applications() {
 start_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+
+    has_apps="$($CONTAINER_ALIAS ps -a --format "{{.Names}}" -f "label=project=standard" | awk '!/^watchtower-igm$/ {print; exit}')"
+    if [ -z "$has_apps" ]; then
+        printf "No installed applications to start.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+
     printf "Starting applications...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES start
     printf "\nAll installed applications started.\n"
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 start_application() {
@@ -298,15 +306,22 @@ start_application() {
 stop_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    printf "Stopping applications...\n\n"
 
+    has_running="$($CONTAINER_ALIAS ps --format "{{.Names}}" -f "label=project=standard" | awk '!/^watchtower-igm$/ {print; exit}')"
+    if [ -z "$has_running" ]; then
+        printf "No running applications to stop.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+
+    printf "Stopping applications...\n\n"
     compose_files=$ALL_COMPOSE_FILES
     proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
     [ "$proxy_is_active" ] && compose_files=$APP_COMPOSE_FILES
 
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
     printf "\nAll running applications stopped.\n"
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 stop_application() {
@@ -333,6 +348,13 @@ remove_applications() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
+    has_apps="$($CONTAINER_ALIAS ps -a --format "{{.Names}}" -f "label=project=standard" | awk '!/^watchtower-igm$/ {print; exit}')"
+    if [ -z "$has_apps" ]; then
+        printf "No installed applications to remove.\n"
+        printf "\nPress Enter to continue..."; read -r _
+        return
+    fi
+
     printf "Stopping and removing applications and volumes...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
@@ -342,7 +364,7 @@ remove_applications() {
 
     $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
     printf "\nAll installed applications and volumes removed.\n"
-    printf "\nPress Enter to continue..."; read -r input
+    printf "\nPress Enter to continue..."; read -r _
 }
 
 remove_application() {
@@ -350,6 +372,7 @@ remove_application() {
     result="$($CONTAINER_ALIAS rm -f -v "$1" 2>&1)"
     if [ "$result" = "$1" ]; then
         printf "Removing application ${RED}$1${NC}\n"
+        $WATCHTOWER sync # Remove if no apps remain
     else
         printf "Failed to remove application ${RED}$1${NC}\n$result\n"
     fi
@@ -453,7 +476,7 @@ show_applications() {
     proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
 
     has_apps() {
-        if [ ! -z "$proxy_number" ]; then
+        if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
             $CONTAINER_ALIAS ps -a -q -f "label=${proxy_project}" | head -n 1
         else
             $CONTAINER_ALIAS ps -a -q -f "label=project=${1}" | head -n 1
@@ -488,7 +511,7 @@ show_applications() {
             set_list=$(
                 $CONTAINER_ALIAS ps -a --format '{{.Label "com.docker.compose.project"}}' \
                 | grep "^${container_type}-app-[0-9][0-9]*$" \
-                | sort -u
+                | sort -t '-' -k 3 -n -u
             )
 
             i=1
@@ -510,7 +533,7 @@ show_applications() {
                 i=$((i+1))
             done
         else
-            if [ -n "$proxy_number" ]; then
+            if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
                 filter_label="label=com.docker.compose.project=${container_type}-app-${proxy_number}"
             else
                 filter_label="label=project=${container_type}"
@@ -552,15 +575,17 @@ show_applications() {
             ;;
         proxy)
             if [ -z "$(has_apps proxy)" ]; then
-                if [ "$proxy_number" = "group" ]; then
-                    show_apps proxy group
-                elif [ -n "$proxy_number" ]; then
+                if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
                     printf "\nNo proxy set ${RED}%s${NC} applications installed.\n" "$proxy_number"
                 else
                     printf "\nNo proxy applications installed.\n"
                 fi
             else
-                show_apps proxy
+                if [ "$proxy_number" = "group" ]; then
+                    show_apps proxy group
+                else
+                    show_apps proxy
+                fi
             fi
             ;;
         app)
@@ -657,9 +682,11 @@ install_single_application() {
 
                 $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES pull "$selected_app"
                 echo
-                $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up -d "$selected_app"
+                $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up --force-recreate -d "$selected_app"
 
                 if [ $? -eq 0 ]; then
+                    $WATCHTOWER sync
+
                     printf "\n${GREEN}✓ $app_name installed successfully!${NC}\n"
                     printf "\nInstall another application? (Y/N): "; read -r user_input
                     case "$user_input" in

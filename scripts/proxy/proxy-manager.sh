@@ -1,8 +1,11 @@
 #!/bin/sh
 
+BANNER_MODE=proxy
+. scripts/banner.sh
 . scripts/proxy/proxy-uuid-generator.sh
 . scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
+. scripts/proxy/proxy-port-mapping.sh
 
 PROXY_APP_NAME="tun2socks"
 ENV_PROXY_FILE="$ROOT_DIR/.env.proxy"
@@ -65,14 +68,20 @@ __cleanup_proxy_installation() {
     exit 130
 }
 
-display_banner() {
-    clear
-    printf "Income Generator Proxy Manager\n"
-    printf "${GREEN}------------------------------------------${NC}\n\n"
-}
 
 retrieve_app_data() {
     APP_DATA=$(extract_app_data .alias .is_enabled .proxy_uuid)
+}
+
+has_installable_apps() {
+    printf '%s\n%s\n' "$limit_data" "$APP_DATA" | awk -v count="$1" '
+    /=/ { eq_pos=index($0,"="); limits[substr($0,1,eq_pos-1)] = substr($0,eq_pos+1); next }
+    $3 == "true" {
+        limit_val = limits[$1]
+        if (limit_val == "" || limit_val == "-" || count <= limit_val+0) { found=1; exit }
+    }
+    END { exit !found }
+    '
 }
 
 set_host_suffix() {
@@ -245,9 +254,16 @@ install_proxy_instance() {
     install_count=1
     proxy_entry_pointer=1
     while IFS= read -r proxy_url; do
-        if [ "$(echo "$proxy_url" | cut -c1)" = "#" ]; then
-            proxy_entry_pointer=$((proxy_entry_pointer + 1)) # Skip UUID entry position matching proxy entry.
-            continue # Skip entries not in use.
+        case "$proxy_url" in
+            "") continue ;;
+            "#"*)
+                proxy_entry_pointer=$((proxy_entry_pointer + 1)) # Skip UUID entry position matching proxy entry.
+                continue ;;
+        esac
+
+        if ! has_installable_apps "$install_count"; then
+            proxy_entry_pointer=$((proxy_entry_pointer + 1))
+            continue
         fi
 
         printf "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}\n"
@@ -343,22 +359,12 @@ install_proxy_instance() {
             $SED_INPLACE "s/container_name: ${PROXY_APP_NAME}/container_name: ${new_proxy_name}/" "$TUNNEL_COMPOSE_FILE"
         fi
 
-        # Update and increment all ports
-        awk '
-            /^[[:space:]]*ports:/ { p=1; print; next }
-            p && /^[[:space:]]*-[[:space:]]*[0-9]+:[0-9]+/ {
-            split($2, a, ":")
-            a[1]++
-            print "            - " a[1] ":" a[2]
-            next
-            }
-            { p=0; print }
-        ' "$TUNNEL_COMPOSE_FILE" > tmp && mv tmp "$TUNNEL_COMPOSE_FILE"
+        sync_port_mapping "$install_count"
 
         echo
         set_host_suffix "-${install_count}"
         $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
-        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate --build -d &
+        $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate -d &
         docker_bg_pid=$!
         wait $docker_bg_pid
 
@@ -447,8 +453,9 @@ remove_proxy_instance() {
         echo
     done < "$PROXY_FILE"
 
-    $WATCHTOWER restore
+    $WATCHTOWER sync
     $CONTAINER_ALIAS volume prune -f --filter "label=$IGM_PROXY_PROJECT_LABEL" > /dev/null 2>&1
+    strip_port_mapping
     rm -rf $PROXY_FOLDER_ACTIVE
 
     echo "Proxy application uninstall complete."
@@ -457,17 +464,16 @@ remove_proxy_instance() {
 
 check_proxy_file() {
     if [ ! -e "$PROXY_FILE" ]; then
-        echo "Proxy file doesn't exist.\nSetup proxy entries first."
+        printf "Proxy file doesn't exist.\nSetup proxy entries first.\n"
         printf "\nPress Enter to continue..."; read -r input
         exit 0
     elif [ ! -s "$PROXY_FILE" ]; then
-        echo "Proxy file is empty. Add entries first."
+        printf "Proxy file is empty. Add entries first.\n"
         printf "\nPress Enter to continue..."; read -r input
         exit 0
     fi
 
-    # Ensure proxy entries are valid
-    awk -v red="$RED" -v yellow="$YELLOW" -v reset="$NC" '
+    if ! awk -v red="$RED" -v yellow="$YELLOW" -v reset="$NC" '
     /^[^#]/ {
         if ($0 !~ /^(socks5|socks4|http|ss|relay):\/\//) {
             printf "Found missing or invalid schema on line %s%d%s.\n", red, NR, reset
@@ -479,9 +485,7 @@ check_proxy_file() {
             exit 1
         }
     }
-    ' "$PROXY_FILE"
-
-    if [ $? -eq 1 ]; then
+    ' "$PROXY_FILE"; then
         printf "\nPress Enter to continue..."; read -r input
         exit 1
     fi
