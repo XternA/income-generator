@@ -5,7 +5,7 @@ __PROXY_PORT_MAPPING_CACHED=1
 
 _TMP_FILE="${TUNNEL_COMPOSE_FILE}.tmp"
 
-# Strips the ports section and EXTRA_COMMANDS from tun2proxy,
+# Strips the ports section and EXTRA_COMMANDS from tun2socks,
 # restoring it to its clean base state.
 strip_port_mapping() {
     awk '
@@ -17,7 +17,7 @@ strip_port_mapping() {
     ' "$TUNNEL_COMPOSE_FILE" > "$_TMP_FILE" && mv "$_TMP_FILE" "$TUNNEL_COMPOSE_FILE"
 }
 
-# Syncs tun2proxy port mappings and iptables routing rules for a specific
+# Syncs tun2socks port mappings and iptables routing rules for a specific
 # proxy set. Only injects ports for apps that are both enabled and within
 # their install limit for the given set.
 sync_port_mapping() {
@@ -59,7 +59,7 @@ sync_port_mapping() {
                 if (skip && line ~ /^[[:space:]]*-/) continue
                 if (skip && line !~ /^[[:space:]]*-/) skip=0
                 if (line ~ /^[[:space:]]*- EXTRA_COMMANDS=/) continue
-                if (line ~ /^[[:space:]]*- PROXY=/) {
+                if (line ~ /^[[:space:]]*- MTU=/) {
                     print line > tmpfile
                     if (extra_cmd) print extra_cmd > tmpfile
                     continue

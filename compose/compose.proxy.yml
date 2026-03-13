@@ -1,7 +1,7 @@
 services:
-    tun2proxy:
-        container_name: tun2proxy
-        image: ghcr.io/xterna/tun2proxy
+    tun2socks:
+        container_name: tun2socks
+        image: xjasonlyu/tun2socks
         restart: always
         hostname: $DEVICE_ID
         labels:
@@ -10,9 +10,8 @@ services:
         environment:
             - LOGLEVEL=error
             - PROXY=${PROXY_URL:-}
-            - TCP_TIMEOUT=300
-            - UDP_TIMEOUT=5
-            - MAX_SESSIONS=200
+            - TCP_AUTO_TUNING=1
+            - MTU=1400
         cap_add:
             - NET_ADMIN
         security_opt:
