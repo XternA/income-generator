@@ -91,14 +91,7 @@
         "properties": [
             "PACKETSTREAM_CID"
         ],
-        "is_enabled": true,
-        "platform_override": {
-            "amd64": [
-                "arm64",
-                "armv7l",
-                "armv6l"
-            ]
-        }
+        "is_enabled": true
     },
     {
         "name": "PROXYRACK",
