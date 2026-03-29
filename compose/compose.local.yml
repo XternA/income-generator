@@ -27,10 +27,9 @@ services:
 
     packetstream:
         container_name: packetstream
-        image: packetstream/psclient
+        image: ghcr.io/xterna/packetstream
         restart: always
         hostname: $DEVICE_ID
-        platform: ${PACKETSTREAM_PLATFORM:-}
         labels:
             - project=standard
             - com.centurylinklabs.watchtower.scope=igm
