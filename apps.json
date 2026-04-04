@@ -32,7 +32,7 @@
         "service_tag": {
             "amd64": "igm",
             "arm64": "igm",
-            "arm32": "igm"
+            "arm32": "igm-arm32v7"
         },
         "install_limit": 10
     },
