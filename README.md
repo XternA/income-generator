@@ -104,7 +104,7 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
 | --- | :---: | :---: | :---: | :---: | :---: |
 | **[EarnApp](https://tinyurl.com/nhc97kh6)**         | :white_check_mark: | :x:                | 15        | 1         | PayPal |
-| **[Honeygain](https://tinyurl.com/4pz24raa")**      | :white_check_mark: | :x:                | 10        | 1         | PayPal, Crypto |
+| **[Honeygain](https://tinyurl.com/4pz24raa)**       | :white_check_mark: | :x:                | 10        | 1         | PayPal, Crypto |
 | **[Peer2Profit](https://tinyurl.com/3besa7wy)**     | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
 | **[Traffmonetizer](https://tinyurl.com/4n9d4r54)**  | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
 | **[Pawns](https://tinyurl.com/3m25k4av)**           | :white_check_mark: | :x:                | Unlimited | 1         | PayPal, Crypto |
