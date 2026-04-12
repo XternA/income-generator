@@ -27,7 +27,7 @@ services:
 
     proxyrack:
         container_name: proxyrack
-        image: proxyrack/pop
+        image: ghcr.io/xterna/proxyrack
         restart: always
         hostname: $DEVICE_ID
         labels:
@@ -37,7 +37,7 @@ services:
             - UUID=${PROXYRACK_UUID:-}
             - API_KEY=${PROXYRACK_API_KEY:-}
             - DEVICE_NAME=${DEVICE_ID:-}
-        platform: linux/amd64
+            - LICENSE=IGM
         profiles:
             - ${PROXYRACK:-DISABLED}
         dns:
