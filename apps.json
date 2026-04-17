@@ -103,6 +103,12 @@
         ],
         "uuid_type": 2,
         "is_enabled": true,
+        "platform_override": {
+            "amd64": [
+                "armv7l",
+                "armv6l"
+            ]
+        },
         "proxy_uuid": {
             "name_type": "UUID",
             "description": "Register device ID in app dashboard's 'Devices' section."
