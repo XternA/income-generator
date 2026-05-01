@@ -1,171 +1,240 @@
-Proprietary Software License
+PROPRIETARY SOFTWARE LICENSE
 
-Version 1.3
+Version 1.4
 
 This Proprietary Software License ("License") is a legal agreement between you ("Licensee")
-and XternA ("Licensor"). By downloading, installing, or using the software provided under
+and XternA ("Licensor"). By downloading, installing, or using the Software provided under
 this License, you agree to be bound by the terms and conditions of this License. If you do
-not agree to these terms and conditions, do not download, install, or use the software.
+not agree to these terms and conditions, do not download, install, or use the Software.
+
+
+Definitions
+
+For the purposes of this Agreement, the following terms have the meanings set out below:
+
+"Software" means the software, tools, applications and associated files distributed by
+Licensor under this License, including all versions, updates and releases.
+
+"Commercial Use" means any use of the Software in a personal, business or organisational
+context that generates or is intended to generate income, revenue or financial benefit for
+the Licensee, including personal operational deployment, internal company use and earning
+income from outputs or results produced by the Software.
+
+"Monetisation Mechanism" means any built-in fee, referral, attribution, contribution, reward
+redirection or revenue-sharing system embedded in the Software by Licensor.
+
+"Redistribution" means making the Software or any portion thereof available to any third
+party by any means, including publishing, sharing, distributing, uploading, mirroring or
+hosting for access by others.
+
+"Integration" means incorporating, embedding, bundling or including the Software as a
+component within another product, service or tool, for the purpose of Redistribution or
+operating a Hosted Service.
+
+"Hosted Service" means operating the Software, or any derivative, wrapper or modified version
+thereof, to provide access or services derived from the Software to third parties, whether or
+not for commercial consideration.
+
 
 1. License Grant:
 
-   Subject to the terms and conditions of this Agreement, the Licensor grants you, the
-   Licensee, a non-exclusive, non-transferable, revocable license to use the software
-   strictly for your own personal, non-commercial purposes. The Licensee is prohibited
-   from using the software for any purpose other than their own use, including but not
-   limited to use within organizations, redistribution, or for the benefit of any third
-   party, subject to the limitations and obligations outlined in this License.
+   Subject to the terms and conditions of this Agreement, and provided that the Monetisation
+   Mechanism remains fully intact and unmodified, Licensor grants Licensee a non-exclusive,
+   non-transferable, revocable license to use the Software for personal use, Commercial Use
+   and internal business deployment.
 
-   Any form of use of the software that results in direct or indirect financial gain,
-   including but not limited to selling, offering services, integrating the software
-   into a product for sale, earning referral commissions, ad revenue, or receiving
-   donations associated with the use of this software, is expressly prohibited.
+   Licensee is prohibited from using the Software for Redistribution, Integration or the
+   provision of a Hosted Service, and from any use that falls outside the scope of this
+   grant, subject to the limitations and obligations outlined in this License.
+
+   This license grant is conditional upon the Monetisation Mechanism remaining fully intact
+   at all times. Any removal, replacement, bypass or circumvention of the Monetisation
+   Mechanism, whether directly or indirectly, automatically voids this license grant and
+   constitutes a material breach of this Agreement.
+
 
 2. Restrictions:
 
-   The Licensee shall not:
-      a. Modify, adapt, translate, reverse engineer, decompile, disassemble, or create
-         derivative works based on the software.
+   Licensee shall not, directly or indirectly, and shall not permit any third party to:
 
-      b. Integrate the software into your own software, tools, distributions, or any
-         other products or services by any means, including open-source projects or host
-         on platforms that generate revenue or donations, such as earning commissions
-         through referrals, advertising, sponsorship, or monetization of associated
-         services.
+      a. Redistribute, publish, upload, share or otherwise make the Software or any portion
+         thereof available to third parties by any means without prior written consent from
+         Licensor.
 
-      c. Sell, rent, lease, sublicense, distribute, or otherwise transfer the software
-         or any portion thereof to any third party without prior written consent from
-         the Licensor.
+      b. Sell, resell, rent, lease, sublicense or otherwise transfer the Software or any
+         portion thereof to any third party without prior written consent from Licensor.
 
-      d. Remove or alter any labels, copyright, trademark, or other proprietary rights
-         notices contained in the Software;
+      c. Integrate the Software into any other product, tool, service or distribution for
+         the purpose of Redistribution or providing a Hosted Service.
 
-      e. Use the Software in any manner that infringes the intellectual property rights
-         of Licensor or any third party;
+      d. Operate the Software, or any derivative or wrapper thereof, as a Hosted Service
+         accessible to third parties.
 
-      f. Use the Software for any unlawful purpose or in violation of any applicable laws
-         or regulations.
+      e. Remove, disable, bypass, replace or circumvent the Monetisation Mechanism or any
+         component thereof, whether directly or indirectly or through technical, contractual
+         or other means, or assist or enable any third party to do so.
 
-3. Non-Commercial Use Definition:
+      f. Modify, adapt, translate, reverse engineer, decompile, disassemble, or create
+         derivative works based on the Software for the purpose of Redistribution, Integration
+         or providing a Hosted Service, except to the extent expressly permitted by applicable
+         law.
 
-   For the purposes of this License, "non-commercial use" means the use of the software
-   solely for you the individual, personal purposes without generating any form of financial
-   gain, direct or indirect. This includes, but is not limited to, avoiding usage in any
-   context where the software contributes to or is involved in financial transactions,
-   commissions, donations, sponsorships, advertisements, or any other means of generating
-   income.
+      g. White-label, rebrand or represent the Software as your own original work or
+         misattribute authorship in any way.
+
+      h. Remove or alter any labels, copyright, trademark or other proprietary rights notices
+         contained in or associated with the Software.
+
+      i. Use the Software in any manner that infringes the intellectual property rights of
+         Licensor or any third party.
+
+      j. Use the Software for any unlawful purpose or in violation of any applicable laws or
+         regulations.
+
 
 3. Contributions:
 
-   You may submit contributions or improvements to the Software to the Licensor for
-   incorporation into the main branch via a pull request, subject to Licensor approval.
-   By submitting contributions, you grant Licensor a perpetual, irrevocable, worldwide,
-   royalty-free, non-exclusive license to use, reproduce, modify, distribute, and
-   sublicense your contributions, including any intellectual property rights therein.
-   Licensee shall not create or distribute their separate versions or forks of the
-   software without prior written consent from Licensor.
+   Licensor is not obligated to accept any contribution. By submitting a contribution for
+   incorporation into the Software, Licensee assigns and transfers to Licensor all right,
+   title and interest in and to such contribution, including all intellectual property rights
+   therein, effective upon Licensor's acceptance. To the extent such assignment is not
+   effective under applicable law, Licensee grants Licensor an exclusive, perpetual,
+   irrevocable, worldwide, royalty-free licence to use, reproduce, modify, distribute and
+   sublicense such contribution without restriction. Licensee waives any moral rights in such
+   contribution to the maximum extent permitted by applicable law. Licensee shall not publish,
+   distribute or maintain any independent version or fork of the Software incorporating such
+   contribution without prior written consent from Licensor. All rights in a contribution
+   transfer to Licensor only upon acceptance.
+
 
 4. Ownership:
 
-   Licensor retains all rights, title, and interest in and to the software, including any
-   and all intellectual property rights. Licensee acknowledges that this License does not
-   grant Licensee any ownership or rights in the software except as expressly stated
-   herein.
+   Licensor retains all rights, title, and interest in and to the Software, including any and
+   all intellectual property rights. Licensee acknowledges that this License does not grant
+   Licensee any ownership or rights in the Software except as expressly stated herein.
 
-5. Disclaimer of Warranty
 
-   The Software is provided "as is" without warranty of any kind, express or implied.
-   Licensor disclaims all warranties, express or implied, including, but not limited to,
-   the implied warranties of merchantability, fitness for a particular purpose, and
-   non-infringement.
+5. Disclaimer of Warranty:
+
+   TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED "AS IS"
+   WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. LICENSOR DISCLAIMS ALL WARRANTIES,
+   EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
 
 6. Limitation of Liability:
 
-   Licensee acknowledges that the responsibility for legal compliance lies solely with
-   them, and they shall hold Licensor harmless from any claims or liabilities arising
-   from Licensee’s use of the Software.
+   TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL LICENSOR BE LIABLE
+   FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+   (INCLUDING BUT NOT LIMITED TO PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+   OTHERWISE) ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THE SOFTWARE,
+   EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-   In no event shall Licensor be liable for any direct, indirect, incidental, special,
-   exemplary, or consequential damages (including, but not limited to, procurement of
-   substitute goods or services; loss of use, data, or profits; or business interruption)
-   however caused and on any theory of liability, whether in contract, strict liability,
-   or tort (including negligence or otherwise) arising out of or in connection with the
-   use or performance of the Software, even if advised of the possibility of such damages.
+   Licensee acknowledges that the responsibility for legal compliance lies solely with them,
+   and they shall hold Licensor harmless from any claims or liabilities arising from
+   Licensee's use of the Software.
 
-7. Violation Consequences:
 
-   If the Licensee is found to have violated any of the terms outlined in this License,
-   Licensor reserves the right to immediately terminate the Licensee’s rights under this
-   License. Upon termination, the Licensee must cease all use of the Software and destroy
-   all copies in their possession or control. Licensee shall also be liable for any
-   damages caused, including, but not limited to, any legal costs, attorney’s fees, or
-   compensation for lost revenue as a result of the violation.
+7. Liquidated Damages:
 
-   The Licensee agrees to a penalty of £1,000 to £3,000 or the equivalent value in their
-   local currency, or the full amount of any profits made, whichever is greater, based on
-   an assessment of gross revenue generated from the use of the software in violation of
-   this License. This amount is enforceable under the governing law of this License,
-   regardless of the Licensee’s location. The Licensor reserves the right to seek
-   additional compensation if actual damages exceed the stated penalty.
+   The parties acknowledge that a breach of Sections 2 or 3 of this Agreement would cause
+   Licensor substantial harm that is inherently difficult to quantify, including diversion of
+   fee and referral revenue, loss of competitive advantage, and costs of investigation and
+   enforcement. In the event of such a breach, Licensor shall be entitled to:
+
+      a. Actual damages suffered as a direct result of the breach; and
+
+      b. An account of profits directly attributable to the unauthorised use or breach.
+
+   Where neither (a) nor (b) can be established or quantified, Licensor shall be entitled to
+   a minimum sum of £3,000 (three thousand pounds sterling), or the equivalent in Licensee's
+   local currency at the prevailing rate, per separate and materially distinct breach event,
+   as a reasonable estimate of minimum enforcement, investigation and administrative costs
+   likely to arise from such breach.
+
+   All remedies above are without prejudice to any other remedy available to Licensor in
+   equity or at law, including injunctive relief.
+
 
 8. Indemnification:
 
    Licensee agrees to be fully responsible for ensuring that their use of the Software
-   complies with all applicable laws and this License. You, the Licensee, agree to
-   indemnify, defend, and hold harmless the Licensor from and against any and all claims,
-   damages, liabilities, losses, costs, and expenses (including reasonable attorneys' fees)
-   arising out of or resulting from any violation of this Agreement, unauthorized or
-   prohibited use of the Software, or misuse of the Software. This indemnification
-   obligation includes, but is not limited to, any legal claims or penalties arising
-   from such violations or misuse.
+   complies with all applicable laws and this License. Licensee agrees to indemnify, defend,
+   and hold harmless the Licensor from and against any and all claims, damages, liabilities,
+   losses, costs, and expenses (including reasonable legal fees) arising out of or resulting
+   from any violation of this Agreement, unauthorized or prohibited use of the Software, or
+   misuse of the Software. This indemnification obligation includes, but is not limited to,
+   any legal claims or penalties arising from such violations or misuse.
+
 
 9. Governing Law and Jurisdiction:
 
-   This License shall be governed by and construed in accordance with the laws of the
-   United Kingdom, without regard to its conflicts of law principles. Any disputes
-   arising out of or in connection with this License shall be subject to the exclusive
-   jurisdiction of the courts located in London, United Kingdom.
+   This License shall be governed by and construed in accordance with the laws of England and
+   Wales, without regard to its conflicts of law principles. Subject to Section 10, any
+   dispute not referred to arbitration, including any application for injunctive or emergency
+   relief to protect a party's rights pending arbitration, shall be subject to the exclusive
+   jurisdiction of the courts of England and Wales.
 
-   The Licensee agrees to submit to the jurisdiction of these courts and waives any
-   objection to such venue or jurisdiction. Any attempt to contest jurisdiction outside
-   of the agreed forum will result in the Licensee being liable for all legal costs
-   incurred by the Licensor in enforcing the terms of this agreement.
+   Licensee agrees to submit to the jurisdiction of these courts and waives any objection to
+   such venue or jurisdiction. Any attempt to contest jurisdiction outside of the agreed forum
+   will result in the Licensee being liable for all legal costs incurred by the Licensor in
+   enforcing the terms of this agreement.
 
-10. Arbitration Clause:
 
-   Any dispute, controversy, or claim arising out of or relating to this License,
-   including any breach, shall be resolved by binding arbitration conducted in accordance
-   with the arbitration rules of the London Court of International Arbitration (LCIA).
-   The arbitration shall take place in London, United Kingdom, and be conducted in English.
-   The decision of the arbitrator shall be final and binding upon both parties, and any
-   costs associated with arbitration shall be borne by the Licensee if found to be in
-   violation of this License.
+10. Arbitration:
+
+   Any dispute, controversy, or claim arising out of or relating to this License, including
+   any breach, shall be finally resolved by binding arbitration conducted in accordance with
+   the arbitration rules of the London Court of International Arbitration (LCIA), as currently
+   in force. The seat of arbitration shall be London, United Kingdom. The language of
+   arbitration shall be English. The arbitral tribunal shall consist of one arbitrator. The
+   decision of the arbitrator shall be final and binding upon both parties. All costs
+   associated with arbitration shall be borne by the Licensee if found to be in violation of
+   this License. Notwithstanding the foregoing, either party may seek injunctive or other
+   equitable relief from the courts of England and Wales to protect their rights pending
+   resolution by arbitration.
+
 
 11. Global Enforcement:
 
-   Licensee acknowledges that this License is enforceable globally, and any violations
-   will be pursued under the laws of the United Kingdom. In the case of international
-   violations, the Licensor reserves the right to collaborate with legal authorities in
-   the Licensee’s country to enforce this License through cease-and-desist orders, public
-   disclosure of the violation, or legal action in the Licensee’s country, as allowed by
-   applicable international treaties or agreements.
+   Licensee acknowledges that this License is enforceable globally, and any violations will
+   be pursued under the laws of England and Wales. In the case of international violations,
+   the Licensor reserves the right to collaborate with legal authorities in the Licensee's
+   country to enforce this License through cease-and-desist orders, public disclosure of the
+   violation, or legal action in the Licensee's country, as allowed by applicable
+   international treaties or agreements.
+
 
 12. Termination:
 
-   Licensor may terminate this Agreement at any time if you fail to comply with any term
-   or condition of this Agreement. Upon termination, you must immediately cease all use of
-   the Software and destroy all copies of the Software in your possession or control.
+   This Agreement is effective until terminated. Licensor may terminate this Agreement at any
+   time if Licensee fails to comply with any term or condition of this Agreement. Upon
+   termination, Licensee must immediately cease all use of the Software and permanently
+   destroy all copies of the Software in their possession or control.
+
+   Sections 3, 4, 5, 6, 7, 8, 9, and 10 shall survive termination of this Agreement.
+
 
 13. Miscellaneous:
 
    This Agreement constitutes the entire agreement between you and the Licensor concerning
-   the subject matter hereof and supersedes all prior or contemporaneous understandings
-   and agreements, whether written or oral.
+   the subject matter hereof and supersedes all prior or contemporaneous understandings and
+   agreements, whether written or oral.
 
-   This Agreement may be amended or modified only in writing signed by both parties.
+   This Agreement may be amended or modified only in writing signed by both parties. No
+   waiver of any provision shall be effective unless in writing. Failure by Licensor to
+   enforce any provision shall not constitute a waiver of future enforcement rights.
+
    If any provision of this Agreement is held to be unenforceable, such provision shall be
    amended to achieve as nearly as possible the same economic effect as the original
    provision, and the remainder of this Agreement shall continue in full force and effect.
+
+   Licensee may not assign or transfer this Agreement or any rights hereunder without prior
+   written consent from Licensor. Licensor may assign this Agreement freely, including to any
+   successor entity.
+
 
 14. Enforcement:
 
@@ -174,22 +243,24 @@ not agree to these terms and conditions, do not download, install, or use the so
    any Licensee found to be in violation of this License and will seek all applicable damages
    and penalties.
 
-15. Global Applicability and Hosting
+
+15. Global Applicability and Hosting:
 
    The terms and conditions of this License apply to the Software regardless of the platform,
    location, or method of distribution. Whether the Software is hosted on platforms such as
    GitHub, DockerHub, or any other hosting service, the License remains in full effect and
    enforceable.
 
-   The Licensee acknowledges that publishing, distributing, or using the Software on any
-   platform does not alter the License terms or limit the Licensor’s rights to enforce the
-   License. The Licensee must adhere to all terms and conditions of this License no matter
-   where or how the Software is accessed or used.
-   
-   The Licensor retains the right to take appropriate legal action to address any violations
-   of this License, irrespective of the hosting or distribution platform. This includes the
-   right to seek remedies and enforce compliance through legal or administrative means as
-   deemed necessary by the Licensor.
+   Licensee acknowledges that publishing, distributing, or using the Software on any platform
+   does not alter the License terms or limit the Licensor's rights to enforce the License.
+   Licensee must adhere to all terms and conditions of this License no matter where or how
+   the Software is accessed or used.
+
+   Licensor retains the right to take appropriate legal action to address any violations of
+   this License, irrespective of the hosting or distribution platform. This includes the right
+   to seek remedies and enforce compliance through legal or administrative means as deemed
+   necessary by the Licensor.
+
 
 16. Third-Party Components and Services:
 
@@ -200,19 +271,19 @@ not agree to these terms and conditions, do not download, install, or use the so
    third-party applications integrated within or alongside the Software.
 
    Licensee acknowledges and agrees that:
+
       a. Licensor makes no representations or warranties regarding the availability,
          functionality, accuracy, security, or legality of any Third-Party Components.
 
-      b. Licensee is solely responsible for reviewing and complying with all terms of
-         service, licenses, and policies governing Third-Party Components.
+      b. Licensee is solely responsible for reviewing and complying with all terms of service,
+         licenses, and policies governing Third-Party Components.
 
-      c. Licensor shall not be liable for any issues, damages, losses, or claims arising
-         from the use, unavailability, modification, or termination of any Third-Party
-         Components.
+      c. Licensor shall not be liable for any issues, damages, losses, or claims arising from
+         the use, unavailability, modification, or termination of any Third-Party Components.
 
       d. The inclusion or integration of Third-Party Components does not constitute an
          endorsement by Licensor, and Licensee assumes all risks associated with their use.
 
-Please review this Agreement carefully before downloading, installing, or using the
-Software. By using the Software, you acknowledge that you have read, understood, and
-agree to be bound by the terms and conditions of this Agreement.
+
+BY USING THIS SOFTWARE, LICENSEE ACKNOWLEDGES HAVING READ, UNDERSTOOD, AND AGREED TO BE
+BOUND BY ALL TERMS AND CONDITIONS OF THIS AGREEMENT.
