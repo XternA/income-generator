@@ -1,5 +1,5 @@
 <h4 align="center">
-<img width="1980" height="800" alt="IGM Banner" src="https://github.com/user-attachments/assets/73ac71ea-7bbb-4b6d-aa04-8a781db59904" />
+<img width="1980" height="800" alt="IGM Banner" src="https://github.com/user-attachments/assets/4934d96c-99a7-4fe5-842f-b2a7db27f24c" />
  
 [ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update | Multi-Proxy ]
 </h4>
@@ -50,7 +50,7 @@ curl -fsSL https://raw.githubusercontent.com/XternA/income-generator/installer/i
 
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
-Run the following installer in Windows Terminal, outside of WSL.
+Run the following installer in Windows Terminal (Command Prompt), outside of WSL.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/XternA/income-generator/installer/install.cmd -o install.cmd && install.cmd && del install.cmd
@@ -75,7 +75,7 @@ A browser-based interface extension to IGM for deploying and managing applicatio
 igm web start --auto
 ```
 
-Open http://localhost:4747 in the browser to see the dashboard, configure, deploy and manage.
+Open http://localhost:4747 (or LAN IP) in the browser to see the dashboard, configure, deploy and manage.
 
 ## Supported Applications 📋
 
