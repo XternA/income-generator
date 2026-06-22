@@ -40,13 +40,7 @@ __cleanup_proxy_installation() {
     [ -f "$TMP_ENV_DEPLOY_PROXY_FILE" ] && mv "$TMP_ENV_DEPLOY_PROXY_FILE" "$ENV_DEPLOY_PROXY_FILE" 2>/dev/null
 
     # Collect all proxy container IDs
-    all_containers=""
-    batch=1
-    while [ "$batch" -le "$install_count" ]; do
-        containers=$($CONTAINER_ALIAS ps -a -q -f "label=com.docker.compose.project=proxy-app-${batch}" 2>/dev/null)
-        [ -n "$containers" ] && all_containers="$all_containers $containers"
-        batch=$((batch + 1))
-    done
+    all_containers=$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | tr '\n' ' ')
 
     # Batch remove all containers
     if [ -n "$all_containers" ]; then
@@ -73,9 +67,17 @@ retrieve_app_data() {
     APP_DATA=$(extract_app_data .alias .is_enabled .proxy_uuid)
 }
 
+__validate_limit_data_format() {
+    [ -z "$limit_data" ] && return 0
+    if ! echo "$limit_data" | head -n 1 | grep -Eq '^[A-Za-z][A-Za-z0-9_]*[[:space:]]+[^[:space:]]+$'; then
+        printf "Internal error: limit_data format mismatch.\n" >&2
+        return 1
+    fi
+}
+
 has_installable_apps() {
     printf '%s\n%s\n' "$limit_data" "$APP_DATA" | awk -v count="$1" '
-    /=/ { eq_pos=index($0,"="); limits[substr($0,1,eq_pos-1)] = substr($0,eq_pos+1); next }
+    NF == 2 { limits[$1] = $2; next }
     $3 == "true" {
         limit_val = limits[$1]
         if (limit_val == "" || limit_val == "-" || count <= limit_val+0) { found=1; exit }
@@ -106,7 +108,6 @@ __wait_for_proxy_containers() {
 
     while [ $elapsed -lt $max_wait ]; do
         statuses=$($CONTAINER_ALIAS inspect -f '{{.State.Status}}' $deployed_containers 2>/dev/null)
-
         all_running=true
         for status in $statuses; do
             [ "$status" != "running" ] && all_running=false && break
@@ -192,6 +193,8 @@ update_app_uuid() {
 }
 
 install_proxy_instance() {
+    __validate_limit_data_format || exit 1
+
     while true; do
         display_info installed
 
@@ -216,7 +219,7 @@ install_proxy_instance() {
                 ;;
             [Nn])
                 if [ "$can_install" = "true" ]; then
-                    clear
+                    clear_screen
                     exit 0
                 fi
                 printf "\nInvalid option.\n\nPress Enter to continue..."; read -r input
@@ -262,8 +265,7 @@ install_proxy_instance() {
         esac
 
         if ! has_installable_apps "$install_count"; then
-            proxy_entry_pointer=$((proxy_entry_pointer + 1))
-            continue
+            break
         fi
 
         printf "${GREEN}[ ${YELLOW}Installing Proxy Set ${RED}${install_count} ${GREEN}]${NC}\n"
@@ -399,8 +401,8 @@ install_proxy_instance() {
 }
 
 remove_proxy_instance() {
-    has_proxy_apps="$CONTAINER_ALIAS ps -a -q -f 'label=project=proxy' | head -n 1"
-    if [ -z $(eval "$has_proxy_apps") ]; then
+    _has_proxy=$($CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1)
+    if [ -z "$_has_proxy" ]; then
         display_banner
         echo "No installed proxy applications."
         printf "\nPress Enter to continue..."; read -r input
@@ -415,7 +417,7 @@ remove_proxy_instance() {
                 break
                 ;;
             [Nn])
-                clear
+                clear_screen
                 exit 0
                 ;;
             *)
@@ -430,6 +432,10 @@ remove_proxy_instance() {
 
     install_count=1
     while test "$install_count" -le "$ACTIVE_PROXIES"; do
+        if ! has_installable_apps "$install_count"; then
+            break
+        fi
+
         printf "${GREEN}[ ${YELLOW}Removing Proxy Set ${RED}${install_count} ${GREEN}]${NC}\n"
 
         echo "$APP_DATA" | while read -r name alias is_enabled proxy_uuid; do

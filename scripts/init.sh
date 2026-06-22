@@ -1,20 +1,20 @@
 #!/bin/sh
 
-sh scripts/installer/binary-installer.sh
-
-LIMIT_TYPE="low"
+. scripts/installer/binary-installer.sh
+. scripts/core/resources.sh
 
 if [ ! -f "$ENV_SYSTEM_FILE" ]; then
     $SYS_INFO > /dev/null 2>&1
     echo >> "$ENV_SYSTEM_FILE"
 
-    sh scripts/set-limit.sh "$LIMIT_TYPE" > /dev/null 2>&1
-    sh scripts/limits.sh "$LIMIT_TYPE" > /dev/null 2>&1
+    CORE_set_resource_limit "low"
+    CORE_calculate_limits "low"
+    CORE_persist_limits
     echo >> "$ENV_SYSTEM_FILE"
 
-    sh scripts/data-dir.sh > /dev/null 2>&1
+    . scripts/data-dir.sh
 else
-    sh scripts/data-dir.sh > /dev/null 2>&1
+    . scripts/data-dir.sh
 fi
 
 [ ! -f "$ENV_DEPLOY_FILE" ] && $APP_SELECTION --import

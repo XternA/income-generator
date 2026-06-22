@@ -40,7 +40,7 @@ display_table_choice() {
         display_banner
         printf "${RED}Disabled${NC} ${application}s will not be deployed.\n\n"
 
-        app_data="$(extract_app_data_field $field_name)"
+        app_data="$(CORE_extract_app_data_field $field_name)"
         display_app_table "$app_data"
 
         printf "\nOptions:\n"
@@ -93,7 +93,7 @@ display_table_choice() {
                 fi
                 ;;
             0)
-                export_selection
+                CORE_export_selection "$TARGET_DEPLOY_FILE"
                 exit 0
                 ;;
             *)
@@ -102,45 +102,6 @@ display_table_choice() {
                 ;;
         esac
     done
-}
-
-export_selection() {
-    jq -r '.[] |
-        "\(.name) " +
-        (if .is_enabled then "ENABLED" else "DISABLED" end) + " " +
-        (if .service_enabled != null then
-            if .service_enabled then "ENABLED" else "DISABLED" end
-        else
-            "null"
-        end)
-    ' "$JSON_FILE" | {
-        : > "$TARGET_DEPLOY_FILE"  # Empty file
-
-        while IFS=' ' read -r name is_enabled service_enabled; do
-            echo "$name=$is_enabled" >> "$TARGET_DEPLOY_FILE"
-
-            [ "$service_enabled" != "null" ] && echo "${name}_SERVICE=$service_enabled" >> "$TARGET_DEPLOY_FILE"
-        done
-    }
-}
-
-import_selection() {
-    [ -f "$TARGET_DEPLOY_FILE" ] || return
-
-    jq_filter="."
-    while IFS='=' read -r name is_enabled; do
-        app_enabled="false"
-        [ "$is_enabled" = "ENABLED" ] && app_enabled="true"
-
-        if [ "${name#*_SERVICE}" != "$name" ]; then
-            jq_filter="$jq_filter | (.[] | select(.name == \"${name%_SERVICE}\").service_enabled) = $app_enabled"
-        else
-            jq_filter="$jq_filter | (.[] | select(.name == \"$name\").is_enabled) = $app_enabled"
-        fi
-    done < "$TARGET_DEPLOY_FILE"
-
-    jq --indent 4 "${jq_filter%|}" "$JSON_FILE" > "$JSON_FILE.tmp"
-    mv "$JSON_FILE.tmp" "$JSON_FILE"
 }
 
 parse_cmd_arg() {
@@ -158,22 +119,20 @@ parse_cmd_arg() {
             )
         ' "$JSON_FILE")
         echo "$updated_json_content" > "$JSON_FILE"
-        export_selection
+        CORE_export_selection "$TARGET_DEPLOY_FILE"
         exit 0
     elif [ "$1" = "--export" ]; then
-        export_selection
+        CORE_export_selection "$TARGET_DEPLOY_FILE"
         exit 0
     elif [ "$1" = "--import" ]; then
-        import_selection
-        export_selection
+        CORE_import_selection "$TARGET_DEPLOY_FILE"
+        CORE_export_selection "$TARGET_DEPLOY_FILE"
         exit 0
     elif [ "$1" = "--save" ]; then
-        TARGET_DEPLOY_FILE="$TARGET_DEPLOY_FILE.save"
-        export_selection
+        CORE_export_selection "$TARGET_DEPLOY_FILE.save"
         exit 0
     elif [ "$1" = "--backup" ]; then
-        TARGET_DEPLOY_FILE="$TARGET_DEPLOY_FILE.backup"
-        export_selection
+        CORE_export_selection "$TARGET_DEPLOY_FILE.backup"
         echo "\nBackup current app state successfully."
         exit 0
     elif [ "$1" = "--restore" ]; then
@@ -189,10 +148,10 @@ parse_cmd_arg() {
         fi
 
         if [ -f "$TARGET_DEPLOY_FILE" ]; then
-            import_selection
+            CORE_import_selection "$TARGET_DEPLOY_FILE"
             [ $save_state = "false" ] && rm -f "$TARGET_DEPLOY_FILE"
             TARGET_DEPLOY_FILE=$tmp
-            export_selection
+            CORE_export_selection "$TARGET_DEPLOY_FILE"
             printf "\nSuccessfully re-applied app's enabled/disabled state from ${restore_type}.\n"
         else
             printf "\nNo ${restore_type} found. Nothing to restore from.\n"

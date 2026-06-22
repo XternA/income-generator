@@ -3,104 +3,19 @@
 [ -n "$__APP_IMPORT_READER_CACHED" ] && return
 __APP_IMPORT_READER_CACHED=1
 
-# Cache totals to avoid recomputing
-if [ -z "$TOTAL_APPS" ] || [ -z "$TOTAL_SERVICES" ]; then
-    __TOTALS=$(jq -r 'length as $total | map(select(has("service_enabled"))) | length as $services | "\($total) \($services)"' "$JSON_FILE")
-    TOTAL_APPS=${__TOTALS%% *}
-    TOTAL_SERVICES=${__TOTALS##* }
-    export TOTAL_APPS TOTAL_SERVICES
-fi
+. scripts/core/apps.sh
 
-# Cache app properties requirements (for validation)
-if [ -z "$APP_PROPERTIES_INDEX" ]; then
-    APP_PROPERTIES_INDEX=$(jq -r '.[] | select(.properties != null) | "\(.name)=\(.properties | map(ltrimstr("#")) | join(" "))"' "$JSON_FILE")
-    export APP_PROPERTIES_INDEX
-fi
+TOTAL_APPS=$CORE_TOTAL_APPS
+TOTAL_SERVICES=$CORE_TOTAL_SERVICES
+APP_PROPERTIES_INDEX=$CORE_APP_PROPERTIES_INDEX
+export TOTAL_APPS TOTAL_SERVICES APP_PROPERTIES_INDEX
 
-__build_field_mapping() {
-    mapping=""
-    separator=""
-
-    # Build mapping expression efficiently
-    for arg; do
-        field="${arg%%:*}"
-        type="${arg#*:}"
-        [ "$field" = "$type" ] && type="string"
-        field="${field#.}"
-
-        if [ "$type" = "array" ]; then
-            mapping="$mapping$separator\"${field}=\" + ((.${field} // []) | join(\" \") | @sh)"
-        else
-            mapping="$mapping$separator\"${field}=\" + ((.${field} // \"\") | @sh)"
-        fi
-        separator=","
-    done
-    echo "$mapping"
-}
-
-__extract_app_data_field() {
-    jq -r ".[] | select(has(\"$field_name\")) | \"\(.name) \(.${field_name})\"" "$JSON_FILE"
-}
-
-extract_all_app_data() {
-    jq -r ".[] | \"\(.name) $(printf ' \(%s)' "$@")\"" "$JSON_FILE"
-}
-
-extract_app_data() {
-    filter=".is_enabled == true"
-
-    for f in "$@"; do
-        if [ "$f" = ".service_enabled" ]; then
-            filter="(.is_enabled == true or .service_enabled == true)"
-            break
-        fi
-    done
-
-    jq -r ".[] | select($filter) | \"\(.name) $(printf ' \(%s)' "$@")\"" "$JSON_FILE"
-}
-
-extract_app_data_fields_only() {
-    app_name="$1"
-    shift
-
-    if [ $# -gt 0 ]; then
-        field_expr=""
-        for field in "$@"; do
-            field_expr="$field_expr$field // \"null\" ,"
-        done
-        field_expr=${field_expr%,}
-
-        jq -r --arg app "$app_name" ".[] | select(.name==\$app) | [$field_expr] | join(\" \")" "$JSON_FILE"
-    fi
-}
-
-extract_app_data_field() {
-    __extract_app_data_field "$1"
-}
-
-extract_and_map_app_data_field() {
-    file="$JSON_FILE"
-    filter=".is_enabled == true"
-
-    # Smart filtering: check if service_enabled field is requested
-    for f in "$@"; do
-        if [ "$f" = ".service_enabled" ]; then
-            filter="(.is_enabled == true or .service_enabled == true)"
-            break
-        fi
-    done
-
-    mapping=$(__build_field_mapping "$@")
-    jq -r ".[] | select($filter) | [ $mapping ] | join(\" \")" "$file"
-}
-
-extract_and_map_single_app_field() {
-    app_name="$1"
-    shift
-
-    mapping=$(__build_field_mapping "$@")
-    jq -r --arg app "$app_name" ".[] | select(.name==\$app) | [ $mapping ] | join(\" \")" "$JSON_FILE"
-}
+extract_all_app_data() { CORE_extract_all_app_data "$@"; }
+extract_app_data() { CORE_extract_app_data "$@"; }
+extract_app_data_fields_only() { CORE_extract_app_data_fields_only "$@"; }
+extract_app_data_field() { CORE_extract_app_data_field "$@"; }
+extract_and_map_app_data_field() { CORE_extract_and_map_app_data "$@"; }
+extract_and_map_single_app_field() { CORE_extract_and_map_single_app "$@"; }
 
 display_app_table() {
     data="$1"

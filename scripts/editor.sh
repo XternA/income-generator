@@ -43,6 +43,7 @@ set_if_not_defined() {
 }
 
 sync_editor() {
+    EDITOR=""
     while IFS='=' read -r key value; do
         case "$key" in
             EDITOR) EDITOR="$value"; break ;;
@@ -101,7 +102,11 @@ set_editor() {
                 i=1
                 for editor in $available_editors; do
                     if [ "$i" = "$choice" ]; then
-                        $SED_INPLACE "s/^EDITOR=.*/EDITOR=$editor/" "$ENV_SYSTEM_FILE"
+                        if grep -q "^EDITOR=" "$ENV_SYSTEM_FILE" 2>/dev/null; then
+                            $SED_INPLACE "s/^EDITOR=.*/EDITOR=$editor/" "$ENV_SYSTEM_FILE"
+                        else
+                            printf 'EDITOR=%s\n' "$editor" >> "$ENV_SYSTEM_FILE"
+                        fi
                         EDITOR="$editor"
 
                         get_editor_display_name "$editor"
@@ -126,7 +131,7 @@ get_editor_description() {
         nvim|vim|vi) printf "Using ${RED}$EDITOR${NC} editor, don't forget to save changes after edit.\n" ;;
         nano) printf "After editing, press '${BLUE}CTRL + X${NC}' and press '${BLUE}Y${NC}' to save changes.\n" ;;
         code) printf "VS Code will open in a new window. Save your changes and ${BLUE}close the tab${NC} to continue.\n" ;;
-        *) break ;;
+        *) ;;
     esac
 }
 

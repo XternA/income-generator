@@ -1,8 +1,6 @@
-<h1 align="center">
-💻 Income Generator 💵
- </h1>
-
 <h4 align="center">
+<img width="1980" height="800" alt="IGM Banner" src="https://github.com/user-attachments/assets/73ac71ea-7bbb-4b6d-aa04-8a781db59904" />
+ 
 [ Multi-Platform | OS Native | Containerized Stack | Passive Income | Auto Update | Multi-Proxy ]
 </h4>
 
@@ -17,89 +15,75 @@
 If you like this project, don't forget to leave a star. ⭐
 </div>
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/883c4584-3c71-4040-a45d-da02bded1174" alt="image" />
-</p>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/883c4584-3c71-4040-a45d-da02bded1174" alt="IGM TUI" />
+</div>
 
-**Income Generator (IGM)** is an all-in-one feature-rich tool that allows generating passive income by leveraging income generating applications and unused internet bandwidth with minimal system resource.
+Income Generator (IGM) is a feature-rich tool for deploying and managing passive income applications at scale — in a containerized runtime environment with easy configurable resource limits and multi-proxy scaling to maximise earnings per device.
 
-Designed for fast setup and cross-platform compatibility, IGM runs each application in isolated containers, providing a safe, efficient execution with full orchestration for rapid deployment across multiple hosts.
+Manage everything from the command line, TUI, or via the built-in web dashboard. Quick to set up, easy to deploy, and runs anywhere. Lightweight and fast, IGM itself has a minimal footprint — making it well-suited for always-on home servers and low-power SBCs.
 
 📖 For detailed instructions and advanced usage, refer to the [**Wiki**](../../wiki).
 
 ## Key Features ✨
-- **Multi-platform** - Deploy across different OS.
-- **Global Access** - Access the tool anywhere, just type `igm`.
-- **Auto update** - Ensures applications always running up-to-date.
-- **On-the-fly-update** - Tool can be updated on the fly whilst preserving config settings.
-- **Local Config** - Config file is auto-generated and stored locally, including credentials.
-- **Encryption** - Credential secrets are automatically encrypted/decrypted when in operation.
-- **Resource Limit** - Easily apply resource limit based on system hardware dynamically.
-- **Selective Apps** - Enable or disable the application of your choice to deploy and earn.
-- **Quick Actions** -  CLI commands for common operations without launching the tool.
-- **Auto Claim** - Auto claim daily rewards for supported applications with service apps.
-- **Multi-Proxy** - Scale and deploy multiple proxy instances based on proxy entries automatically.
-- **Proxy Install Limit** - Fine tune proxy application deployments with install limits.
+- **Multi-platform** — Runs natively on any OS and architecture, including low-power SBCs.
+- **ARM emulation** — QEMU automatically set up on ARM devices during container runtime installation.
+- **Web dashboard** — Lightweight, responsive UI. Orchestrate, monitor and manage all within the browser.
+- **Multi-proxy scaling** — Automatically deploy multiple instances per app from a proxy list to stack earnings.
+- **Resource limits** — Easily apply resource limits across applications, dynamically based on hardware.
+- **Credential encryption** — Secrets encrypted at rest; decrypted only during operation.
+- **Auto update** — Income applications update automatically without interruption.
+- **Auto claim** — Daily rewards claimed automatically for supported applications.
+- **Proxy install limits** — Fine-tune per-app deployment counts for full control over proxy scaling.
+- **Quick actions** — Common operations available as direct CLI commands, no TUI required.
 
-## Getting Started 🚥
-### Prerequisite 📦
-**The tool configures and runs everything in a containerized virtualized environment isolated from the host.**
+## Quick Start 🚀
 
-- A 64-bit machine. It is possible to run on a 32-bit machine, but expect performance or compatibility limitations.
-- A minimum of 4GB is recommended to ensure enough resource availability for scaling and future expansion.
-- ARM architecture devices, such as Raspberry Pi, Apple Silicon, etc, require  an emulation layer such as [**qemu-user-static (qus)**](https://github.com/dbhi/qus) to run x86 architecture applications on ARM. Automatically configured seamlessly through the tool.
-- On Windows, [**WSL2**](https://learn.microsoft.com/en-us/windows/wsl/install) and [**Winget**](https://learn.microsoft.com/en-us/windows/package-manager) is required.
+### Step 1: Install IGM
 
-### Quick Start Guide ⚙️
-If the prerequisites are met based on the platform, you can simply follow the quick start guide, otherwise, refer to the [**Wiki**](../../wiki) for the full setup procedure.
+![macOS](https://img.shields.io/badge/MacOS-444444?style=for-the-badge&logo=apple&logoColor=white)![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 
-### Windows
+Run the following installer in your terminal.
+```sh
+curl -fsSL https://raw.githubusercontent.com/XternA/income-generator/installer/install.sh | sh
+```
+
 ![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
-Refer to the [**Windows**](../../wiki/Windows-Host) guide first to ensure prerequisites are met before proceeding. If WSL is already configured, continue.
+Run the following installer in Windows Terminal, outside of WSL.
 
-Open the command line and get the bootstrap script.
-```markdown
-curl -o %APPDATA%\IGM\igm.bat --create-dirs --ssl-no-revoke -L https://raw.githubusercontent.com/XternA/income-generator/main/start.bat
-```
-Register the bootstrap script by adding an entry to the environment variable path.
 ```sh
-for /f "delims=" %i in ('powershell -Command "[Environment]::GetEnvironmentVariable('Path', 'User')"') do set USERPATH=%i && setx PATH %USERPATH%;%APPDATA%\IGM
+curl -fsSL https://raw.githubusercontent.com/XternA/income-generator/installer/install.cmd -o install.cmd && install.cmd && del install.cmd
 ```
-For the registering to take effect, close and re-open a new command line process.
 
-Run the tool.
+> IGM leverages WSL natively. Refer to the [**Windows guide**](../../wiki/Windows-Guide) to setup WSL on Windows.
+
+### Step 2: Run IGM
+
+#### IGM TUI
 ```sh
 # Type anywhere in the command line
 igm
 ```
 
----
-### Linux & macOS
-![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)![macOS](https://img.shields.io/badge/MacOS-444444?style=for-the-badge&logo=apple&logoColor=white)
+#### WebUI Dashboard
 
-Open the terminal and clone the project.
+A browser-based interface extension to IGM for deploying and managing applications. Requires a container runtime to be installed first. Run `igm runtime` to set up if needed.
+
 ```sh
-git clone --depth=1 https://github.com/XternA/income-generator.git ~/.igm
-```
-Register alias for global access. (Auto detects and adds to current shell choice e.g. `.bashrc`, `.zshrc` etc.)
-```sh
-echo "alias igm=\"sh -c 'cd ~/.igm; sh start.sh \\\"\\\$@\\\"' --\"" >> ~/."${SHELL##*/}rc"; source ~/."${SHELL##*/}rc"
-```
-Run the tool.
-```sh
-# Type anywhere in the command line
-igm
+# --auto flag will configure the WebUI to auto-start on boot
+igm web start --auto
 ```
 
-## Account Registration 📋
-The application table provides the install specification for each applications.
+Open http://localhost:4747 in the browser to see the dashboard, configure, deploy and manage.
 
-App registration can also be done in the tool via `Setup Configuration` process.
+## Supported Applications 📋
 
-- 📋 The provided registration links will entitle you to receive a bonus added to your account on registration. Additionally, it ensures you're registering at the correct site and showing your support for my work.
+The following table provides IGM support and the install specification for each application.
 
-- 🔐 If using social logins such as Google, set a password for the account so it can be used for app authentication.
+App registration can be done via IGM's TUI, CLI or Web UI interface.
+
+- 📋 The provided registration links entitle you to a bonus on registration and ensure you’re signing up at the correct site.
 
 | Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
 | --- | :---: | :---: | :---: | :---: | :---: |
@@ -114,7 +98,7 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[Proxylite](https://tinyurl.com/ynhxy5we)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[EarnFM](https://tinyurl.com/3pxam34v)**          | :white_check_mark: | :white_check_mark: | Unlimited | 1         | PayPal, Crypto |
 | **[Speedshare](https://tinyurl.com/bdddwn9e)**      | :white_check_mark: | :x:                | Unlimited | 1         | PayPal, Crypto |
-| **[Spide](https://tinyurl.com/y3xtfd9z)**           | :white_check_mark: | :x:                | Unlimited | Unlimited | PayPal, Crpyto |
+| **[Spide](https://tinyurl.com/y3xtfd9z)**           | :white_check_mark: | :x:                | Unlimited | Unlimited | PayPal, Crypto |
 | **[Grass](https://tinyurl.com/msfkrace)**           | :white_check_mark: | :x:                | Unlimited | 1         | Crypto |
 | **[Mysterium](https://tinyurl.com/5dkekpmc)**       | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto |
 | **[Bitping](https://tinyurl.com/2h5jam3b)**         | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
@@ -125,7 +109,7 @@ App registration can also be done in the tool via `Setup Configuration` process.
 | **[AntGain](https://tinyurl.com/usdtrrus)**         | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto, PayPal (Soon) |
 
 ### Additional Applications
-These applications current aren’t supported via IGM yet as they're desktop-GUI only versions. You can run them alongside IGM to earn in the meantime. Once supported, they will be integrated into IGM.
+These applications currently aren’t supported via IGM yet as they're desktop-GUI only versions. You can run them alongside IGM to earn in the meantime. Once supported, they will be integrated into IGM.
 
 | Application | Residential / Mobile IP | VPS / Hosting IP | Devices Per Account | Devices Per IP | Major Payout Type |
 | --- | :---: | :---: | :---: | :---: | :---: |
@@ -140,11 +124,11 @@ IGM has been tested on the following environments and should run on any host tha
 
 | Platform | Architecture | Device Type | Fully Supported |
 | :------- | :----------- | :---------- | :-------------: |
-| Windows, WSL2 (Ubuntu)  | amd64, arm64   | Desktop, Laptop PC                 | 🟢 |
+| Windows WSL2 (Ubuntu)   | amd64, arm64   | Desktop, Laptop PC                 | 🟢 |
 | Linux Ubuntu, Debian    | amd64, arm64   | Desktop, Laptop PC, Raspberry Pi 4 | 🟢 |
 | macOS                   | amd64, arm64   | MacBook Pro                        | 🟢 |
 
-Older SBC devices, such as the Raspberry Pi 3 (arm32v7), can run IGM. However, due to hardware limitations, some applications may not work and overall performance may be reduced, though this will not prevent other applications from running.
+Older SBC devices, such as the Raspberry Pi 3 (arm32v7), can run IGM. However, due to hardware limitations, some applications may not work and overall performance may be reduced.
 
 ## Like The Project? 🫶
 Your efforts and interest are well appreciated if you would like to contribute and improve the tool or compatibility and enable it widely available and easy to use.

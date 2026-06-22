@@ -75,7 +75,7 @@ prompt_wsl_shutdown() {
     printf "Shutdown WSL now? (Y/N) [Default: N]: "; read -r restart_choice
 
     case "$restart_choice" in
-        [Yy]*)F%
+        [Yy]*)
             printf "\nShutting down WSL...\n"
             printf "${GREEN}WSL shutdown initiated. ✓${NC}\n\nRun ${BLUE}igm show${NC} to start WSL and application containers.\n"
             display_notice
@@ -127,7 +127,7 @@ handle_mirror_command() {
                             printf "${GREEN}WSL mirrored networking disabled ✓${NC}\n"
                             prompt_wsl_shutdown
                             ;;
-                        *) clear; exit 0 ;;
+                        *) clear_screen; exit 0 ;;
                     esac
                     ;;
                 *)
@@ -139,7 +139,7 @@ handle_mirror_command() {
                             printf "${GREEN}WSL mirrored networking enabled ✓${NC}\n"
                             prompt_wsl_shutdown
                             ;;
-                        *) clear; exit 0 ;;
+                        *) clear_screen; exit 0 ;;
                     esac
                     ;;
             esac

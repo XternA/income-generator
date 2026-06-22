@@ -5,6 +5,7 @@ __APP_MANAGER_CACHED=1
 
 . scripts/util/app-import-reader.sh
 . scripts/util/app-credential-validator.sh
+. scripts/core/containers.sh
 
 WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
@@ -85,32 +86,6 @@ display_install_info() {
 }
 
 install_applications() {
-    display_apps_services() {
-        load_app_service_data
-        print_total_apps_info
-
-        if [ -z "$has_apps_services" ]; then
-            echo "No applications/services currently selected to install."
-            can_install="false"
-        else
-            printf "The following applications will be installed.\n\n"
-
-            display_app_table "$app_data" install
-            can_install="true"
-        fi
-
-        printf "\nOption:\n"
-        printf "  ${GREEN}a${NC} = ${GREEN}select applications${NC}\n"
-        printf "  ${YELLOW}s${NC} = ${YELLOW}select services${NC}\n\n"
-
-        if [ "$can_install" = "false" ]; then
-            printf "Select an option or press Enter to return: "
-        else
-            printf "Do you want to proceed? (Y/N): "
-        fi
-        read -r input
-    }
-
     while true; do
         display_banner
         [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
@@ -205,7 +180,7 @@ install_applications() {
         printf "Pulling latest image...\n\n"
         [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
 
-        proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
+        proxy_is_active="$(CORE_has_containers proxy)"
         [ "$proxy_is_active" ] && $WATCHTOWER modify_only
 
         $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
@@ -244,7 +219,7 @@ reinstall_applications() {
                 display_banner
                 printf "Pulling latest image...\n\n"
 
-                proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
+                proxy_is_active="$(CORE_has_containers proxy)"
                 [ "$proxy_is_active" ] && $WATCHTOWER modify_only
 
                 $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
@@ -295,7 +270,7 @@ start_applications() {
 
 start_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    result="$($CONTAINER_ALIAS start "$1" 2>&1)"
+    result="$(CORE_start_container "$1")"
     if [ "$result" = "$1" ]; then
         printf "Starting application ${RED}$1${NC}\n"
     else
@@ -316,7 +291,7 @@ stop_applications() {
 
     printf "Stopping applications...\n\n"
     compose_files=$ALL_COMPOSE_FILES
-    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
+    proxy_is_active="$(CORE_has_containers proxy)"
     [ "$proxy_is_active" ] && compose_files=$APP_COMPOSE_FILES
 
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $compose_files stop
@@ -326,7 +301,7 @@ stop_applications() {
 
 stop_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    result="$($CONTAINER_ALIAS stop -t 6 "$1" 2>&1)"
+    result="$(CORE_stop_container "$1")"
     if [ "$result" = "$1" ]; then
         printf "Stopping application ${RED}$1${NC}\n"
     else
@@ -336,7 +311,7 @@ stop_application() {
 
 restart_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    result="$($CONTAINER_ALIAS restart "$1" 2>&1)"
+    result="$(CORE_restart_container "$1")"
     if [ "$result" = "$1" ]; then
         printf "Application ${RED}$1${NC} restarted successfully.\n"
     else
@@ -359,7 +334,7 @@ remove_applications() {
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED --profile DISABLED $ALL_COMPOSE_FILES down -v
     echo
 
-    proxy_is_active="$($CONTAINER_ALIAS ps -a -q -f "label=$IGM_PROXY_PROJECT_LABEL" | head -n 1)"
+    proxy_is_active="$(CORE_has_containers proxy)"
     [ "$proxy_is_active" ] && $WATCHTOWER deploy
 
     $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
@@ -369,7 +344,7 @@ remove_applications() {
 
 remove_application() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    result="$($CONTAINER_ALIAS rm -f -v "$1" 2>&1)"
+    result="$(CORE_remove_container "$1")"
     if [ "$result" = "$1" ]; then
         printf "Removing application ${RED}$1${NC}\n"
         $WATCHTOWER sync # Remove if no apps remain
@@ -378,16 +353,185 @@ remove_application() {
     fi
 }
 
+ensure_tun2socks_for_apps() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && return
+    sets=
+    for n in "$@"; do
+        case "$n" in
+            *-[0-9]|*-[0-9][0-9])
+                s=${n##*-}
+                case " $sets " in *" $s "*) ;; *) sets="$sets $s" ;; esac
+                ;;
+        esac
+    done
+    [ -z "$sets" ] && return
+    all_names=$($CONTAINER_ALIAS ps -a --format '{{.Names}}' 2>/dev/null)
+    for s in $sets; do
+        echo "$all_names" | grep -q "^tun2socks-${s}$" && start_application "tun2socks-${s}"
+    done
+    waited=0
+    while [ $waited -lt 5 ]; do
+        all_up=1
+        for s in $sets; do
+            running=$($CONTAINER_ALIAS ps --format "{{.Names}}" -f "name=^tun2socks-${s}$" -f "status=running" 2>/dev/null)
+            [ -z "$running" ] && all_up=0
+        done
+        [ "$all_up" = "1" ] && break
+        sleep 1
+        waited=$((waited + 1))
+    done
+}
+
+start_proxy_applications() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    all_proxy=$($CONTAINER_ALIAS ps -a --format "{{.Names}}" -f "label=project=proxy")
+    for c in $all_proxy; do
+        case "$c" in tun2socks*) start_application "$c" ;; esac
+    done
+    waited=0
+    while [ $waited -lt 10 ]; do
+        tun_running=$($CONTAINER_ALIAS ps --format "{{.Names}}" -f "name=tun2socks" -f "status=running" | wc -l | tr -d " ")
+        [ "${tun_running:-0}" -gt 0 ] && break
+        sleep 1
+        waited=$((waited + 1))
+    done
+    for c in $all_proxy; do
+        case "$c" in tun2socks*) ;; *) start_application "$c" ;; esac
+    done
+}
+
+stop_proxy_applications() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    proxy_names=$($CONTAINER_ALIAS ps --format "{{.Names}}" -f "label=project=proxy")
+    for c in $proxy_names; do stop_application "$c"; done
+}
+
+remove_proxy_applications() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    proxy_names=$($CONTAINER_ALIAS ps -a --format "{{.Names}}" -f "label=project=proxy")
+    for c in $proxy_names; do remove_application "$c"; done
+}
+
+start_application_group() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    expand_mode=
+    names=
+    for arg in "$@"; do
+        case "$arg" in
+            --all)   expand_mode=all ;;
+            --proxy) expand_mode=proxy ;;
+            *)       names="$names $arg" ;;
+        esac
+    done
+    to_start=$(CORE_expand_containers_by_base "$expand_mode" $names)
+    ensure_tun2socks_for_apps $to_start
+    for n in $to_start; do start_application "$n"; done
+    for n in $CORE_UNMATCHED_PROXY; do
+        printf "No proxy variants of ${RED}%s${NC} found.\n" "$n"
+    done
+}
+
+stop_application_group() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    expand_mode=
+    names=
+    for arg in "$@"; do
+        case "$arg" in
+            --all)   expand_mode=all ;;
+            --proxy) expand_mode=proxy ;;
+            *)       names="$names $arg" ;;
+        esac
+    done
+    to_stop=$(CORE_expand_containers_by_base "$expand_mode" $names)
+    for n in $to_stop; do stop_application "$n"; done
+    for n in $CORE_UNMATCHED_PROXY; do
+        printf "No proxy variants of ${RED}%s${NC} found.\n" "$n"
+    done
+}
+
+restart_application_group() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
+    expand_mode=
+    names=
+    for arg in "$@"; do
+        case "$arg" in
+            --all)   expand_mode=all ;;
+            --proxy) expand_mode=proxy ;;
+            *)       names="$names $arg" ;;
+        esac
+    done
+    to_restart=$(CORE_expand_containers_by_base "$expand_mode" $names)
+    no_match_names=$CORE_UNMATCHED_PROXY
+
+    case "$OS" in
+        Linux)  cores=$(nproc 2>/dev/null || echo 1) ;;
+        Darwin) cores=$(sysctl -n hw.physicalcpu 2>/dev/null || echo 1) ;;
+        *)      cores=1 ;;
+    esac
+    batch_size=$((cores / 2))
+    [ "$batch_size" -lt 1 ] && batch_size=1
+    [ "$batch_size" -gt 3 ] && batch_size=3
+    batch_delay=1
+    [ "$batch_size" -eq 1 ] && batch_delay=0
+
+    case "$expand_mode" in
+        all)
+            [ -n "$to_restart" ] && printf "Restarting all available${YELLOW}%s${NC} applications...\n\n" "$names"
+            ;;
+        proxy)
+            [ -n "$to_restart" ] && printf "Restarting all proxy variants of${YELLOW}%s${NC}...\n\n" "$names"
+            ;;
+    esac
+
+    batch=
+    count=0
+    first_batch=1
+    for name in $to_restart; do
+        batch="$batch $name"
+        count=$((count + 1))
+        [ "$count" -lt "$batch_size" ] && continue
+
+        [ -z "$first_batch" ] && [ "$batch_delay" -gt 0 ] && sleep "$batch_delay"
+        first_batch=
+        for n in $batch; do
+            (
+                result="$(CORE_restart_container "$n")"
+                if [ "$result" = "$n" ]; then
+                    printf "Application ${RED}%s${NC} restarted successfully.\n" "$n"
+                else
+                    printf "Failed to restart application ${RED}%s${NC}\n%s\n" "$n" "$result"
+                fi
+            ) &
+        done
+        wait
+        batch=
+        count=0
+    done
+    if [ -n "$batch" ]; then
+        [ -z "$first_batch" ] && [ "$batch_delay" -gt 0 ] && sleep "$batch_delay"
+        for n in $batch; do
+            (
+                result="$(CORE_restart_container "$n")"
+                if [ "$result" = "$n" ]; then
+                    printf "Application ${RED}%s${NC} restarted successfully.\n" "$n"
+                else
+                    printf "Failed to restart application ${RED}%s${NC}\n%s\n" "$n" "$result"
+                fi
+            ) &
+        done
+        wait
+    fi
+
+    for name in $no_match_names; do
+        printf "No proxy variants of ${RED}%s${NC} found.\n" "$name"
+    done
+}
+
 show_application_log() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
 
-    clear
-    logs_48h=$($CONTAINER_ALIAS logs --since 48h "$1" 2>&1)
-    if [ -n "$logs_48h" ]; then
-        printf "%s\n" "$logs_48h"
-    else
-        $CONTAINER_ALIAS logs "$1"
-    fi
+    clear_screen
+    CORE_get_container_logs "$1"
     printf "\nPress Enter to continue..."; read -r _
 }
 
@@ -472,16 +616,9 @@ show_applications() {
         return
     fi
 
-    proxy_number="${2:-}"
-    proxy_project="com.docker.compose.project=${1}-app-${proxy_number}"
 
-    has_apps() {
-        if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
-            $CONTAINER_ALIAS ps -a -q -f "label=${proxy_project}" | head -n 1
-        else
-            $CONTAINER_ALIAS ps -a -q -f "label=project=${1}" | head -n 1
-        fi
-    }
+    proxy_number="${2:-}"
+
     show_apps() {
         container_type="$1"
         should_group="$2"
@@ -495,105 +632,65 @@ show_applications() {
             table="$1"
             app_type_name="$2"
             index="$3"
+            line_count="$4"
 
-            count=$(printf '%s\n' "$table" | awk 'NR>1 {c++} END{print c+0}')
+            count=$((line_count - 1))
             if [ "$index" ]; then
                 printf "\n${GREEN}[ ${YELLOW}%s Applications ${NC}| ${RED}%s ${GREEN}]${NC} (%s containers)\n\n" "$app_type_name" "$index" "$count"
             else
                 printf "\n${GREEN}[ ${YELLOW}%s Applications ${GREEN}]${NC} (%s containers)\n\n" "$app_type_name" "$count"
             fi
             # Cleanup output
-            printf '%s\n' "$table" | sed 's/[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*://g; s/\[::\]://g; s/\([0-9][0-9]*\)->[0-9][0-9]*/\1/g'
+            printf '%s\n' "$table" | sed 's/[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*://g; s/\[::\]://g; s/\([0-9][0-9]*\)->[0-9][0-9]*/\1/g; s/\([0-9][0-9]*\/[a-z][a-z]*\), \1/\1/g'
         }
 
         if [ "$should_group" = "group" ]; then
-            # Find all unique app labels
-            set_list=$(
-                $CONTAINER_ALIAS ps -a --format '{{.Label "com.docker.compose.project"}}' \
-                | grep "^${container_type}-app-[0-9][0-9]*$" \
-                | sort -t '-' -k 3 -n -u
-            )
-
-            i=1
-            for s in $set_list; do
-                # Capture table for this set
-                table=$(
-                    $CONTAINER_ALIAS ps -a -f "label=com.docker.compose.project=$s" \
-                    --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
-                )
-
-                # Skip if table empty (header only)
-                line_count=$(printf '%s\n' "$table" | awk 'NF{n++} END{print n+0}')
-                if [ "$line_count" -le 1 ]; then
-                    i=$((i + 1))
-                    continue
-                fi
-
-                print_table_output "$table" "$app_type_name" "$i"
-                i=$((i+1))
-            done
+            CORE_show_proxy_groups
+            return
         else
             if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
                 filter_label="label=com.docker.compose.project=${container_type}-app-${proxy_number}"
             else
                 filter_label="label=project=${container_type}"
             fi
-            table=$(
-                $CONTAINER_ALIAS ps -a -f "$filter_label" \
-                --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"
-            )
+            table=$(CORE_get_container_table "$filter_label")
 
-            # Skip if no containers
-            line_count=$(printf '%s\n' "$table" | awk 'NF{n++} END{print n+0}')
+            line_count=$(CORE_count_table_rows "$table")
             if [ "$line_count" -le 1 ]; then
-                return
+                return 1
             fi
 
-            print_table_output "$table" "$app_type_name"
+            print_table_output "$table" "$app_type_name" "" "$line_count"
+            return 0
         fi
     }
 
     case "$1" in
         ""|"group")
-            has_standard="$(has_apps standard)"
-            has_proxy="$(has_apps proxy)"
-
-            if [ -z "$has_standard" ] && [ -z "$has_proxy" ]; then
-                printf "\nNo applications installed.\n"
+            if [ "$1" = "group" ]; then
+                __showed=
+                show_apps standard && __showed=1
+                show_apps proxy group && __showed=1
+                [ -z "$__showed" ] && printf "\nNo applications installed.\n"
             else
-                if [ -n "$has_standard" ]; then
-                    show_apps standard
-                fi
-                if [ -n "$has_proxy" ]; then
-                    if [ "$1" = "group" ]; then
-                        show_apps proxy group
-                    else
-                        show_apps proxy
-                    fi
-                fi
+                CORE_show_all_containers || printf "\nNo applications installed.\n"
             fi
             ;;
         proxy)
-            if [ -z "$(has_apps proxy)" ]; then
+            if [ "$proxy_number" = "group" ]; then
+                show_apps proxy group
+            else
+                show_apps proxy
+            fi || {
                 if [ -n "$proxy_number" ] && [ "$proxy_number" != "group" ]; then
                     printf "\nNo proxy set ${RED}%s${NC} applications installed.\n" "$proxy_number"
                 else
                     printf "\nNo proxy applications installed.\n"
                 fi
-            else
-                if [ "$proxy_number" = "group" ]; then
-                    show_apps proxy group
-                else
-                    show_apps proxy
-                fi
-            fi
+            }
             ;;
         app)
-            if [ -z "$(has_apps standard)" ]; then
-                printf "\nNo applications installed.\n"
-            else
-                show_apps standard
-            fi
+            show_apps standard || printf "\nNo applications installed.\n"
             ;;
         *)
             printf "\nigm: '$1' is not a valid command. See 'igm help'.\n"
@@ -700,4 +797,74 @@ install_single_application() {
                 ;;
         esac
     done
+}
+
+install_app_noninteractive() {
+    app_name="$1"
+    [ -z "$app_name" ] && { echo "usage: install <APP_NAME>" >&2; return 2; }
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && { echo "no container runtime available" >&2; return 3; }
+
+    app_name=$(printf '%s' "$app_name" | tr 'a-z' 'A-Z')
+    _install_target="$app_name"
+
+    if ! validate_app_credentials "$app_name" > /dev/null; then
+        missing=$(validate_app_credentials "$app_name" --list)
+        echo "missing required credentials: $missing" >&2
+        return 4
+    fi
+
+    case "$_install_target" in
+        *_SERVICE)
+            pot_name=$(printf '%s' "${_install_target%_SERVICE}" | tr 'A-Z' 'a-z')-pot
+            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE"                 -f "$COMPOSE_DIR/compose.service.yml" pull "$pot_name" || return 5
+            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE"                 -f "$COMPOSE_DIR/compose.service.yml" up --force-recreate -d "$pot_name" || return 5
+            ;;
+        *)
+            selected_app=$(printf '%s' "$_install_target" | tr 'A-Z' 'a-z')
+            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES pull "$selected_app" || return 5
+            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up --force-recreate -d "$selected_app" || return 5
+            ;;
+    esac
+
+    $WATCHTOWER sync
+    return 0
+}
+
+uninstall_app_noninteractive() {
+    app_name="$1"
+    [ -z "$app_name" ] && { echo "usage: uninstall <APP_NAME>" >&2; return 2; }
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && { echo "no container runtime available" >&2; return 3; }
+
+    _uninstall_target=$(printf '%s' "$app_name" | tr 'a-z' 'A-Z')
+    case "$_uninstall_target" in
+        *_SERVICE)
+            pot_name=$(printf '%s' "${_uninstall_target%_SERVICE}" | tr 'A-Z' 'a-z')-pot
+            result="$(CORE_remove_container "$pot_name")"
+            if [ "$result" = "$pot_name" ]; then
+                $WATCHTOWER sync
+                return 0
+            fi
+            echo "$result" >&2
+            return 5
+            ;;
+        *)
+            selected_app=$(printf '%s' "$app_name" | tr 'A-Z' 'a-z')
+            result="$(CORE_remove_container "$selected_app")"
+            if [ "$result" = "$selected_app" ]; then
+                $WATCHTOWER sync
+                return 0
+            fi
+            echo "$result" >&2
+            return 5
+            ;;
+    esac
+}
+
+limit_noninteractive() {
+    tier="$1"
+    case "$tier" in
+        base|min|low|mid|max) ;;
+        *) echo "invalid tier: $tier (use base/min/low/mid/max)" >&2; return 2 ;;
+    esac
+    sh scripts/set-limit.sh "$tier" || return 3
 }

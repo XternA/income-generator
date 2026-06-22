@@ -1,101 +1,22 @@
 #!/bin/sh
 
-LIMIT_TYPE=${1:-min}
+. scripts/core/resources.sh
 
-if [ "$OS_IS_LINUX" = "true" ]; then
-    CPU_CORES=$(nproc)
-    TOTAL_RAM=$(free -k | awk '/^Mem:/{print $2}')
-elif [ "$OS_IS_DARWIN" = "true" ]; then
-    CPU_CORES=$(sysctl -n hw.physicalcpu)
-    TOTAL_RAM=$(sysctl -n hw.memsize)
-    TOTAL_RAM=$((TOTAL_RAM / 1050))
-fi
-TOTAL_RAM_MB=$((TOTAL_RAM / 1024))
+LIMIT_TYPE=${1:-${LIMIT_TYPE:-min}}
+CORE_calculate_limits "$LIMIT_TYPE"
 
-# Calculate default and bare minimum CPU and RAM limits
-DEFAULT_CPU_LIMIT=2               # Default CPU limit
-MIN_CPU_LIMIT=0.5                 # Minimum CPU limit
-ALT_MIN_CPU_LIMIT=0.8             # Min required CPU Limit for some process.
-MAX_CPU_LIMIT=$((CPU_CORES / 2))  # Maximum CPU limit set to half the available cores
-
-DEFAULT_RAM_LIMIT_MB=$((TOTAL_RAM_MB / 4))   # Use 25% of total RAM
-BARE_MIN_RAM_LIMIT_MB=$((TOTAL_RAM_MB / 8))  # Use 12.5% of total RAM
-
-# Determine which limits to use based on the command-line argument
-case $LIMIT_TYPE in
-    base)
-        CPU_LIMIT_STR="0.2"
-        RAM_LIMIT_MB="350"
-        ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT
-        ;;
-    min)
-        CPU_LIMIT_STR=$MIN_CPU_LIMIT
-        RAM_LIMIT_MB=$BARE_MIN_RAM_LIMIT_MB
-        ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT
-        ;;
-    low)
-        CPU_LIMIT_STR="$((DEFAULT_CPU_LIMIT - 1)).0"
-        RAM_LIMIT_MB=$((BARE_MIN_RAM_LIMIT_MB + (DEFAULT_RAM_LIMIT_MB - BARE_MIN_RAM_LIMIT_MB) / 2))
-        ALT_MIN_CPU_LIMIT=$CPU_LIMIT_STR
-        ;;
-    mid)
-        CPU_LIMIT_STR="$DEFAULT_CPU_LIMIT.0"
-        RAM_LIMIT_MB=$DEFAULT_RAM_LIMIT_MB
-        ALT_MIN_CPU_LIMIT=$CPU_LIMIT_STR
-        ;;
-    max)
-        CPU_LIMIT_STR="$((MAX_CPU_LIMIT + 1)).0"
-        RAM_LIMIT_MB=$((BARE_MIN_RAM_LIMIT_MB + (DEFAULT_RAM_LIMIT_MB + BARE_MIN_RAM_LIMIT_MB) / 2))
-        ALT_MIN_CPU_LIMIT=$CPU_LIMIT_STR
-        ;;
-    *)
-        echo "Invalid argument. Use 'base', 'min', 'low', 'mid', or 'max'."
-        exit 1
-        ;;
+case "$LIMIT_TYPE" in
+    base) __limit_label=BASE ;; 
+    min) __limit_label=MIN ;; 
+    low) __limit_label=LOW ;;
+    mid) __limit_label=MID  ;; 
+    max) __limit_label=MAX ;; 
+    *) __limit_label="$LIMIT_TYPE" ;;
 esac
 
-RAM_RESERVE=$((RAM_LIMIT_MB / 2))
-
-# Display calculated limits with colored numbers and indentation
-printf "Limit Type Applied:       ${YELLOW}%s${NC}\n" "$(echo "${LIMIT_TYPE}" | tr '[:lower:]' '[:upper:]')"
-printf "Number of CPU Cores:      ${YELLOW}%s${NC}\n" "$CPU_CORES"
-printf "Total RAM:                ${YELLOW}%s${NC} ${YELLOW}MB${NC}\n" "$TOTAL_RAM_MB"
-
-printf "Calculated CPU Limit:     ${YELLOW}%s${NC}\n" "$CPU_LIMIT_STR"
-printf "Calculated RAM Limit:     ${YELLOW}%s MB${NC}\n" "$RAM_LIMIT_MB"
-printf "Calculated Reservation:   ${YELLOW}%s MB${NC}\n" "${RAM_RESERVE}"
-
-# Remove color codes before writing to .env file
-RAM_LIMIT="${RAM_LIMIT_MB}m"
-RAM_RESERVE="${RAM_RESERVE}m"
-
-if [ -f "$ENV_SYSTEM_FILE" ]; then
-    if grep -q "^CPU_LIMIT=" "$ENV_SYSTEM_FILE"; then
-        $SED_INPLACE "s/^CPU_LIMIT=.*/CPU_LIMIT=$CPU_LIMIT_STR/" "$ENV_SYSTEM_FILE"
-    else
-        echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_SYSTEM_FILE"
-    fi
-
-    if grep -q "^RAM_LIMIT=" "$ENV_SYSTEM_FILE"; then
-        $SED_INPLACE "s/^RAM_LIMIT=.*/RAM_LIMIT=$RAM_LIMIT/" "$ENV_SYSTEM_FILE"
-    else
-        echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_SYSTEM_FILE"
-    fi
-
-    if grep -q "^RAM_RESERVE=" "$ENV_SYSTEM_FILE"; then
-        $SED_INPLACE "s/^RAM_RESERVE=.*/RAM_RESERVE=$RAM_RESERVE/" "$ENV_SYSTEM_FILE"
-    else
-        echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_SYSTEM_FILE"
-    fi
-
-    if grep -q "^ALT_MIN_CPU_LIMIT=" "$ENV_SYSTEM_FILE"; then
-        $SED_INPLACE "s/^ALT_MIN_CPU_LIMIT=.*/ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT/" "$ENV_SYSTEM_FILE"
-    else
-        echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_SYSTEM_FILE"
-    fi
-else
-    echo "CPU_LIMIT=$CPU_LIMIT_STR" >> "$ENV_SYSTEM_FILE"
-    echo "RAM_LIMIT=$RAM_LIMIT" >> "$ENV_SYSTEM_FILE"
-    echo "RAM_RESERVE=$RAM_RESERVE" >> "$ENV_SYSTEM_FILE"
-    echo "ALT_MIN_CPU_LIMIT=$ALT_MIN_CPU_LIMIT" >> "$ENV_SYSTEM_FILE"
-fi
+STATS="Limit Type Applied:       ${YELLOW}${__limit_label}${NC}
+Number of CPU Cores:      ${YELLOW}${CORE_CPU_CORES}${NC}
+Total RAM:                ${YELLOW}${CORE_TOTAL_RAM_MB}${NC} ${YELLOW}MB${NC}
+Calculated CPU Limit:     ${YELLOW}${CORE_CPU_LIMIT}${NC}
+Calculated RAM Limit:     ${YELLOW}${CORE_RAM_LIMIT_MB} MB${NC}
+Calculated Reservation:   ${YELLOW}${CORE_RAM_RESERVE_MB} MB${NC}"

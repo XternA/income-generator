@@ -5,16 +5,17 @@ __SHARED_COMPONENT_CACHED=1
 
 # Shared path files
 export ROOT_DIR=$(pwd)
-export ENV_FILE="$ROOT_DIR/.env"
-export ENV_SYSTEM_FILE="$ROOT_DIR/.env.system"
-export ENV_DEPLOY_FILE="$ROOT_DIR/.env.deploy"
-export ENV_DEPLOY_PROXY_FILE="$ROOT_DIR/.env.deploy.proxy"
-export ENV_IMAGE_TAG_FILE="$ROOT_DIR/.env.image.tag"
-export ENV_PLATFORM_OVERRIDE_FILE="$ROOT_DIR/.env.platform.override"
-export JSON_FILE="$ROOT_DIR/apps.json"
+export IGM_HOME="${IGM_HOME:-$ROOT_DIR}"
+export ENV_FILE="$IGM_HOME/.env"
+export ENV_SYSTEM_FILE="$IGM_HOME/.env.system"
+export ENV_DEPLOY_FILE="$IGM_HOME/.env.deploy"
+export ENV_DEPLOY_PROXY_FILE="$IGM_HOME/.env.deploy.proxy"
+export ENV_IMAGE_TAG_FILE="$IGM_HOME/.env.image.tag"
+export ENV_PLATFORM_OVERRIDE_FILE="$IGM_HOME/.env.platform.override"
+export JSON_FILE="$IGM_HOME/apps.json"
 export COMPOSE_DIR="$ROOT_DIR/compose"
-export PROXY_FILE="$ROOT_DIR/proxies.txt"
-export PROXY_INSTALL_LIMIT="$ROOT_DIR/.env.proxy.limit"
+export PROXY_FILE="$IGM_HOME/proxies.txt"
+export PROXY_INSTALL_LIMIT="$IGM_HOME/.env.proxy.limit"
 
 # Shared Docker labels for scoped operations
 export IGM_PROJECT_LABEL="project=standard"

@@ -1,21 +1,18 @@
 #!/bin/sh
 
-URL="https://api.github.com/repos/xterna/income-generator"
+. scripts/core/version.sh
 
-is_update_available() {
-    [ -z "$1" ] || [ -z "$2" ] && return 1
-    V1=$(echo "$1" | sed 's/^v//' | awk -F. '{printf "%d%03d%03d", $1, $2, $3}')
-    V2=$(echo "$2" | sed 's/^v//' | awk -F. '{printf "%d%03d%03d", $1, $2, $3}')
-    [ "$V2" -gt "$V1" ]
-}
-
-get_current_version() {
-    ver=$(git describe --tags 2>/dev/null)
-    echo "${ver%%-*}"
-}
+TUI_MODE=0
+for _arg in "$@"; do
+    [ "$_arg" = "--tui" ] && TUI_MODE=1
+done
 
 case "$1" in
     --force)
+        if ! CORE_is_git_repo; then
+            printf "Self-update not available in this installation.\n"
+            exit 0
+        fi
         printf "Forcing update to latest version...\n"
         { git fetch --quiet && git reset --hard --quiet && git pull --quiet; } 2>/dev/null
         printf "\nUpdate complete ✅\n"
@@ -23,13 +20,16 @@ case "$1" in
     --update)
         printf "Checking for new updates available...\n\n"
 
-        git fetch --tags --quiet 2>/dev/null
-        CURRENT=$(get_current_version)
-        LATEST=$(curl -s --connect-timeout 3 --max-time 3 "$URL/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null)
+        CORE_is_git_repo && git fetch --tags --quiet 2>/dev/null
+        CORE_get_current_version
+        CURRENT=$CORE_CURRENT_VERSION
+        CORE_get_latest_version
+        LATEST=$CORE_LATEST_VERSION
 
-        if is_update_available "$CURRENT" "$LATEST"; then
+        if CORE_is_update_available "$CURRENT" "$LATEST"; then
             printf "New update available 🚀\n"
             printf "Current version: %s → Update to: %s\n\n" "$CURRENT" "$LATEST"
+
             printf "Do you want to update now? [Y/N]: "; read -r choice
 
             case "$choice" in
@@ -40,6 +40,7 @@ case "$1" in
                         sleep 1.2
                         printf "\rUpdate complete ✅            \n"
                         rm -f /tmp/igm_updater
+                        igm _binary_update 2>/dev/null && [ "$TUI_MODE" = "1" ] && printf "Relaunch to apply updates.\n"
                     else
                         printf "\rUpdate failed ❌              \n"
                         exit 1
@@ -63,13 +64,15 @@ case "$1" in
             [ "$NOW" -gt 0 ] && [ "$CACHE_TIME" -gt 0 ] 2>/dev/null && [ $((NOW - CACHE_TIME)) -lt 900 ] && tail -n +2 "$CACHE" && exit 0
         fi
 
-        git fetch --tags --quiet 2>/dev/null
-        CURRENT=$(get_current_version)
-        LATEST=$(curl -s --connect-timeout 1 --max-time 1 "$URL/releases/latest" 2>/dev/null | jq -r '.tag_name' 2>/dev/null)
+        CORE_is_git_repo && git fetch --tags --quiet 2>/dev/null
+        CORE_get_current_version
+        CURRENT=$CORE_CURRENT_VERSION
+        CORE_get_latest_version
+        LATEST=$CORE_LATEST_VERSION
 
         # Store timestamp on first line, message on remaining lines
         NOW=$(date +%s 2>/dev/null)
-        if is_update_available "$CURRENT" "$LATEST"; then
+        if CORE_is_update_available "$CURRENT" "$LATEST"; then
             {
                 echo "$NOW"
                 printf "\033[1;5;31m%s\033[0m\n" "New tool update available! 🚀\n"

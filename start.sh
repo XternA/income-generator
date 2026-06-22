@@ -2,31 +2,31 @@
 
 . scripts/banner.sh
 . scripts/shared-component.sh
-sh scripts/init.sh
+. scripts/core/system.sh
+. scripts/core/resources.sh
+. scripts/init.sh
 
 . scripts/editor.sh
-. scripts/runtime/container-config.sh
-. scripts/sub-menu/app-manager.sh
 . scripts/arch-image-tag.sh
 . scripts/arch-platform-runtime.sh
+. scripts/sub-menu/app-manager.sh
+. scripts/runtime/container-config.sh
 . scripts/runtime/runtime-manager.sh
 
 get_stats() {
-    current_limit=$($SET_LIMIT | awk '{print $NF}')
+    CORE_read_resource_limit
+    current_limit="$CORE_RESOURCE_LIMIT"
 
     if [ "$current_limit" != "$__CACHED_LIMIT" ] || [ -z "$STATS" ]; then
-        STATS="$(sh scripts/limits.sh "$current_limit")"
+        LIMIT_TYPE="$current_limit"
+        . scripts/limits.sh
         __CACHED_LIMIT="$current_limit"
     fi
 }
 
-SYS_INFO=$($SYS_INFO)
-__CACHED_LIMIT="" # Cache to avoid redundant limit calculations
-get_stats         # Initialize at startup (cached on subsequent calls)
-
 stats() {
     printf "%s\n\n" "$SYS_INFO"
-    printf "%s\n" "$STATS"
+    printf "$STATS\n"
     printf "${GREEN}------------------------------------------${NC}\n\n"
 }
 
@@ -89,7 +89,7 @@ option_8() {
     while true; do
         display_banner    
         printf "Pick a new resource limit utilization based\non the current hardware limits.\n\n"
-        printf "%s\n\n" "$STATS"
+        printf "$STATS\n\n"
         echo "1. BASE   -->   350MB RAM"
         echo "2. MIN    -->   12.5% Total RAM"
         echo "3. LOW    -->   18.75% Total RAM"
@@ -111,7 +111,7 @@ option_8() {
                 echo
                 $SET_LIMIT "$limit_type"
                 get_stats
-                printf "\nRedeploy applications for new limits to take effect.\n"
+                printf "\nResource limit applied, live and active.\n"
                 ;;
             0)
                 break ;; # Return to the main menu
@@ -132,7 +132,7 @@ run_updater() {
             $UPDATE_CHECKER --force
             ;;
         *)
-            $UPDATE_CHECKER --update
+            $UPDATE_CHECKER --update --tui
             unset NEW_UPDATE
             ;;
     esac
@@ -192,6 +192,7 @@ manage_tool() {
             3)
                 echo
                 $SET_LIMIT low
+                CORE_persist_limits
                 get_stats
                 printf "\nPress Enter to continue..."; read -r input
                 ;;
@@ -301,7 +302,7 @@ main_menu() {
         printf "\nSelect an option $options: "; read -r choice
 
         case $choice in
-            0) display_banner; echo "Quitting..."; sleep 0.62; clear; break ;;
+            0) display_banner; echo "Quitting..."; sleep 0.62; clear_screen; break ;;
             1) install_applications ;;
             2) option_2 ;;
             3) start_applications ;;
@@ -320,7 +321,15 @@ main_menu() {
 }
 
 # Main script
-trap '$POST_OPS; clear; exit 0' INT TERM HUP
+
+SYS_INFO="Hostname:         $CORE_HOSTNAME
+Platform:         $CORE_OS_DISPLAY ($CORE_OS_ID)
+Distro Ver:       $CORE_OS_CODENAME $CORE_OS_DISTRO_VERSION
+Architecture:     $CORE_OS_ARCH ($CORE_DOCKER_DISPLAY_ARCH)"
+__CACHED_LIMIT=""
+get_stats
+
+trap '$POST_OPS; clear_screen; exit 0' INT TERM HUP
 $DECRYPT_CRED
 
 case "$1" in
@@ -329,8 +338,9 @@ case "$1" in
         . scripts/help.sh
         ;;
     -v|--version|version)
-        ver=$(git describe --tags --abbrev=0 2>/dev/null || echo "unknown")
-        printf "version: $ver\n"
+        . scripts/core/version.sh
+        CORE_get_current_version
+        printf "version: %s\n" "${CORE_CURRENT_VERSION:-unknown}"
         ;;
     "")
         $APP_SELECTION --import
@@ -339,122 +349,140 @@ case "$1" in
     tool)
         if [ "$2" = "reset" ]; then
             tool_reset
-            clear
+            clear_screen
         fi
         ;;
     proxy)
         set -- "$2"
         . scripts/proxy/proxy-menu.sh
-        clear
+        clear_screen
         ;;
     start)
         shift
-        if [ "$#" -gt 0 ]; then
-            for app in "$@"; do
-                start_application "$app"
-            done
+        if [ "${1:-}" = "--proxy" ] && [ "$#" -eq 1 ]; then
+            start_proxy_applications
+        elif [ "$#" -gt 0 ]; then
+            start_application_group "$@"
         else
             start_applications
-            clear
+            clear_screen
         fi
         ;;
     stop)
         shift
-        if [ "$#" -gt 0 ]; then
-            for app in "$@"; do
-                stop_application "$app"
-            done
+        if [ "${1:-}" = "--proxy" ] && [ "$#" -eq 1 ]; then
+            stop_proxy_applications
+        elif [ "$#" -gt 0 ]; then
+            stop_application_group "$@"
         else
             stop_applications
-            clear
+            clear_screen
         fi
         ;;
     restart)
-        if [ -n "$2" ]; then
-            restart_application "$2"
-        fi
+        shift
+        restart_application_group "$@"
         ;;
     remove)
         shift
-        if [ "$#" -gt 0 ]; then
+        if [ "${1:-}" = "--proxy" ] && [ "$#" -eq 1 ]; then
+            remove_proxy_applications
+        elif [ "$#" -gt 0 ]; then
             for app in "$@"; do
                 remove_application "$app"
             done
         else
             remove_applications
-            clear
+            clear_screen
         fi
         ;;
     logs)
         show_application_log "$2"
-        clear
+        clear_screen
         ;;
     show)
         show_applications "$2" "$3"
-        clear
+        clear_screen
         ;;
     deploy)
         $APP_SELECTION --import
         install_applications quick_menu
-        clear
+        clear_screen
         ;;
     install)
-        install_single_application
-        clear
+        if [ -n "$2" ]; then
+            $APP_SELECTION --import
+            install_app_noninteractive "$2"
+        else
+            install_single_application
+        fi
+        clear_screen
+        ;;
+    uninstall)
+        if [ -n "$2" ]; then
+            $APP_SELECTION --import
+            uninstall_app_noninteractive "$2"
+        fi
+        clear_screen
         ;;
     redeploy)
         $APP_SELECTION --import
         reinstall_applications
-        clear
+        clear_screen
         ;;
     clean)
         display_banner
         igm_cleanup "$2" --cli
-        clear
+        clear_screen
         ;;
     app|service)
         $APP_SELECTION --import
         $APP_SELECTION "$1"
-        clear
+        clear_screen
         ;;
     setup)
         display_banner
         $APP_SELECTION --import
         $APP_CONFIG
-        clear
+        clear_screen
         ;;
     view)
         display_banner
         $VIEW_CONFIG
-        clear
+        clear_screen
         ;;
     edit)
         run_editor $ENV_FILE
-        clear
+        clear_screen
         ;;
     limit)
-        option_8 quick_menu
-        clear
+        if [ -n "$2" ]; then
+            $APP_SELECTION --import
+            limit_noninteractive "$2"
+        else
+            option_8 quick_menu
+        fi
+        clear_screen
         ;;
     editor)
         display_banner
         set_editor
-        clear
+        clear_screen
         ;;
     update)
         case "$2" in
             --force) run_updater --force ;;
             *) run_updater --cli ;;
         esac
-        clear
+        clear_screen
         ;;
     runtime)
         runtime_menu --cli
-        clear
+        clear_screen
         ;;
     ip)
         . scripts/ip/ip-score.sh
-        clear
+        clear_screen
         ;;
     wsl)
         case "${OS_IS_WSL}:$2" in

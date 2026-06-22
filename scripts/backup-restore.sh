@@ -3,7 +3,6 @@
 BANNER_MODE=backup
 . scripts/banner.sh
 
-TEMP_FILE="$ENV_FILE.tmp"
 BACKUP_FILE="$ENV_FILE.backup"
 
 ENCRYPT_BACKUP="$ENCRYPTOR -es $BACKUP_FILE"
@@ -52,7 +51,6 @@ backup_config() {
         done
     fi
 
-    BACKUP_FLAG=0
     : > "$BACKUP_FILE" # Clear previous backup file or create new
     cp -f "$ENV_FILE" "$BACKUP_FILE"
 

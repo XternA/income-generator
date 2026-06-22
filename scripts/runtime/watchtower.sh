@@ -15,7 +15,7 @@ restore_watchtower() {
 
 deploy_for_proxy() {
     modify_watchtower
-    $CONTAINER_COMPOSE $DEFAULT_ENV_FILES -f $WATCHTOWER_COMPOSE pull > /dev/null 2>&1
+    $CONTAINER_COMPOSE $SYSTEM_ENV_FILES -f $WATCHTOWER_COMPOSE pull > /dev/null 2>&1
     $COMMAND > /dev/null 2>&1
     restore_watchtower
 }

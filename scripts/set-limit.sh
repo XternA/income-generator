@@ -1,30 +1,26 @@
 #!/bin/sh
 
-DEFAULT_RESOURCE_LIMIT="min"
+. scripts/shared-component.sh
+. scripts/core/resources.sh
 
-[ ! -f "$ENV_SYSTEM_FILE" ] && echo "RESOURCE_LIMIT=$DEFAULT_RESOURCE_LIMIT" > "$ENV_SYSTEM_FILE"
+[ ! -f "$ENV_SYSTEM_FILE" ] && echo "RESOURCE_LIMIT=min" > "$ENV_SYSTEM_FILE"
 
 if [ $# -eq 0 ]; then
-    if grep -q "^RESOURCE_LIMIT=" "$ENV_SYSTEM_FILE"; then
-        CURRENT_LIMIT=$(grep "^RESOURCE_LIMIT=" "$ENV_SYSTEM_FILE" | cut -d '=' -f2)
-        echo "Current resource limit is set to: $CURRENT_LIMIT"
+    CORE_read_resource_limit
+    if [ -n "$(CORE_read_env "RESOURCE_LIMIT" "$ENV_SYSTEM_FILE")" ]; then
+        echo "Current resource limit is set to: $CORE_RESOURCE_LIMIT"
     else
-        echo "RESOURCE_LIMIT=$DEFAULT_RESOURCE_LIMIT" >> "$ENV_SYSTEM_FILE"
-        echo "Default resource limit '$DEFAULT_RESOURCE_LIMIT' inserted into $ENV_SYSTEM_FILE"
+        CORE_upsert_env "RESOURCE_LIMIT" "min" "$ENV_SYSTEM_FILE"
+        echo "Default resource limit 'min' inserted into $ENV_SYSTEM_FILE"
     fi
     exit 0
 fi
 
-ALLOWED_VALUES="base min low mid max"
-if ! echo "$ALLOWED_VALUES" | grep -qw "$1"; then
+if ! CORE_set_resource_limit "$1"; then
     echo "Invalid argument. Use 'base', 'min', 'low', 'mid', or 'max'."
     exit 1
 fi
-
-NEW_LIMIT=$1
-if grep -q "^RESOURCE_LIMIT=" "$ENV_SYSTEM_FILE"; then
-    $SED_INPLACE "s/^RESOURCE_LIMIT=.*/RESOURCE_LIMIT=$NEW_LIMIT/" "$ENV_SYSTEM_FILE"
-else
-    echo "RESOURCE_LIMIT=$NEW_LIMIT" >> "$ENV_SYSTEM_FILE"
-fi
-echo "New resource limit set to: $(echo $NEW_LIMIT | tr '[:lower:]' '[:upper:]')"
+CORE_calculate_limits "$1"
+CORE_persist_limits
+CORE_apply_limits
+echo "New resource limit set to: $(echo $1 | tr '[:lower:]' '[:upper:]')"

@@ -35,19 +35,28 @@ sync_port_mapping() {
         -v tmpfile="$_TMP_FILE" \
         'BEGIN {
             while ((getline) > 0) {
-                if (/=/) { eq_pos=index($0,"="); if (eq_pos>1) limits[substr($0,1,eq_pos-1)] = substr($0,eq_pos+1) }
+                if (NF == 2) { limits[$1] = $2 }
                 else if (NF == 3) { app_order[++app_count] = $1; base_port[$1] = $2; cont_port[$1] = $3 }
             }
             while ((getline line < deployfile) > 0) deploy[line] = 1
             close(deployfile)
+
+            tun_host = 5000 + install_count
+            ports = "            - " tun_host ":8080\n"
+            seen["8080"] = 1
+            port_csv = "8080"
+
             for (i = 1; i <= app_count; i++) {
                 name = app_order[i]
                 if (!(name "=ENABLED" in deploy)) continue
                 limit_val = limits[name]
                 if (limit_val != "" && limit_val != "-" && install_count > limit_val+0) continue
+                cp = cont_port[name]
+                if (cp in seen) continue
                 host_port = base_port[name] + install_count
-                ports = ports "            - " host_port ":" cont_port[name] "\n"
-                port_csv = (port_csv == "") ? cont_port[name] : port_csv "," cont_port[name]
+                ports = ports "            - " host_port ":" cp "\n"
+                port_csv = port_csv "," cp
+                seen[cp] = 1
             }
             if (ports != "") {
                 rule = "iptables -t mangle -A OUTPUT -p tcp"

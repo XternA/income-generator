@@ -3,13 +3,13 @@
 [ -n "$__PROXY_APP_LIMITED_CACHED" ] && return
 __PROXY_APP_LIMITED_CACHED=1
 
+. scripts/core/proxy.sh
+
 __populate_proxy_limit_entries() {
-    extract_all_app_data .install_limit | awk '{ val = ($2=="null"?"-":$2); print $1 "=" val }' > "$PROXY_INSTALL_LIMIT"
+    CORE_extract_all_app_data .install_limit | awk '{ val = ($2=="null"?"-":$2); print $1 "=" val }' > "$PROXY_INSTALL_LIMIT"
 }
 
-__load_limit_data() {
-    limit_data=$(awk -F= '{print $1, $2}' "$PROXY_INSTALL_LIMIT")
-}
+__load_limit_data() { CORE_load_limit_data; }
 
 proxy_app_limiter() {
     total_apps=$(awk 'END {print NR}' "$PROXY_INSTALL_LIMIT")
@@ -112,55 +112,4 @@ proxy_app_limiter() {
     done
 }
 
-get_app_install_limit() {
-    search_app="$1"
-    set -- $limit_data
-
-    # normalise search string once
-    search_app_uc=$(printf '%s' "$search_app" | tr '[:lower:]' '[:upper:]')
-
-    while [ $# -gt 0 ]; do
-        app="$1"
-        val="$2"
-        app_uc=$(printf '%s' "$app" | tr '[:lower:]' '[:upper:]')
-        if [ "$app_uc" = "$search_app_uc" ]; then
-            case "$val" in
-                ""|-) echo "null" ;;
-                *) echo "$val" ;;
-            esac
-            return 0
-        fi
-        shift 2
-    done
-    echo "null" # Return null if app not found
-}
-
-# Init
-if [ ! -f "$PROXY_INSTALL_LIMIT" ]; then
-    __populate_proxy_limit_entries
-else
-    tmp_file=$(mktemp)
-    tmp_source=$(mktemp)
-
-    extract_all_app_data .install_limit | awk '{print $1, $2}' > "$tmp_source"
-
-    awk '
-        BEGIN { OFS="=" }
-        # Read old file (key=value)
-        FNR==NR { split($0, a, "="); old[a[1]]=a[2]; next }
-        # Read source (key value)
-        {
-            key = $1
-            val = ($2 == "null" ? "-" : $2)
-            if (key in old) {
-                print key, old[key]
-            } else {
-                print key, val
-            }
-        }
-    ' "$PROXY_INSTALL_LIMIT" "$tmp_source" > "$tmp_file"
-
-    mv "$tmp_file" "$PROXY_INSTALL_LIMIT"
-    rm -f "$tmp_source"
-fi
-__load_limit_data
+get_app_install_limit() { CORE_get_app_install_limit "$@"; }

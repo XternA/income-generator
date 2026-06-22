@@ -3,20 +3,30 @@
 [ -n "$__SYSTEM_DETECT_CACHED" ] && return
 __SYSTEM_DETECT_CACHED=1
 
-__SYS_OS="$(uname -s)"
-__SYS_ARCH="$(uname -m)"
+__SYS_UNAME="$(uname -sm)"
+__SYS_OS="${__SYS_UNAME% *}"
+__SYS_ARCH="${__SYS_UNAME#* }"
 
 # Map System OS information
 case "$__SYS_OS" in
     Darwin)
         OS_TYPE="$__SYS_OS"
-        OS_DISPLAY="$(sw_vers -productName)"
+        __SW_VERS="$(sw_vers)"
+        __SW_NAME="${__SW_VERS%%
+*}"
+        __SW_REST="${__SW_VERS#*
+}"
+        __SW_VER="${__SW_REST%%
+*}"
+        OS_DISPLAY="${__SW_NAME#*:}"
+        OS_DISPLAY="${OS_DISPLAY#"${OS_DISPLAY%%[! 	]*}"}"
+        OS_DISTRO_VERSION="${__SW_VER#*:}"
+        OS_DISTRO_VERSION="${OS_DISTRO_VERSION#"${OS_DISTRO_VERSION%%[! 	]*}"}"
         OS_ID="darwin"
         OS_CODENAME=$(
             awk '/SOFTWARE LICENSE AGREEMENT FOR macOS/ {printf "%s", substr($NF, 1, length($NF)-1)}' \
             /System/Library/CoreServices/Setup\ Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf
         )
-        OS_DISTRO_VERSION="$(sw_vers -productVersion)"
         OS_IS_LINUX="false"
         OS_IS_DARWIN="true"
         OS_IS_WSL="false"
@@ -67,7 +77,12 @@ case "$__SYS_ARCH" in
 esac
 
 # System Info
-export HOSTNAME="$(hostname)"        # Hostname
+if [ -r /proc/sys/kernel/hostname ]; then
+    read -r HOSTNAME < /proc/sys/kernel/hostname
+else
+    HOSTNAME="$(hostname)"
+fi
+export HOSTNAME
 export OS="$__SYS_OS"                # Platform string (Linux/Darwin)
 export OS_TYPE                       # Remap of platform string (Linux/Darwin/WSL)
 export OS_DISPLAY                    # Pretty display platform string (Linux/WSL/macOS/etc)

@@ -41,7 +41,7 @@ install_jq() {
                 ;;
             *)
                 echo "Unsupported Unix distribution: $OS"
-                exit 1
+                return 1 2>/dev/null; exit 1
                 ;;
         esac
         printf "JSON library 'jq' have been installed successfully.\n\n"

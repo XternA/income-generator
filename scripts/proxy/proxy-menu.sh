@@ -9,11 +9,10 @@ BANNER_MODE=proxy
 . scripts/util/app-import-reader.sh
 . scripts/proxy/proxy-app-limiter.sh
 
-if [ "$HAS_CONTAINER_RUNTIME" ]; then
-    HAS_PROXY_APPS='$CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1'
-else
-    HAS_PROXY_APPS=":"
-fi
+_has_proxy_apps() {
+    [ ! "$HAS_CONTAINER_RUNTIME" ] && return 1
+    $CONTAINER_ALIAS ps -a -q -f "label=project=proxy" | head -n 1
+}
 
 get_and_update_proxy_entries() {
     ACTIVE_PROXIES=$(if [ -e "$PROXY_FILE" ]; then grep -c '^[^#]' "$PROXY_FILE"; else echo 0; fi)
@@ -21,7 +20,7 @@ get_and_update_proxy_entries() {
 
 setup_proxy() {
     display_banner
-    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+    if [ ! -z $(_has_proxy_apps) ]; then
         printf "Proxy application still active.\nRemove existing applications first before editing.\n"
         printf "\nPress Enter to continue..."; read -r input
     else
@@ -34,7 +33,7 @@ setup_proxy() {
 }
 
 select_proxy_app() {
-    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+    if [ ! -z $(_has_proxy_apps) ]; then
         display_banner
         printf "Proxy application still active.\nRemove existing applications first.\n"
         printf "\nPress Enter to continue..."; read -r input
@@ -53,7 +52,7 @@ install_proxy_app() {
         return
     fi
 
-    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+    if [ ! -z $(_has_proxy_apps) ]; then
         printf "Proxy application still active.\nRemove existing applications first.\n"
         printf "\nPress Enter to continue..."; read -r _
     else
@@ -71,7 +70,7 @@ edit_proxy_file() {
     while :; do
         display_banner
 
-        if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+        if [ ! -z $(_has_proxy_apps) ]; then
             printf "Proxy application still active.\nRemove existing applications first.\n"
             printf "\nPress Enter to continue..."; read -r input
             return
@@ -150,7 +149,7 @@ manage_uuids() {
                 while true; do
                     display_banner
 
-                    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+                    if [ ! -z $(_has_proxy_apps) ]; then
                         printf "Proxy application still active.\nRemove existing applications first.\n"
                         printf "\nPress Enter to continue..."; read -r input
                         break
@@ -161,7 +160,7 @@ manage_uuids() {
                         return
                     fi
 
-                    printf "Do you want to clear all application generated multi-UUIDs?\n\n"
+                    printf "Do you want to cls all application generated multi-UUIDs?\n\n"
                     printf "You might want to backup if you wish to re-use the IDs later.\n\n"
                     printf "Do you really want to delete all entries? (Y/N): "; read -r yn
 
@@ -211,7 +210,7 @@ reset_proxy() {
         echo "Proxy file doesn't exist."
         printf "\nPress Enter to continue..."; read -r input
     else
-        if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+        if [ ! -z $(_has_proxy_apps) ]; then
             printf "Proxy application still active.\nRemove existing applications first.\n"
             printf "\nPress Enter to continue..."; read -r input
         else
@@ -261,7 +260,7 @@ view_uuids() {
 
 run_proxy_app_limiter() {
     display_banner
-    if [ ! -z $(eval "$HAS_PROXY_APPS") ]; then
+    if [ ! -z $(_has_proxy_apps) ]; then
         printf "Proxy application still active.\nRemove existing applications first.\n"
         printf "\nPress Enter to continue..."; read -r _
         return
@@ -312,7 +311,7 @@ main_menu() {
         printf "\nSelect an option $options: "; read -r choice
 
         case $choice in
-            0) display_banner Proxy; echo "Quitting..."; sleep 0.62; clear; break ;;
+            0) display_banner Proxy; echo "Quitting..."; sleep 0.62; clear_screen; break ;;
             1) setup_proxy ;;
             2) select_proxy_app ;;
             3) install_proxy_app ;;

@@ -16,7 +16,7 @@ __BANNER_CACHED=1
 . scripts/colours.sh
 
 display_banner() {
-    clear
+    clear_screen
     printf "${_BANNER_TEXT}\n"
     printf "${GREEN}------------------------------------------${NC}\n"
     [ "$1" != "--noline" ] && echo
