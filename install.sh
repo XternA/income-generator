@@ -143,7 +143,7 @@ resolve_install_dir() {
 dedup_path_entries() {
     for _profile in "${HOME}/.zshrc" "${HOME}/.bashrc" "${HOME}/.profile"; do
         [ -f "$_profile" ] || continue
-        _count=$(grep -c "${INSTALL_DIR}" "$_profile" 2>/dev/null || echo 0)
+        _count=$(grep -c "${INSTALL_DIR}" "$_profile" 2>/dev/null || true)
         [ "$_count" -le 1 ] && continue
         _tmp="${_profile}.igm.$$"
         awk -v dir="${INSTALL_DIR}" 'index($0,dir){if(!seen++)print;next}1' "$_profile" > "$_tmp" && mv "$_tmp" "$_profile"
