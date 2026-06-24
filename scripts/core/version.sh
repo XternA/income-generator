@@ -17,7 +17,8 @@ CORE_get_current_version() {
         return
     fi
     _ver=$(git describe --tags 2>/dev/null)
-    CORE_CURRENT_VERSION="${_ver%%-*}"
+    # Strip only the git describe suffix (-N-ghash), preserve pre-release (-beta.X)
+    CORE_CURRENT_VERSION=$(echo "$_ver" | sed 's/-[0-9]*-g[0-9a-f]*$//')
 }
 
 CORE_get_latest_version() {
@@ -26,9 +27,21 @@ CORE_get_latest_version() {
 
 CORE_is_update_available() {
     [ -z "$1" ] || [ -z "$2" ] && return 1
-    _v1=$(echo "$1" | sed 's/^v//' | awk -F. '{printf "%d%03d%03d", $1, $2, $3}')
-    _v2=$(echo "$2" | sed 's/^v//' | awk -F. '{printf "%d%03d%03d", $1, $2, $3}')
-    [ "$_v2" -gt "$_v1" ]
+    _cv=$(echo "$1" | sed 's/^v//'); _lv=$(echo "$2" | sed 's/^v//')
+    # Compare base versions (MAJOR.MINOR.PATCH)
+    _cb=$(echo "$_cv" | cut -d- -f1); _lb=$(echo "$_lv" | cut -d- -f1)
+    _cv_n=$(echo "$_cb" | awk -F. '{printf "%d%03d%03d",$1,$2,$3}')
+    _lv_n=$(echo "$_lb" | awk -F. '{printf "%d%03d%03d",$1,$2,$3}')
+    [ "$_lv_n" -gt "$_cv_n" ] && return 0
+    [ "$_lv_n" -lt "$_cv_n" ] && return 1
+    # Same base — compare pre-release suffix numerically
+    _cp=$(echo "$_cv" | grep -oE '\-.*$' || true)
+    _lp=$(echo "$_lv" | grep -oE '\-.*$' || true)
+    [ -z "$_lp" ] && [ -n "$_cp" ] && return 0
+    [ -n "$_lp" ] && [ -z "$_cp" ] && return 1
+    _cn=$(echo "$_cp" | grep -oE '[0-9]+$' || echo 0)
+    _ln=$(echo "$_lp" | grep -oE '[0-9]+$' || echo 0)
+    [ "$_ln" -gt "$_cn" ]
 }
 
 CORE_check_update() {
