@@ -35,6 +35,7 @@ case "$__SYS_OS" in
         . /etc/os-release 2>/dev/null
 
         OS_ID="$ID"
+        OS_NAME="${NAME:-$__SYS_OS}"
         OS_CODENAME="$VERSION_CODENAME"
         OS_DISTRO_VERSION="$VERSION_ID"
 

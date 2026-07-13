@@ -12,6 +12,7 @@ CORE_detect_system() {
     CORE_OS_TYPE="$OS_TYPE"
     CORE_OS_DISPLAY="$OS_DISPLAY"
     CORE_OS_ID="$OS_ID"
+    CORE_OS_NAME="$OS_NAME"
     CORE_OS_CODENAME="$OS_CODENAME"
     CORE_OS_DISTRO_VERSION="$OS_DISTRO_VERSION"
     CORE_OS_ARCH="$OS_ARCH"
@@ -23,10 +24,28 @@ CORE_detect_system() {
     CORE_IS_WSL="$OS_IS_WSL"
 }
 
-CORE_detect_system
+system_info_json() {
+    cat <<EOF
+{
+    "hostname": "$CORE_HOSTNAME",
+    "os_display": "$CORE_OS_DISPLAY",
+    "os_id": "$CORE_OS_ID",
+    "os_name": "$CORE_OS_NAME",
+    "os_arch": "$CORE_OS_ARCH",
+    "docker_arch": "$CORE_DOCKER_ARCH",
+    "docker_display_arch": "$CORE_DOCKER_DISPLAY_ARCH",
+    "os_version": "$CORE_OS_DISTRO_VERSION",
+    "os_codename": "$CORE_OS_CODENAME",
+    "is_arm": $CORE_IS_ARM,
+    "is_wsl": $CORE_IS_WSL
+}
+EOF
+}
 
 CORE_persist_system_env() {
     CORE_upsert_env "DEVICE_ID" "$CORE_HOSTNAME" "$ENV_SYSTEM_FILE"
     CORE_upsert_env "ARCH" "$CORE_DOCKER_ARCH" "$ENV_SYSTEM_FILE"
 }
+
+CORE_detect_system
 
