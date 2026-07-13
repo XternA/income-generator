@@ -11,6 +11,7 @@ __SYS_ARCH="${__SYS_UNAME#* }"
 case "$__SYS_OS" in
     Darwin)
         OS_TYPE="$__SYS_OS"
+        OS_NAME="macOS"
         __SW_VERS="$(sw_vers)"
         __SW_NAME="${__SW_VERS%%
 *}"
@@ -45,7 +46,7 @@ case "$__SYS_OS" in
             OS_IS_WSL="true"
         else
             OS_TYPE="$__SYS_OS"
-            OS_DISPLAY="$__SYS_OS"
+            OS_DISPLAY="${PRETTY_NAME:-$__SYS_OS}"
             OS_IS_WSL="false"
         fi
         OS_IS_LINUX="true"
