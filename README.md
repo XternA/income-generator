@@ -29,6 +29,7 @@ Manage everything from the command line, TUI, or via the built-in web dashboard.
 - **Multi-platform** — Runs natively on any OS and architecture, including low-power SBCs.
 - **ARM emulation** — QEMU automatically set up on ARM devices during container runtime installation.
 - **Web dashboard** — Lightweight, responsive UI. Orchestrate, monitor and manage all within the browser.
+- **Fleet management** — Decentralized and fully independent. Manage every node from any dashboard.
 - **Multi-proxy scaling** — Automatically deploy multiple instances per app from a proxy list to stack earnings.
 - **Resource limits** — Easily apply resource limits across applications, dynamically based on hardware.
 - **Credential encryption** — Secrets encrypted at rest; decrypted only during operation.
