@@ -242,9 +242,12 @@
         "name": "ANTGAIN",
         "url": "https://tinyurl.com/usdtrrus",
         "description": " Log into dashboard, then profile tab to obtain API key.",
+        "description_ext": " Re-use same device ID for re-registering, else will be treated as new device.",
         "properties": [
-            "ANTGAIN_API_KEY"
+            "ANTGAIN_API_KEY",
+            "#ANTGAIN_DEVICE_ID"
         ],
+        "uuid_type": 2,
         "is_enabled": true
     }
 ]

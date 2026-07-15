@@ -268,13 +268,12 @@ services:
             - com.centurylinklabs.watchtower.scope=igm
         environment:
             - ANTGAIN_API_KEY=${ANTGAIN_API_KEY:-}
+            - ANTGAIN_DEVICE_ID=${ANTGAIN_DEVICE_ID:-}
         profiles:
             - ${ANTGAIN:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
-        volumes:
-            - antgain-data:/data
         cpus: $CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
@@ -288,4 +287,3 @@ services:
 
 volumes:
     bitping-data:
-    antgain-data:
