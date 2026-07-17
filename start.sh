@@ -124,20 +124,22 @@ option_8() {
 
 run_updater() {
     display_banner
+    _urc=0
     case "$1" in
         --cli)
-            $UPDATE_CHECKER --update
+            $UPDATE_CHECKER --update; _urc=$?
             ;;
         --force)
-            $UPDATE_CHECKER --force
+            $UPDATE_CHECKER --force; _urc=$?
             ;;
         *)
-            $UPDATE_CHECKER --update --tui
+            $UPDATE_CHECKER --update --tui; _urc=$?
             unset NEW_UPDATE
             ;;
     esac
     $APP_SELECTION --import
     printf "\nPress Enter to continue..."; read -r _
+    return $_urc
 }
 
 manage_tool() {
@@ -471,10 +473,12 @@ case "$1" in
         ;;
     update)
         case "$2" in
-            --force) run_updater --force ;;
-            *) run_updater --cli ;;
+            --force) run_updater --force; _urc=$? ;;
+            *) run_updater --cli; _urc=$? ;;
         esac
         clear_screen
+        $POST_OPS
+        exit $_urc
         ;;
     runtime)
         runtime_menu --cli

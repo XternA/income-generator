@@ -209,16 +209,16 @@ services:
 
     proxybase:
         container_name: proxybase
-        image: proxybase/proxybase
+        image: ghcr.io/proxybaseorg/peer-cli
         restart: always
         platform: linux/amd64
         hostname: $DEVICE_ID
         labels:
             - project=standard
             - com.centurylinklabs.watchtower.scope=igm
-        environment:
-            - USER_ID=${PROXYBASE_USER_ID:-}
-            - DEVICE_NAME=${DEVICE_ID:-}
+        command: >
+            ${PROXYBASE_USER_ID:-}
+            ${DEVICE_ID:-}
         profiles:
             - ${PROXYBASE:-DISABLED}
         dns:

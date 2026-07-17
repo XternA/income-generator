@@ -11,11 +11,12 @@ case "$1" in
     --force)
         if ! CORE_is_git_repo; then
             printf "Self-update not available in this installation.\n"
-            exit 0
+            exit 1
         fi
         printf "Forcing update to latest version...\n"
         { git fetch --quiet && git reset --hard --quiet && git pull --quiet; } 2>/dev/null
         printf "\nUpdate complete ✅\n"
+        exit 0
         ;;
     --update)
         printf "Checking for new updates available...\n\n"
@@ -40,7 +41,7 @@ case "$1" in
                         sleep 1.2
                         printf "\rUpdate complete ✅            \n"
                         rm -f /tmp/igm_updater
-                        igm _binary_update 2>/dev/null && [ "$TUI_MODE" = "1" ] && printf "Relaunch to apply updates.\n"
+                        exit 0
                     else
                         printf "\rUpdate failed ❌              \n"
                         exit 1
@@ -48,10 +49,12 @@ case "$1" in
                     ;;
                 *)
                     printf "\nUpdate skipped ❌\n"
+                    exit 1
                     ;;
             esac
         else
             echo "No update available ❌"
+            exit 1
         fi
         ;;
     *)
