@@ -14,13 +14,15 @@ trap cleanup EXIT INT TERM HUP
 
 acquire_lock() {
     if mkdir "$LOCK_FILE" 2>/dev/null; then
-        echo $$ > "$LOCK_FILE/pid"
-        return 0
+        echo $$ > "$LOCK_FILE/pid" 2>/dev/null && return 0
+        rm -rf "$LOCK_FILE" 2>/dev/null
+        return 1
     fi
     read -r LOCK_PID < "$LOCK_FILE/pid" 2>/dev/null || return 1
     kill -0 "$LOCK_PID" 2>/dev/null && return 1
     rm -rf "$LOCK_FILE"
-    mkdir "$LOCK_FILE" 2>/dev/null && echo $$ > "$LOCK_FILE/pid" && return 0
+    mkdir "$LOCK_FILE" 2>/dev/null && echo $$ > "$LOCK_FILE/pid" 2>/dev/null && return 0
+    rm -rf "$LOCK_FILE" 2>/dev/null
     return 1
 }
 

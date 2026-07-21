@@ -176,7 +176,7 @@ process_uuid_user_choice() {
             case "$input" in
                 [yY])
                     input_new_value
-                    break
+                    return
                     ;;
             esac
             ;;

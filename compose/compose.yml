@@ -8,6 +8,7 @@ services:
             - no-new-privileges:true
         labels:
             - project=standard
+            - role=infra
         command: >
             --cleanup
             --no-startup-message

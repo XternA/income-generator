@@ -20,7 +20,7 @@ get_and_update_proxy_entries() {
 
 setup_proxy() {
     display_banner
-    if [ ! -z $(_has_proxy_apps) ]; then
+    if [ -n "$(_has_proxy_apps)" ]; then
         printf "Proxy application still active.\nRemove existing applications first before editing.\n"
         printf "\nPress Enter to continue..."; read -r input
     else
@@ -33,7 +33,7 @@ setup_proxy() {
 }
 
 select_proxy_app() {
-    if [ ! -z $(_has_proxy_apps) ]; then
+    if [ -n "$(_has_proxy_apps)" ]; then
         display_banner
         printf "Proxy application still active.\nRemove existing applications first.\n"
         printf "\nPress Enter to continue..."; read -r input
@@ -52,7 +52,7 @@ install_proxy_app() {
         return
     fi
 
-    if [ ! -z $(_has_proxy_apps) ]; then
+    if [ -n "$(_has_proxy_apps)" ]; then
         printf "Proxy application still active.\nRemove existing applications first.\n"
         printf "\nPress Enter to continue..."; read -r _
     else
@@ -70,7 +70,7 @@ edit_proxy_file() {
     while :; do
         display_banner
 
-        if [ ! -z $(_has_proxy_apps) ]; then
+        if [ -n "$(_has_proxy_apps)" ]; then
             printf "Proxy application still active.\nRemove existing applications first.\n"
             printf "\nPress Enter to continue..."; read -r input
             return
@@ -149,7 +149,7 @@ manage_uuids() {
                 while true; do
                     display_banner
 
-                    if [ ! -z $(_has_proxy_apps) ]; then
+                    if [ -n "$(_has_proxy_apps)" ]; then
                         printf "Proxy application still active.\nRemove existing applications first.\n"
                         printf "\nPress Enter to continue..."; read -r input
                         break
@@ -210,7 +210,7 @@ reset_proxy() {
         echo "Proxy file doesn't exist."
         printf "\nPress Enter to continue..."; read -r input
     else
-        if [ ! -z $(_has_proxy_apps) ]; then
+        if [ -n "$(_has_proxy_apps)" ]; then
             printf "Proxy application still active.\nRemove existing applications first.\n"
             printf "\nPress Enter to continue..."; read -r input
         else
@@ -260,7 +260,7 @@ view_uuids() {
 
 run_proxy_app_limiter() {
     display_banner
-    if [ ! -z $(_has_proxy_apps) ]; then
+    if [ -n "$(_has_proxy_apps)" ]; then
         printf "Proxy application still active.\nRemove existing applications first.\n"
         printf "\nPress Enter to continue..."; read -r _
         return
