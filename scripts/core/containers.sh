@@ -15,6 +15,18 @@ CORE_has_containers() {
     fi
 }
 
+CORE_ensure_data_dir() {
+    _name="$1"
+    [ -z "$_name" ] && return 0
+    grep -qs "\$DATA_DIR/$_name" "$COMPOSE_DIR"/compose*.yml 2>/dev/null || return 0
+    _data_dir="$(CORE_read_env "DATA_DIR" "$ENV_SYSTEM_FILE")"
+    [ -z "$_data_dir" ] && {
+        if [ "$OS_IS_DARWIN" = "true" ]; then _data_dir="$HOME/.data"; else _data_dir="/data"; fi
+    }
+    [ -d "$_data_dir/$_name" ] && return 0
+    mkdir -p "$_data_dir/$_name" && chmod 777 "$_data_dir/$_name"
+}
+
 CORE_get_container_table() {
     $CONTAINER_ALIAS ps -a -f "$1" \
         --format "table {{.ID}}\t{{.Names}}\t{{.Image}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}"

@@ -3,7 +3,7 @@
 . scripts/core/common.sh
 
 if [ "$OS_IS_DARWIN" = "true" ]; then
-    DATA_DIR="/usr/local/data"
+    DATA_DIR="$HOME/.data"
 else
     DATA_DIR="/data"
 fi

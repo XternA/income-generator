@@ -190,6 +190,7 @@ install_applications() {
 
         display_banner
         printf "$install_type\n\n"
+        ensure_enabled_apps_data_dirs
         $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate -d
         [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
         $APP_SELECTION --save > /dev/null 2>&1
@@ -229,6 +230,7 @@ reinstall_applications() {
 
                 display_banner
                 printf "Redeploying last application install state...\n\n"
+                ensure_enabled_apps_data_dirs
                 $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate -d
                 [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
@@ -699,6 +701,25 @@ show_applications() {
     printf "\nPress Enter to continue..."; read -r _
 }
 
+# Resolve the compose service name for an app. Honors the `alias` field
+# (hyphenated service identity, e.g. GAGANODE -> gaga-node) with fallback to
+# the lowercased app name.
+resolve_app_service() {
+    _lookup=$(printf '%s' "$1" | tr 'a-z' 'A-Z')
+    _alias_name="$(extract_app_data_fields_only "$_lookup" ".alias")"
+    if [ -z "$_alias_name" ] || [ "$_alias_name" = "null" ]; then
+        printf '%s' "$_lookup" | tr 'A-Z' 'a-z'
+    else
+        printf '%s' "$_alias_name" | tr 'A-Z' 'a-z'
+    fi
+}
+
+ensure_enabled_apps_data_dirs() {
+    for _app in $(jq -r '.[] | select(.is_enabled == true) | .name' "$JSON_FILE" 2>/dev/null); do
+        CORE_ensure_data_dir "$(resolve_app_service "$_app")"
+    done
+}
+
 install_single_application() {
     display_banner
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
@@ -774,8 +795,10 @@ install_single_application() {
                 display_banner
                 printf "${GREEN}Installing $app_name ($type_display)...${NC}\n\n"
 
-                selected_app=$(printf '%s' "$app_name" | tr 'A-Z' 'a-z')
+                selected_app=$(resolve_app_service "$app_name")
                 [ "$app_type" = "service" ] && selected_app="${selected_app}-pot"
+
+                CORE_ensure_data_dir "$selected_app"
 
                 $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES pull "$selected_app"
                 echo
@@ -820,7 +843,8 @@ install_app_noninteractive() {
             $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE"                 -f "$COMPOSE_DIR/compose.service.yml" up --force-recreate -d "$pot_name" || return 5
             ;;
         *)
-            selected_app=$(printf '%s' "$_install_target" | tr 'A-Z' 'a-z')
+            selected_app=$(resolve_app_service "$_install_target")
+            CORE_ensure_data_dir "$selected_app"
             $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES pull "$selected_app" || return 5
             $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE" $ALL_COMPOSE_FILES up --force-recreate -d "$selected_app" || return 5
             ;;
@@ -848,7 +872,7 @@ uninstall_app_noninteractive() {
             return 5
             ;;
         *)
-            selected_app=$(printf '%s' "$app_name" | tr 'A-Z' 'a-z')
+            selected_app=$(resolve_app_service "$_uninstall_target")
             result="$(CORE_remove_container "$selected_app")"
             if [ "$result" = "$selected_app" ]; then
                 $WATCHTOWER sync
