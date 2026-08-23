@@ -109,12 +109,15 @@ services:
             - com.centurylinklabs.watchtower.scope=igm
         environment:
             - USER_ID=${GRASS_USER_ID:-}
+            - ACCESS_TOKEN=${GRASS_ACCESS_TOKEN:-}
             - LICENSE=IGM
         profiles:
             - ${GRASS:-DISABLED}
         dns:
             - 1.1.1.1
             - 8.8.8.8
+        volumes:
+            - grass-data:/data
         cpus: $ALT_MIN_CPU_LIMIT
         mem_limit: $RAM_LIMIT
         mem_reservation: $RAM_RESERVE
@@ -154,3 +157,4 @@ services:
 
 volumes:
     earnapp-data:
+    grass-data:

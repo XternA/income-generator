@@ -166,10 +166,11 @@
     {
         "name": "GRASS",
         "url": "https://tinyurl.com/msfkrace",
-        "description": " Log into dashboard. open browser DevTools (F12), go to Application → Local Storage. Look for 'userId' key. The long value is the User ID.",
+        "description": " Log into dashboard. open browser DevTools (F12), go to Application → Local Storage. Look for 'userId' and 'accessToken' key.",
         "description_ext": " See guide for help: https://github.com/XternA/income-generator/wiki/Grass-Node",
         "properties": [
-            "GRASS_USER_ID"
+            "GRASS_USER_ID",
+            "GRASS_ACCESS_TOKEN"
         ],
         "is_enabled": true
     },
