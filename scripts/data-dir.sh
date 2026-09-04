@@ -2,7 +2,9 @@
 
 . scripts/core/common.sh
 
-if [ "$OS_IS_DARWIN" = "true" ]; then
+if [ -n "$DATA_DIR" ]; then
+    :
+elif [ "$OS_IS_DARWIN" = "true" ]; then
     DATA_DIR="$HOME/.data"
 else
     DATA_DIR="/data"
