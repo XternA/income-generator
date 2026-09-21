@@ -6,7 +6,9 @@ set -e
 REPO="XternA/income-generator"
 REPO_URL="https://github.com/${REPO}.git"
 BIN_NAME="igm"
-IGM_HOME="${HOME}/.igm"
+IGM_HOME_PRESET="${IGM_HOME:-}"
+IGM_HOME="${IGM_HOME_PRESET:-${HOME}/.igm}"
+UNRAID_ROOT="/mnt/user/appdata/igm"
 RELEASES_LATEST="https://api.github.com/repos/${REPO}/releases/latest"
 RELEASES_API="https://api.github.com/repos/${REPO}/releases"
 RELEASES_BASE="https://github.com/${REPO}/releases/download"
@@ -53,6 +55,40 @@ detect_platform() {
             fail "Unsupported OS: $OS. Windows users: install via WSL2 and re-run."
             ;;
     esac
+}
+
+detect_unraid() {
+    IS_UNRAID=0
+    if [ "${IGM_FORCE_UNRAID:-}" = "1" ]; then
+        IS_UNRAID=1
+        return 0
+    fi
+    if [ -f /etc/unraid-version ]; then
+        case "$(uname -r)" in
+            *[Uu]nraid*) IS_UNRAID=1 ;;
+        esac
+        if [ "$IS_UNRAID" != "1" ] && [ -x /usr/local/sbin/emhttp ]; then
+            IS_UNRAID=1
+        fi
+        if [ "$IS_UNRAID" != "1" ] && [ -f /boot/config/ident.cfg ]; then
+            IS_UNRAID=1
+        fi
+    fi
+    return 0
+}
+
+setup_unraid() {
+    if [ "$IS_UNRAID" != "1" ]; then
+        return 0
+    fi
+    if [ -z "$IGM_HOME_PRESET" ]; then
+        if [ ! -d /mnt/user ]; then
+            fail "Unraid detected, but the array is not started (/mnt/user is missing). Start the array and re-run."
+        fi
+        IGM_HOME="${UNRAID_ROOT}/.igm"
+    fi
+    ok "Unraid detected — persistent paths on the array"
+    return 0
 }
 
 download() {
@@ -127,6 +163,11 @@ resolve_install_dir() {
         mkdir -p "$INSTALL_DIR" || fail "Cannot create install directory: $INSTALL_DIR"
         return
     fi
+    if [ "$IS_UNRAID" = "1" ]; then
+        INSTALL_DIR="${UNRAID_ROOT}/bin"
+        mkdir -p "$INSTALL_DIR" || fail "Cannot create install directory: $INSTALL_DIR"
+        return
+    fi
     LOCAL_BIN="${HOME}/.local/bin"
     if mkdir -p "$LOCAL_BIN" 2>/dev/null; then
         INSTALL_DIR="$LOCAL_BIN"
@@ -153,6 +194,14 @@ ensure_in_path() {
     case ":$PATH:" in
         *":${INSTALL_DIR}:"*) return ;;
     esac
+    if [ "$IS_UNRAID" = "1" ]; then
+        if ln -sf "${INSTALL_DIR}/${BIN_NAME}" "/usr/local/bin/${BIN_NAME}" 2>/dev/null; then
+            ok "Linked ${BIN_NAME} into /usr/local/bin"
+        else
+            printf "  Add %s to your PATH to run %s.\n" "$INSTALL_DIR" "$BIN_NAME"
+        fi
+        return
+    fi
     case "${SHELL:-}" in
         */fish)
             SHELL_PROFILE="${HOME}/.config/fish/config.fish"
@@ -217,10 +266,20 @@ main() {
     printf "\n${BOLD}IGM — Income Generator Installer${NC}\n\n"
 
     check_dependencies
+    case "$IGM_HOME" in
+        /*) ;;
+        *) fail "IGM_HOME must be an absolute path (got '$IGM_HOME')." ;;
+    esac
     detect_platform
+    detect_unraid
+    setup_unraid
     ok "Platform: $PLATFORM"
 
     setup_repo
+
+    if [ "$IS_UNRAID" = "1" ] && [ ! -e "${HOME}/.igm" ]; then
+        ln -s "$IGM_HOME" "${HOME}/.igm" 2>/dev/null || true
+    fi
 
     info "Finding latest binary release..."
     resolve_binary_release
@@ -265,8 +324,12 @@ main() {
     ensure_in_path
     strip_legacy_alias
 
-    if "${INSTALL_DIR}/${BIN_NAME}" version >/dev/null 2>&1; then
-        ok "Verified: $(${INSTALL_DIR}/${BIN_NAME} version)"
+    if [ "$IS_UNRAID" = "1" ] && [ -z "${IGM_DATA_DIR:-}" ]; then
+        IGM_DATA_DIR="${UNRAID_ROOT}/data"
+    fi
+
+    if IGM_HOME="$IGM_HOME" IGM_DATA_DIR="${IGM_DATA_DIR:-}" "${INSTALL_DIR}/${BIN_NAME}" version >/dev/null 2>&1; then
+        ok "Verified: $(IGM_HOME="$IGM_HOME" IGM_DATA_DIR="${IGM_DATA_DIR:-}" "${INSTALL_DIR}/${BIN_NAME}" version)"
     fi
 
     if [ "$ALIAS_FOUND" = "1" ]; then
@@ -277,6 +340,10 @@ main() {
 
     printf "\n${GREEN}${BOLD}Done.${NC}\n\n"
     printf "Run ${BOLD}\"igm\"${NC} to start Income Generator tool.\n\n"
+    if [ "$IS_UNRAID" = "1" ]; then
+        printf "Start the WebUI and enable it at boot with:\n\n"
+        printf "  ${BOLD}igm web start --auto${NC}\n\n"
+    fi
 }
 
 main "$@"
