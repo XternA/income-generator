@@ -26,7 +26,11 @@ CORE_extract_proxy_ip() {
 }
 
 CORE_test_proxy_connectivity() {
-    _result=$(timeout 5 curl -s -x "$1" https://api.ipify.org 2>/dev/null)
+    if command -v timeout >/dev/null 2>&1; then
+        _result=$(timeout 5 curl -s -x "$1" https://api.ipify.org 2>/dev/null)
+    else
+        _result=$(curl -s --connect-timeout 5 --max-time 5 -x "$1" https://api.ipify.org 2>/dev/null)
+    fi
 
     if [ -n "$_result" ] && echo "$_result" | grep -Eq '^[0-9.]+$'; then
         echo "$_result"

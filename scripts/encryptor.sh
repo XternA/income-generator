@@ -1,121 +1,195 @@
 #!/bin/sh
 
-ACTION="$1"
-TARGET_FILE="$2"
-TEMP_FILE="${TARGET_FILE}.tmp"
-KEY_FILE="${TARGET_FILE}.key"
-LOCK_FILE="${TARGET_FILE}.lock"
+set -u
+umask 077
 
-cleanup() {
-    rm -rf "$LOCK_FILE" "$TEMP_FILE" 2>/dev/null
-    [ ! -s "$KEY_FILE" ] && rm -f "$KEY_FILE" 2>/dev/null
-}
-trap cleanup EXIT INT TERM HUP
+IGM_HOME="${IGM_HOME:-$(cd "$(dirname "$0")/.." && pwd)}"
 
-acquire_lock() {
-    if mkdir "$LOCK_FILE" 2>/dev/null; then
-        echo $$ > "$LOCK_FILE/pid" 2>/dev/null && return 0
-        rm -rf "$LOCK_FILE" 2>/dev/null
-        return 1
+MODE=""
+case "${1:-}" in
+    -d|-ds) MODE=unlock ;;
+    -e|-es) MODE=lock ;;
+esac
+[ -n "$MODE" ] || { echo "usage: encryptor.sh -d|-e [path]" >&2; exit 2; }
+
+if [ -n "${2:-}" ]; then
+    VAULT="$2"
+    RUN="$2"
+else
+    VAULT="$IGM_HOME/.env"
+    RUN="$IGM_HOME/.env.run"
+fi
+KEY_FILE="$VAULT.key"
+LOCK_DIR="$VAULT.lock"
+
+_crypto=""
+crypto_ok() {
+    [ "$_crypto" = "1" ] && return 0
+    [ "$_crypto" = "0" ] && return 1
+    _crypto=0
+    if command -v openssl >/dev/null 2>&1; then
+        _in="$IGM_HOME/.env.probe.$$"
+        _out="$_in.enc"
+        printf 'probe' > "$_in" 2>/dev/null || return 1
+        if printf '%s' probe | openssl enc -aes-256-cbc -salt -pbkdf2 -pass stdin \
+                -in "$_in" -out "$_out" 2>/dev/null \
+           && printf '%s' probe | openssl enc -d -aes-256-cbc -pbkdf2 -pass stdin \
+                -in "$_out" 2>/dev/null | cmp -s - "$_in"; then
+            _crypto=1
+        fi
+        rm -f "$_in" "$_out" 2>/dev/null
     fi
-    read -r LOCK_PID < "$LOCK_FILE/pid" 2>/dev/null || return 1
-    kill -0 "$LOCK_PID" 2>/dev/null && return 1
-    rm -rf "$LOCK_FILE"
-    mkdir "$LOCK_FILE" 2>/dev/null && echo $$ > "$LOCK_FILE/pid" 2>/dev/null && return 0
-    rm -rf "$LOCK_FILE" 2>/dev/null
+    [ "$_crypto" = "1" ]
+}
+
+encrypt_to() {
+    printf '%s' "$3" | openssl enc -aes-256-cbc -salt -pbkdf2 -pass stdin \
+        -in "$1" -out "$2" 2>/dev/null
+}
+
+decrypt_to() {
+    printf '%s' "$3" | openssl enc -d -aes-256-cbc -pbkdf2 -pass stdin \
+        -in "$1" -out "$2" 2>/dev/null
+}
+
+key_line() { sed -n "$1p" "$KEY_FILE" 2>/dev/null; }
+
+is_openssl() {
+    [ -f "$1" ] || return 1
+    dd if="$1" bs=1 count=8 2>/dev/null | grep -q '^Salted__$'
+}
+
+acquire() {
+    _try=0
+    while [ "$_try" -lt 20 ]; do
+        if mkdir "$LOCK_DIR" 2>/dev/null; then
+            if ! printf '%s' "$$" > "$LOCK_DIR/pid" 2>/dev/null; then
+                rm -rf "$LOCK_DIR" 2>/dev/null
+                return 1
+            fi
+            return 0
+        fi
+        _p=$(sed -n '1p' "$LOCK_DIR/pid" 2>/dev/null)
+        case "$_p" in
+            ''|*[!0-9]*) ;;
+            *) kill -0 "$_p" 2>/dev/null || { rm -rf "$LOCK_DIR" 2>/dev/null; continue; } ;;
+        esac
+        sleep 0.1
+        _try=$((_try + 1))
+    done
     return 1
 }
 
-is_encrypted() {
-    # OpenSSL encrypted files start with "Salted__"
-    head -c 8 "$TARGET_FILE" 2>/dev/null | grep -qF "Salted__"
+release() {
+    _p=$(sed -n '1p' "$LOCK_DIR/pid" 2>/dev/null)
+    if [ "$_p" = "$$" ]; then
+        rm -rf "$LOCK_DIR" 2>/dev/null
+    fi
+    return 0
 }
 
-generate_key() {
-    if [ ! -s "$KEY_FILE" ]; then
-        openssl rand -base64 32 > "$KEY_FILE" || { rm -f "$KEY_FILE"; return 1; }
-        chmod 400 "$KEY_FILE"
+gc() {
+    for _f in "$IGM_HOME"/.env.tmp.* "$IGM_HOME"/.env.run.tmp.* \
+              "$IGM_HOME"/.env.magic.* "$IGM_HOME"/.env.probe.* \
+              "$IGM_HOME"/.env.probe.*.enc "$IGM_HOME"/.env.key.tmp.*; do
+        [ -e "$_f" ] || continue
+        _p=${_f##*.}
+        case "$_p" in
+            ''|*[!0-9]*) rm -f "$_f" 2>/dev/null ;;
+            *) kill -0 "$_p" 2>/dev/null || rm -f "$_f" 2>/dev/null ;;
+        esac
+    done
+    if [ -d "$LOCK_DIR" ]; then
+        _p=$(sed -n '1p' "$LOCK_DIR/pid" 2>/dev/null)
+        case "$_p" in
+            ''|*[!0-9]*) rm -rf "$LOCK_DIR" 2>/dev/null ;;
+            *) kill -0 "$_p" 2>/dev/null || rm -rf "$LOCK_DIR" 2>/dev/null ;;
+        esac
     fi
+    return 0
 }
 
-encrypt_file() {
-    if [ ! -f "$TARGET_FILE" ]; then
-        echo "Error: file not found at '$TARGET_FILE'" >&2
-        exit 1
+unlock() {
+    if [ "$RUN" != "$VAULT" ] && [ -e "$RUN" ] && [ -s "$RUN" ]; then
+        return 0
     fi
 
-    if ! acquire_lock; then
-        echo "Another IGM instance is managing encryption. Skipping." >&2
-        exit 0
+    [ -e "$VAULT" ] || { : > "$RUN" 2>/dev/null; return 0; }
+
+    if ! is_openssl "$VAULT"; then
+        [ "$RUN" = "$VAULT" ] && return 0
+        mv "$VAULT" "$RUN" 2>/dev/null
+        return 0
     fi
 
-    if is_encrypted; then
-        echo "File already encrypted. Skipping." >&2
-        exit 0
-    fi
+    crypto_ok || return 1
 
-    generate_key || { echo "Error generating encryption key" >&2; exit 1; }
-
-    if openssl enc -aes-256-cbc -salt -pbkdf2 -in "$TARGET_FILE" -out "$TEMP_FILE" -pass file:"$KEY_FILE" 2>/dev/null; then
-        mv "$TEMP_FILE" "$TARGET_FILE"
-        echo "File encrypted: $TARGET_FILE"
-    else
-        echo "Error encrypting the file" >&2
-        exit 1
-    fi
+    _tmp="$VAULT.tmp.$$"
+    for _k in "$(key_line 1)" "$(key_line 2)"; do
+        [ -n "$_k" ] || continue
+        if decrypt_to "$VAULT" "$_tmp" "$_k" && [ -s "$_tmp" ]; then
+            chmod 600 "$_tmp" 2>/dev/null
+            mv "$_tmp" "$RUN"
+            return 0
+        fi
+    done
+    rm -f "$_tmp" 2>/dev/null
+    echo "igm: credential vault could not be decrypted — key missing or mismatched ($KEY_FILE)" >&2
+    return 1
 }
 
-decrypt_file() {
-    if [ ! -f "$TARGET_FILE" ]; then
-        echo "Error: encrypted file not found at '$TARGET_FILE'" >&2
-        exit 1
+lock() {
+    [ -e "$RUN" ] || return 0
+    [ -s "$RUN" ] || { rm -f "$RUN" 2>/dev/null; return 0; }
+
+    if ! crypto_ok; then
+        if [ "$RUN" != "$VAULT" ]; then
+            _tmp="$VAULT.tmp.$$"
+            mv "$RUN" "$_tmp" && mv "$_tmp" "$VAULT"
+        fi
+        return 0
     fi
 
-    if ! acquire_lock; then
-        # Another instance is decrypting - wait and check if decryption completes
-        # 60 iterations × 0.05s = 3 second timeout
-        i=0
-        while [ $i -lt 60 ]; do
-            sleep 0.05
-            if ! is_encrypted; then
-                echo "File already decrypted by another instance."
-                exit 0
-            fi
-            i=$((i + 1))
-        done
-        echo "Timeout waiting for decryption." >&2
-        exit 1
+    if ! acquire; then
+        echo "igm: credential vault locked by another process — not re-encrypted" >&2
+        return 1
     fi
 
-    if ! is_encrypted; then
-        echo "File already decrypted. Skipping."
-        exit 0
+    _newkey=$(openssl rand -base64 32 2>/dev/null)
+    case "$_newkey" in
+        ''|*[!A-Za-z0-9+/=]*) release; return 1 ;;
+    esac
+
+    _tmp="$VAULT.tmp.$$"
+    if ! encrypt_to "$RUN" "$_tmp" "$_newkey"; then
+        rm -f "$_tmp" 2>/dev/null
+        release
+        return 1
     fi
 
-    if [ ! -s "$KEY_FILE" ]; then
-        echo "Error: key file not found at '$KEY_FILE'. Cannot decrypt." >&2
-        exit 1
+    _keytmp="$KEY_FILE.tmp.$$"
+    if ! printf '%s\n' "$_newkey" "$(key_line 1)" > "$_keytmp" 2>/dev/null \
+        || ! chmod 600 "$_keytmp" 2>/dev/null \
+        || ! mv "$_keytmp" "$KEY_FILE" 2>/dev/null; then
+        rm -f "$_keytmp" "$_tmp" 2>/dev/null
+        echo "igm: could not persist the vault key — vault left unchanged" >&2
+        release
+        return 1
     fi
+    mv "$_tmp" "$VAULT"
+    [ "$RUN" = "$VAULT" ] || rm -f "$RUN" 2>/dev/null
 
-    if openssl enc -aes-256-cbc -d -pbkdf2 -in "$TARGET_FILE" -out "$TEMP_FILE" -pass file:"$KEY_FILE" 2>/dev/null; then
-        mv "$TEMP_FILE" "$TARGET_FILE"
-        echo "File decrypted: $TARGET_FILE"
-        rm -f "$KEY_FILE"  # Delete key after decryption - new key generated on next encrypt
-    else
-        echo "Error decrypting file" >&2
-        exit 1
-    fi
+    release
+    return 0
 }
 
-# Main script
-if ! command -v openssl >/dev/null 2>&1; then
-    echo "Error: openssl is not installed." >&2
-    exit 1
-fi
+gc
 
-case "$ACTION" in
-    -e) encrypt_file ;;
-    -es) encrypt_file > /dev/null 2>&1 ;;
-    -d) decrypt_file ;;
-    -ds) decrypt_file > /dev/null 2>&1 ;;
+rc=0
+case "$MODE" in
+    unlock) unlock || rc=$? ;;
+    lock)   lock   || rc=$? ;;
 esac
+
+gc
+exit $rc

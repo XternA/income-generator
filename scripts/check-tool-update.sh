@@ -1,10 +1,13 @@
 #!/bin/sh
 
 . scripts/core/version.sh
+. scripts/core/update.sh
 
 TUI_MODE=0
+AUTO_YES=0
 for _arg in "$@"; do
     [ "$_arg" = "--tui" ] && TUI_MODE=1
+    [ "$_arg" = "--yes" ] && AUTO_YES=1
 done
 
 case "$1" in
@@ -14,9 +17,12 @@ case "$1" in
             exit 1
         fi
         printf "Forcing update to latest version...\n"
-        { git fetch --quiet && git reset --hard --quiet && git pull --quiet; } 2>/dev/null
-        printf "\nUpdate complete ✅\n"
-        exit 0
+        if CORE_apply_update; then
+            printf "\nUpdate complete ✅\n"
+            exit 0
+        fi
+        printf "\nUpdate failed ❌\n"
+        exit 1
         ;;
     --update)
         printf "Checking for new updates available...\n\n"
@@ -31,13 +37,16 @@ case "$1" in
             printf "New update available 🚀\n"
             printf "Current version: %s → Update to: %s\n\n" "$CURRENT" "$LATEST"
 
-            printf "Do you want to update now? [Y/N]: "; read -r choice
+            if [ "$AUTO_YES" = "1" ] || [ ! -t 0 ]; then
+                choice=Y
+            else
+                printf "Do you want to update now? [Y/N]: "; read -r choice
+            fi
 
             case "$choice" in
                 [Yy]*)
                     printf "\nUpdating to latest version..."
-                    git fetch --depth=1 origin "+refs/tags/$LATEST:refs/tags/$LATEST" --force --quiet 2>/dev/null && git reset --hard "$LATEST" --quiet 2>/dev/null
-                    if [ $? -eq 0 ]; then
+                    if CORE_apply_update "$LATEST"; then
                         sleep 1.2
                         printf "\rUpdate complete ✅            \n"
                         rm -f /tmp/igm_updater

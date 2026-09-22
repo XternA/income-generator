@@ -77,7 +77,7 @@ remove_backup() {
 }
 
 # Main script
-trap '$ENCRYPT_BACKUP' INT
+trap '$ENCRYPT_BACKUP; exit 130' INT TERM HUP
 $DECRYPT_BACKUP
 while true; do
     display_banner

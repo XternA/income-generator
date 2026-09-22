@@ -17,4 +17,8 @@ else
     . scripts/data-dir.sh
 fi
 
-[ ! -f "$ENV_DEPLOY_FILE" ] && $APP_SELECTION --import
+if [ -f "$ENV_DEPLOY_FILE" ]; then
+    $APP_SELECTION --import
+else
+    $APP_SELECTION --export
+fi

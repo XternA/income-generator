@@ -44,9 +44,18 @@ display_install_info() {
     install_type="installed"
     [ "$is_reinstall_state" = "redeploy" ] && install_type="redeployed"
 
-    load_app_service_data
-
-    [ "$is_reinstall_state" != "redeploy" ] && print_total_apps_info
+    if [ "$is_reinstall_state" = "redeploy" ]; then
+        if [ -f "$ENV_DEPLOY_FILE.save" ]; then
+            app_data=$(jq -r "$(CORE_selection_filter "$ENV_DEPLOY_FILE.save") | .[] | \"\(.name) \(.service_enabled) \(.is_enabled)\"" "$JSON_FILE" 2>/dev/null)
+            has_apps_services=$(echo "$app_data" | awk '{if ($2 == "true" || $3 == "true") {print "true"; exit}}')
+        else
+            app_data=""
+            has_apps_services=""
+        fi
+    else
+        load_app_service_data
+        print_total_apps_info
+    fi
 
     if [ -z "$has_apps_services" ]; then
         can_install="false"
@@ -178,21 +187,32 @@ install_applications() {
         fi
 
         printf "Pulling latest image...\n\n"
-        [ "$is_selective" = false ] && { $APP_SELECTION --backup > /dev/null 2>&1; $APP_SELECTION --default > /dev/null 2>&1; }
 
         proxy_is_active="$(CORE_has_containers proxy)"
         [ "$proxy_is_active" ] && $WATCHTOWER modify_only
 
-        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
-        echo
-        $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
-        sleep 1.5
+        (
+            if [ "$is_selective" = false ]; then
+                for _app in $(jq -r '.[].name' "$JSON_FILE" 2>/dev/null); do
+                    export "$_app=ENABLED"
+                    export "${_app}_SERVICE=ENABLED"
+                done
+            fi
 
-        display_banner
-        printf "$install_type\n\n"
-        ensure_enabled_apps_data_dirs
-        $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate -d
-        [ "$is_selective" = false ] && $APP_SELECTION --restore > /dev/null 2>&1
+            $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files pull
+            echo
+            $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
+            sleep 1.5
+
+            display_banner
+            printf "$install_type\n\n"
+            if [ "$is_selective" = false ]; then
+                ensure_all_apps_data_dirs
+            else
+                ensure_enabled_apps_data_dirs
+            fi
+            $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $compose_files up --force-recreate -d
+        )
         $APP_SELECTION --save > /dev/null 2>&1
         $WATCHTOWER restore_only
 
@@ -202,8 +222,6 @@ install_applications() {
 
 reinstall_applications() {
     [ ! "$HAS_CONTAINER_RUNTIME" ] && print_no_runtime && return
-    $APP_SELECTION --backup > /dev/null 2>&1
-    $APP_SELECTION --restore redeploy > /dev/null 2>&1
 
     while true; do
         display_install_info redeploy
@@ -223,15 +241,28 @@ reinstall_applications() {
                 proxy_is_active="$(CORE_has_containers proxy)"
                 [ "$proxy_is_active" ] && $WATCHTOWER modify_only
 
-                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
-                echo
-                $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
-                sleep 1.5
+                (
+                    if [ -f "$ENV_DEPLOY_FILE.save" ]; then
+                        while IFS='=' read -r _k _v; do
+                            case "$_k" in
+                                "" | *[!A-Za-z0-9_]*) continue ;;
+                            esac
+                            case "$_v" in
+                                ENABLED | DISABLED) export "$_k=$_v" ;;
+                            esac
+                        done < "$ENV_DEPLOY_FILE.save"
+                    fi
 
-                display_banner
-                printf "Redeploying last application install state...\n\n"
-                ensure_enabled_apps_data_dirs
-                $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate -d
+                    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES pull
+                    echo
+                    $CONTAINER_ALIAS container prune -f --filter "label=$IGM_PROJECT_LABEL"
+                    sleep 1.5
+
+                    display_banner
+                    printf "Redeploying last application install state...\n\n"
+                    ensure_all_apps_data_dirs
+                    $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $ALL_COMPOSE_FILES up --force-recreate -d
+                )
                 [ "$proxy_is_active" ] && $WATCHTOWER restore_only
 
                 printf "\nPress Enter to continue..."; read -r input
@@ -250,7 +281,6 @@ reinstall_applications() {
                 ;;
         esac
     done
-    $APP_SELECTION --restore > /dev/null 2>&1
 }
 
 start_applications() {
@@ -716,6 +746,12 @@ resolve_app_service() {
 
 ensure_enabled_apps_data_dirs() {
     for _app in $(jq -r '.[] | select(.is_enabled == true) | .name' "$JSON_FILE" 2>/dev/null); do
+        CORE_ensure_data_dir "$(resolve_app_service "$_app")"
+    done
+}
+
+ensure_all_apps_data_dirs() {
+    for _app in $(jq -r '.[].name' "$JSON_FILE" 2>/dev/null); do
         CORE_ensure_data_dir "$(resolve_app_service "$_app")"
     done
 }

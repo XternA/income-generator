@@ -8,144 +8,20 @@ BANNER_MODE=config
 . scripts/util/uuid-generator.sh
 . scripts/util/app-import-reader.sh
 
-__reorder_config_file() {
-    # Skip if empty or doesn't exist
-    [ -s "$ENV_FILE" ] || return 0
-
-    # Lazy load metadata only when needed (cached for session)
-    if [ -z "$ordered_app_metadata" ]; then
-        ordered_app_metadata=$(jq -r 'to_entries | map({
-            name: .value.name,
-            props: (.value.properties // [] | map(ltrimstr("#")) | join(",")),
-            order: .key
-        }) | .[] | "\(.name)|\(.props)|\(.order)"' "$JSON_FILE")
-    fi
-
-    # Exit early if file already correctly ordered
-    expected_order=$(printf '%s\n' "$ordered_app_metadata" | awk -F'|' '{apps = apps (apps ? "," : "") $1} END {print apps}')
-
-    awk -F'=' -v expected="$expected_order" '
-    /^[A-Z_]+=[^[:space:]]/ {
-        split($1, parts, "_")
-        if (parts[1] != prev && parts[1] != "") {
-            apps = apps (apps ? "," : "") parts[1]
-            prev = parts[1]
-        }
-    }
-    END { exit (apps == expected ? 0 : 1) }
-    ' "$ENV_FILE" && return 0
-
-    TEMP_ENV=".igm_config_reorg_$$"
-    trap 'rm -f "$TEMP_ENV"; exit' INT TERM EXIT
-
-    printf '%s\n' "$ordered_app_metadata" | awk -F'|' -v envfile="$ENV_FILE" '
-        # Phase 1: Build metadata lookup tables
-        {
-            app = $1
-            split($2, prop_arr, ",")
-            app_props[app] = $2
-            app_order[app] = $3
-
-            # Build reverse mapping: property → app
-            for (i in prop_arr) {
-                if (prop_arr[i] != "") {
-                    prop_to_app[prop_arr[i]] = app
-                }
-            }
-        }
-
-        END {
-            # Phase 2: Parse config file and group credentials by app
-            while ((getline line < envfile) > 0) {
-                if (line ~ /^[A-Z_]+=[^[:space:]]/) {
-                    idx = index(line, "=")
-                    key = substr(line, 1, idx - 1)
-                    value = substr(line, idx + 1)
-
-                    # Determine app ownership
-                    if (key in prop_to_app) {
-                        app = prop_to_app[key]
-                    } else {
-                        # Fallback: prefix before first underscore
-                        split(key, parts, "_")
-                        app = parts[1]
-                    }
-
-                    # Store credential grouped by app (ternary for conciseness)
-                    app_creds[app] = (app in app_creds) ? app_creds[app] "\n" key "=" value : key "=" value
-                    app_has_creds[app] = 1
-                }
-            }
-            close(envfile)
-
-            # Phase 3: Output in apps.json order
-            max_order = 0
-            for (app in app_order) {
-                ordered[app_order[app]] = app
-                max_order = (app_order[app] > max_order) ? app_order[app] : max_order
-            }
-
-            first_app = 1
-            for (i = 0; i <= max_order; i++) {
-                if (!(i in ordered)) continue
-                app = ordered[i]
-
-                # Skip if no credentials or no properties defined
-                if (!(app in app_has_creds) || app_props[app] == "") continue
-
-                # Add blank line separator (except first app)
-                if (!first_app) print ""
-                first_app = 0
-
-                # Split properties and credentials for this app
-                n_props = split(app_props[app], props, ",")
-                n_creds = split(app_creds[app], creds, "\n")
-
-                # Build credential lookup map
-                delete cred_map
-                for (j = 1; j <= n_creds; j++) {
-                    idx = index(creds[j], "=")
-                    cred_key = substr(creds[j], 1, idx - 1)
-                    cred_val = substr(creds[j], idx + 1)
-                    cred_map[cred_key] = cred_val
-                }
-
-                # Output properties in apps.json order
-                for (j = 1; j <= n_props; j++) {
-                    if (props[j] in cred_map)
-                        print props[j] "=" cred_map[props[j]]
-                }
-
-                # Mark as processed
-                delete app_has_creds[app]
-            }
-
-            # Phase 4: Output orphaned apps
-            for (app in app_has_creds) {
-                if (!first_app) print ""
-                first_app = 0
-                print app_creds[app]
-            }
-        }
-    ' > "$TEMP_ENV"
-
-    mv "$TEMP_ENV" "$ENV_FILE"
-    rm -f "$TEMP_ENV"
-}
+__reorder_config_file() { CORE_reorder_config_file; }
 
 write_entry() {
     if [ "$is_update" = true ]; then
-        awk -v entry="$entry_name" -v input="$input" -F "=" 'BEGIN { OFS="=" } $1 == entry { $2 = input } 1' "$ENV_FILE" >"$ENV_FILE.tmp"
-        mv "$ENV_FILE.tmp" "$ENV_FILE"
+        CORE_env_set "$ENV_FILE" "$entry_name" "$input"
     else
         if [ ! -s "$ENV_FILE" ]; then
-            echo "$entry_name=$input" >"$ENV_FILE"
+            CORE_env_append "$ENV_FILE" "$entry_name" "$input"
         else
             [ "$is_new_app" = true ] && {
-                echo "" >> "$ENV_FILE"
+                printf '\n' >> "$ENV_FILE"
                 is_new_app=false
             }
-            echo "$entry_name=$input" >>"$ENV_FILE"
+            CORE_env_append "$ENV_FILE" "$entry_name" "$input"
         fi
     fi
 }

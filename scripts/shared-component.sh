@@ -6,7 +6,8 @@ __SHARED_COMPONENT_CACHED=1
 # Shared path files
 export ROOT_DIR=$(pwd)
 export IGM_HOME="${IGM_HOME:-$ROOT_DIR}"
-export ENV_FILE="$IGM_HOME/.env"
+export ENV_FILE="$IGM_HOME/.env.run"
+export VAULT_FILE="$IGM_HOME/.env"
 export ENV_SYSTEM_FILE="$IGM_HOME/.env.system"
 export ENV_DEPLOY_FILE="$IGM_HOME/.env.deploy"
 export ENV_DEPLOY_PROXY_FILE="$IGM_HOME/.env.deploy.proxy"
@@ -45,8 +46,8 @@ export UPDATE_CHECKER="sh scripts/check-tool-update.sh"
 export VIEW_CONFIG="sh scripts/config-viewer.sh"
 
 # Declared quick util operation ----------------
-export ENCRYPT_CRED="$ENCRYPTOR -es $ENV_FILE"
-export DECRYPT_CRED="$ENCRYPTOR -ds $ENV_FILE"
+export ENCRYPT_CRED="$ENCRYPTOR -e"
+export DECRYPT_CRED="$ENCRYPTOR -d"
 
 # Declare tool alias ----------------
 case "$OS" in

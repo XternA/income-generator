@@ -232,18 +232,24 @@ install_proxy_instance() {
 
     > "$ENV_PROXY_FILE"
 
-    for compose_file in $COMPOSE_FILES; do [ "$compose_file" != "-f" ] && cp "$compose_file" "$compose_file.bak"; done
-    cp "$TUNNEL_COMPOSE_FILE" "$TUNNEL_COMPOSE_FILE.bak"
-    cp "$ENV_FILE" "$ENV_FILE.bak"
+    for compose_file in $COMPOSE_FILES; do
+        [ "$compose_file" = "-f" ] && continue
+        [ -f "${compose_file}.bak" ] && mv "${compose_file}.bak" "$compose_file"
+        cp "$compose_file" "${compose_file}.bak"
+    done
+    [ -f "${TUNNEL_COMPOSE_FILE}.bak" ] && mv "${TUNNEL_COMPOSE_FILE}.bak" "$TUNNEL_COMPOSE_FILE"
+    cp "$TUNNEL_COMPOSE_FILE" "${TUNNEL_COMPOSE_FILE}.bak"
+    [ -f "${ENV_FILE}.bak" ] && mv "${ENV_FILE}.bak" "$ENV_FILE"
+    cp "$ENV_FILE" "${ENV_FILE}.bak"
 
-    # Set trap to cleanup on interrupt
-    trap '__cleanup_proxy_installation' INT
+    trap '__cleanup_proxy_installation' INT TERM HUP
 
     display_banner
     printf "Pulling latest image...\n\n"
     $CONTAINER_COMPOSE $LOADED_ENV_FILES --profile ENABLED $COMPOSE_FILES -f $TUNNEL_COMPOSE_FILE pull &
     docker_bg_pid=$!
     wait $docker_bg_pid
+    docker_bg_pid=""
     sleep 1.5
 
     display_banner
@@ -369,6 +375,7 @@ install_proxy_instance() {
         $CONTAINER_COMPOSE -p proxy-app-${install_count} $LOADED_ENV_FILES --profile ENABLED -f $TUNNEL_COMPOSE_FILE $COMPOSE_FILES up --force-recreate -d &
         docker_bg_pid=$!
         wait $docker_bg_pid
+        docker_bg_pid=""
 
         # Wait for containers to be ready before next proxy batch
         if [ "$ACTIVE_PROXIES" -gt 1 ] && [ "$install_count" -lt "$ACTIVE_PROXIES" ]; then
@@ -394,7 +401,7 @@ install_proxy_instance() {
     mv "${ENV_FILE}.bak" "$ENV_FILE"
     rm -f "${TUNNEL_COMPOSE_FILE}.bk" "$ENV_PROXY_FILE"
 
-    trap - INT # Clear trap (installation completed successfully)
+    trap - INT TERM HUP
 
     echo "Proxy application install complete."
     printf "\nPress Enter to continue..."; read -r _

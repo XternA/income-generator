@@ -5,7 +5,8 @@ COMMAND="$CONTAINER_COMPOSE $SYSTEM_ENV_FILES -f $WATCHTOWER_COMPOSE up --force-
 WATCHTOWER_ALIAS="watchtower-igm"
 
 modify_watchtower() {
-    cp "$WATCHTOWER_COMPOSE" "$WATCHTOWER_COMPOSE.bak" > /dev/null 2>&1
+    [ -f "${WATCHTOWER_COMPOSE}.bak" ] && mv "${WATCHTOWER_COMPOSE}.bak" "$WATCHTOWER_COMPOSE" 2>/dev/null
+    cp "$WATCHTOWER_COMPOSE" "${WATCHTOWER_COMPOSE}.bak" > /dev/null 2>&1
     awk '/--rolling-restart/ { next } { print }' "$WATCHTOWER_COMPOSE" > temp && mv temp "$WATCHTOWER_COMPOSE"
 }
 
@@ -15,9 +16,11 @@ restore_watchtower() {
 
 deploy_for_proxy() {
     modify_watchtower
+    trap 'restore_watchtower' INT TERM HUP
     $CONTAINER_COMPOSE $SYSTEM_ENV_FILES -f $WATCHTOWER_COMPOSE pull > /dev/null 2>&1
     $COMMAND > /dev/null 2>&1
     restore_watchtower
+    trap - INT TERM HUP
 }
 
 sync_watchtower_state() {

@@ -29,12 +29,12 @@ choose_application_type() {
 }
 
 display_table_choice() {
-    local total_apps="$1"
-    local field_name="$2"
-    local header="$3"
-    local application="$4"
-    local shortcut="$5"
-    local switch_type="$6"
+    total_apps="$1"
+    field_name="$2"
+    header="$3"
+    application="$4"
+    shortcut="$5"
+    switch_type="$6"
 
     while true; do
         display_banner
@@ -50,7 +50,7 @@ display_table_choice() {
         printf "  ${BLUE}0${NC} = ${BLUE}exit${NC}\n"
 
         printf "\nSelect to ${GREEN}enable${NC} | ${RED}disable${NC} $application (1-%s): " "$total_apps"
-        read -r choice
+        read -r choice || exit 0
 
         case $choice in
             [1-9]*)
@@ -61,23 +61,29 @@ display_table_choice() {
                     printf "\nPress Enter to continue..."; read -r _
                 else
                     # Update entry
-                    temp_file=$(mktemp)
                     chosen_app=$(echo "$app_data" | sed -n "${choice}p" | cut -d' ' -f1)
-                    jq --indent 4 --arg chosen_app "$chosen_app" --arg field_name "$field_name" '. |= map(if .name == $chosen_app then .[$field_name] |= not else . end)' "$JSON_FILE" > "$temp_file"
-                    mv "$temp_file" "$JSON_FILE"
+                    if CORE_write_json "$JSON_FILE" --arg chosen_app "$chosen_app" --arg field_name "$field_name" '. |= map(if .name == $chosen_app then .[$field_name] |= not else . end)'; then
+                        _selection_dirty=1
+                    else
+                        printf "\nFailed to update the application list. No changes were made.\n"; printf "\nPress Enter to continue..."; read -r _
+                    fi
                 fi
                 ;;
             e)
                 # Enable all
-                temp_file=$(mktemp)
-                jq --indent 4 --arg field_name "$field_name" 'map(if has($field_name) then .[$field_name] = true else . end)' "$JSON_FILE" > "$temp_file"
-                mv "$temp_file" "$JSON_FILE"
+                if CORE_write_json "$JSON_FILE" --arg field_name "$field_name" 'map(if has($field_name) then .[$field_name] = true else . end)'; then
+                    _selection_dirty=1
+                else
+                    printf "\nFailed to update the application list. No changes were made.\n"; printf "\nPress Enter to continue..."; read -r _
+                fi
                 ;;
             d)
                 # Disable all
-                temp_file=$(mktemp)
-                jq --indent 4 --arg field_name "$field_name" 'map(if has($field_name) then .[$field_name] = false else . end)' "$JSON_FILE" > "$temp_file"
-                mv "$temp_file" "$JSON_FILE"
+                if CORE_write_json "$JSON_FILE" --arg field_name "$field_name" 'map(if has($field_name) then .[$field_name] = false else . end)'; then
+                    _selection_dirty=1
+                else
+                    printf "\nFailed to update the application list. No changes were made.\n"; printf "\nPress Enter to continue..."; read -r _
+                fi
                 ;;
             a|s)
                 if [ -z "$switch_type" ]; then
@@ -93,7 +99,6 @@ display_table_choice() {
                 fi
                 ;;
             0)
-                CORE_export_selection "$TARGET_DEPLOY_FILE"
                 exit 0
                 ;;
             *)
@@ -112,13 +117,15 @@ parse_cmd_arg() {
     fi
 
     if [ "$1" = "--default" ]; then
-        updated_json_content=$(jq --indent 4 '
+        CORE_write_json "$JSON_FILE" '
             map(
                 .is_enabled = true |
                 if has("service_enabled") then .service_enabled = true else . end
             )
-        ' "$JSON_FILE")
-        echo "$updated_json_content" > "$JSON_FILE"
+        ' || {
+            printf "\nFailed to update the application list. No changes were made.\n"
+            exit 1
+        }
         CORE_export_selection "$TARGET_DEPLOY_FILE"
         exit 0
     elif [ "$1" = "--export" ]; then
@@ -162,6 +169,16 @@ parse_cmd_arg() {
 
 # Main script
 parse_cmd_arg "$@"
+
+_selection_dirty=0
+_export_selection_on_exit() {
+    [ "$_selection_dirty" = "1" ] || return 0
+    CORE_export_selection "$TARGET_DEPLOY_FILE" > /dev/null 2>&1
+}
+trap '_export_selection_on_exit' EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
 
 while true; do
     choose_application_type "$1"

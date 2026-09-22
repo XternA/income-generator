@@ -223,7 +223,7 @@ manage_tool() {
                 done
 
                 display_banner
-                rm -rf "$ENV_FILE" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE" "$ENV_IMAGE_TAG_FILE" "$ENV_PLATFORM_OVERRIDE_FILE"
+                rm -rf "$ENV_FILE" "$VAULT_FILE" "$VAULT_FILE.key" "$ENV_SYSTEM_FILE" "${ENV_DEPLOY_FILE}.save" "$ENV_DEPLOY_PROXY_FILE" "$ENV_IMAGE_TAG_FILE" "$ENV_PLATFORM_OVERRIDE_FILE"
                 
                 # Re-init some default setups
                 sh scripts/init.sh > /dev/null 2>&1
@@ -332,7 +332,10 @@ __CACHED_LIMIT=""
 get_stats
 
 trap '$POST_OPS; clear_screen; exit 0' INT TERM HUP
-$DECRYPT_CRED
+if ! CORE_require_unlocked_vault $DECRYPT_CRED; then
+    trap - INT TERM HUP
+    exit 1
+fi
 
 case "$1" in
     -h|--help|help)

@@ -12,13 +12,15 @@ CORE_is_git_repo() {
 }
 
 CORE_get_current_version() {
-    if [ -n "$IGM_VERSION" ]; then
-        CORE_CURRENT_VERSION="$IGM_VERSION"
-        return
+    if CORE_is_git_repo; then
+        _ver=$(git describe --tags 2>/dev/null)
+        _clone_ver=$(echo "$_ver" | sed 's/-[0-9]*-g[0-9a-f]*$//')
+        if [ -n "$_clone_ver" ]; then
+            CORE_CURRENT_VERSION="$_clone_ver"
+            return
+        fi
     fi
-    _ver=$(git describe --tags 2>/dev/null)
-    # Strip only the git describe suffix (-N-ghash), preserve pre-release (-beta.X)
-    CORE_CURRENT_VERSION=$(echo "$_ver" | sed 's/-[0-9]*-g[0-9a-f]*$//')
+    CORE_CURRENT_VERSION="$IGM_VERSION"
 }
 
 CORE_get_latest_version() {

@@ -103,7 +103,8 @@ CORE_extract_and_map_single_app() {
 
 CORE_export_selection() {
     _target="$1"
-    jq -r '.[] |
+
+    _raw=$(jq -r '.[] |
         "\(.name) " +
         (if .is_enabled then "ENABLED" else "DISABLED" end) + " " +
         (if .service_enabled != null then
@@ -111,33 +112,55 @@ CORE_export_selection() {
         else
             "null"
         end)
-    ' "$JSON_FILE" | {
-        : > "$_target"
+    ' "$JSON_FILE" 2>/dev/null) || return 1
+    [ -n "$_raw" ] || return 1
 
-        while IFS=' ' read -r name is_enabled service_enabled; do
-            echo "$name=$is_enabled" >> "$_target"
-            [ "$service_enabled" != "null" ] && echo "${name}_SERVICE=$service_enabled" >> "$_target"
-        done
-    }
+    _content=$(printf '%s\n' "$_raw" | while IFS=' ' read -r _name _state _service; do
+        printf '%s=%s\n' "$_name" "$_state"
+        [ "$_service" != "null" ] && printf '%s_SERVICE=%s\n' "$_name" "$_service"
+    done)
+
+    if [ -f "$_target" ] && [ "$_content" = "$(cat "$_target" 2>/dev/null)" ]; then
+        return 0
+    fi
+
+    _tmp="$_target.tmp.$$"
+    printf '%s\n' "$_content" > "$_tmp" || { rm -f "$_tmp"; return 1; }
+    mv "$_tmp" "$_target" || { rm -f "$_tmp"; return 1; }
+}
+
+CORE_selection_filter() {
+    _source="$1"
+    [ -f "$_source" ] || return 1
+
+    _jq_filter="."
+    while IFS='=' read -r _name _state; do
+        case "$_name" in
+            "") continue ;;
+        esac
+        _app_enabled="false"
+        [ "$_state" = "ENABLED" ] && _app_enabled="true"
+
+        if [ "${_name#*_SERVICE}" != "$_name" ]; then
+            _jq_filter="$_jq_filter | (.[] | select(.name == \"${_name%_SERVICE}\").service_enabled) = $_app_enabled"
+        else
+            _jq_filter="$_jq_filter | (.[] | select(.name == \"$_name\").is_enabled) = $_app_enabled"
+        fi
+    done < "$_source"
+
+    printf '%s' "$_jq_filter"
 }
 
 CORE_import_selection() {
     _source="$1"
     [ -f "$_source" ] || return
 
-    _jq_filter="."
-    while IFS='=' read -r name is_enabled; do
-        _app_enabled="false"
-        [ "$is_enabled" = "ENABLED" ] && _app_enabled="true"
+    _jq_filter=$(CORE_selection_filter "$_source") || return 1
 
-        if [ "${name#*_SERVICE}" != "$name" ]; then
-            _jq_filter="$_jq_filter | (.[] | select(.name == \"${name%_SERVICE}\").service_enabled) = $_app_enabled"
-        else
-            _jq_filter="$_jq_filter | (.[] | select(.name == \"$name\").is_enabled) = $_app_enabled"
-        fi
-    done < "$_source"
+    _current=$(jq -c '.' "$JSON_FILE" 2>/dev/null) || return 1
+    _updated=$(jq -c "$_jq_filter" "$JSON_FILE" 2>/dev/null) || return 1
+    [ "$_current" = "$_updated" ] && return 0
 
-    jq --indent 4 "${_jq_filter%|}" "$JSON_FILE" > "$JSON_FILE.tmp"
-    mv "$JSON_FILE.tmp" "$JSON_FILE"
+    CORE_write_json "$JSON_FILE" "$_jq_filter" || return 1
 }
 
