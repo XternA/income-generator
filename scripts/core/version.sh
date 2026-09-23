@@ -29,21 +29,29 @@ CORE_get_latest_version() {
 
 CORE_is_update_available() {
     [ -z "$1" ] || [ -z "$2" ] && return 1
-    _cv=$(echo "$1" | sed 's/^v//'); _lv=$(echo "$2" | sed 's/^v//')
-    # Compare base versions (MAJOR.MINOR.PATCH)
-    _cb=$(echo "$_cv" | cut -d- -f1); _lb=$(echo "$_lv" | cut -d- -f1)
-    _cv_n=$(echo "$_cb" | awk -F. '{printf "%d%03d%03d",$1,$2,$3}')
-    _lv_n=$(echo "$_lb" | awk -F. '{printf "%d%03d%03d",$1,$2,$3}')
+    _cv=$(printf '%s' "$1" | sed 's/^v//'); _lv=$(printf '%s' "$2" | sed 's/^v//')
+    _cb=${_cv%%-*}; _lb=${_lv%%-*}
+    _cv_n=$(printf '%s' "$_cb" | awk -F. '{printf "%d%03d%03d",$1,$2,$3}')
+    _lv_n=$(printf '%s' "$_lb" | awk -F. '{printf "%d%03d%03d",$1,$2,$3}')
     [ "$_lv_n" -gt "$_cv_n" ] && return 0
     [ "$_lv_n" -lt "$_cv_n" ] && return 1
-    # Same base — compare pre-release suffix numerically
-    _cp=$(echo "$_cv" | grep -oE '\-.*$' || true)
-    _lp=$(echo "$_lv" | grep -oE '\-.*$' || true)
+    case "$_cv" in *-*) _cp=${_cv#*-} ;; *) _cp="" ;; esac
+    case "$_lv" in *-*) _lp=${_lv#*-} ;; *) _lp="" ;; esac
     [ -z "$_lp" ] && [ -n "$_cp" ] && return 0
     [ -n "$_lp" ] && [ -z "$_cp" ] && return 1
-    _cn=$(echo "$_cp" | grep -oE '[0-9]+$' || echo 0)
-    _ln=$(echo "$_lp" | grep -oE '[0-9]+$' || echo 0)
-    [ "$_ln" -gt "$_cn" ]
+    _cs=$(printf '%s' "$_cp" | sed 's/^[^0-9]*//')
+    _ls=$(printf '%s' "$_lp" | sed 's/^[^0-9]*//')
+    _i=1
+    while :; do
+        _a=$(printf '%s' "$_cs" | awk -F'[^0-9]+' -v n="$_i" '{print $n}')
+        _b=$(printf '%s' "$_ls" | awk -F'[^0-9]+' -v n="$_i" '{print $n}')
+        [ -z "$_a" ] && [ -z "$_b" ] && return 1
+        [ -z "$_b" ] && return 1
+        [ -z "$_a" ] && return 0
+        [ "$_b" -gt "$_a" ] && return 0
+        [ "$_b" -lt "$_a" ] && return 1
+        _i=$((_i + 1))
+    done
 }
 
 CORE_check_update() {

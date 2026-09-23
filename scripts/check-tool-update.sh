@@ -58,12 +58,12 @@ case "$1" in
                     ;;
                 *)
                     printf "\nUpdate skipped ❌\n"
-                    exit 1
+                    exit 11
                     ;;
             esac
         else
             echo "No update available ❌"
-            exit 1
+            exit 10
         fi
         ;;
     *)
