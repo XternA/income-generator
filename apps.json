@@ -231,6 +231,13 @@
         "is_enabled": true
     },
     {
+        "name": "PROXYBASE_MARKETS",
+        "url": "https://proxybase.xyz?referral=nXzS3c6iTO",
+        "description": " SOCKS5 proxy marketplace for AI agents. Wallet is created automatically on first start; sell bandwidth and earn USDC on Tempo Chain. Check container logs for the wallet address.",
+        "properties": null,
+        "is_enabled": true
+    },
+    {
         "name": "WIZARDGAIN",
         "url": "https://tinyurl.com/mw962kkv",
         "description": null,
