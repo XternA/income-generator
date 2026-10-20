@@ -16,7 +16,7 @@ If you like this project, don't forget to leave a star. ⭐
 </div>
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/883c4584-3c71-4040-a45d-da02bded1174" alt="IGM TUI" />
+  <img src="https://github.com/user-attachments/assets/feb93047-41f6-47c0-b4e6-a3c89cd60055" alt="IGM WEB UI" />
 </div>
 
 Income Generator (IGM) is a feature-rich tool for deploying and managing passive income applications at scale — in a containerized runtime environment with easy configurable resource limits and multi-proxy scaling to maximise earnings per device.
