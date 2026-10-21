@@ -233,6 +233,30 @@ services:
                 max-size: 10k
                 max-file: 1
 
+    proxybase-markets:
+        container_name: proxybase-markets
+        image: ghcr.io/proxybasehq/proxybase-cli
+        restart: always
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+            - com.centurylinklabs.watchtower.scope=igm
+        profiles:
+            - ${PROXYBASE_MARKETS:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        volumes:
+            - proxybase-markets-data:/home/proxybase/.proxybase
+        cpus: $CPU_LIMIT
+        mem_limit: $RAM_LIMIT
+        mem_reservation: $RAM_RESERVE
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1
+
     wizardgain:
         container_name: wizardgain
         image: wizardgain/worker
@@ -287,3 +311,4 @@ services:
 
 volumes:
     bitping-data:
+    proxybase-markets-data:

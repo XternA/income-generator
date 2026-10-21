@@ -106,6 +106,7 @@ App registration can be done via IGM's TUI, CLI or Web UI interface.
 | **[GagaNode](https://tinyurl.com/mr2fb8jf)**        | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
 | **[Wipter](https://tinyurl.com/mt8rj948)**          | :white_check_mark: | :x:                | Unlimited | Unlimited | Crypto |
 | **[ProxyBase](https://tinyurl.com/3z9sas27)**       | :white_check_mark: | :white_check_mark: | Unlimited | 1         | Crypto |
+| **[ProxyBase Markets](https://proxybase.xyz?referral=nXzS3c6iTO)** | :x: | :white_check_mark: | Unlimited | 1         | Crypto (USDC) |
 | **[WizardGain](https://tinyurl.com/mw962kkv)**      | :white_check_mark: | :white_check_mark: | Unlimited | 1         | PayPal, Crypto |
 | **[AntGain](https://tinyurl.com/usdtrrus)**         | :white_check_mark: | :white_check_mark: | Unlimited | Unlimited | Crypto, PayPal (Soon) |
 
