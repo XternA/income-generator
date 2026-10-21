@@ -1,0 +1,59 @@
+# Puts the apps of compose.local.yml behind the LAN guard (compose.lan-guard.yml).
+# hostname, dns and ports conflict with a shared network namespace, so they
+# are reset here and set on the guard instead.
+
+services:
+    earnapp:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    packetstream:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    speedshare:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    spide:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    grass:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    wipter:
+        network_mode: "service:lan-guard-wipter"
+        hostname: !reset null
+        dns: !reset []
+        ports: !reset []
+        depends_on:
+            lan-guard-wipter:
+                condition: service_healthy
+                restart: true

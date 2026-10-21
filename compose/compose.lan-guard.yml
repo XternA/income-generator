@@ -1,0 +1,58 @@
+# LAN guard: keeps app containers away from the local network.
+#
+# Apps join a guard's network namespace (see compose.<group>.lan-guard.yml) and
+# start only once the guard reports healthy. The guard blocks private and local
+# destinations (LAN, router, Docker host, CGNAT/Tailscale, link-local) and leaves
+# the internet reachable. If the guard stops, the apps lose their network rather
+# than running unprotected.
+#
+# Image source: https://github.com/Joly0/lan-guard
+# Turn off with `igm lan-guard off`, then redeploy.
+#
+# Not under watchtower: replacing a guard would cut the apps behind it off until
+# they are recreated. The guard image is refreshed on every IGM deploy instead.
+
+services:
+    lan-guard:
+        container_name: lan-guard
+        image: ghcr.io/joly0/lan-guard:1
+        restart: always
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+            - role=infra
+        cap_add:
+            - NET_ADMIN
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1
+
+    # Wipter publishes a port, which has to live on the guard. A separate guard
+    # that only runs with Wipter keeps that port free when Wipter is disabled.
+    lan-guard-wipter:
+        container_name: lan-guard-wipter
+        image: ghcr.io/joly0/lan-guard:1
+        restart: always
+        hostname: $DEVICE_ID
+        labels:
+            - project=standard
+            - role=infra
+        cap_add:
+            - NET_ADMIN
+        ports:
+            - 8000:8080
+        profiles:
+            - ${WIPTER:-DISABLED}
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+        logging:
+            driver: json-file
+            options:
+                max-size: 10k
+                max-file: 1

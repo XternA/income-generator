@@ -56,4 +56,5 @@ Usage: igm ${RED}|${NC} igm [option] ${RED}|${NC} igm [option] [arg]
   igm limit                                      Set the application resource limits.
   igm editor                                     Change the default editor tool to use.
   igm runtime                                    Configure or manage the container runtime engine.
+  igm lan-guard [on|off|status]                  Keep applications away from your local network (on by default).
 "

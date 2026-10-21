@@ -487,6 +487,9 @@ case "$1" in
         runtime_menu --cli
         clear_screen
         ;;
+    lan-guard)
+        lan_guard_cli "$2"
+        ;;
     ip)
         . scripts/ip/ip-score.sh
         clear_screen
