@@ -1,0 +1,97 @@
+# Puts the apps of compose.hosting.yml behind the LAN guard (compose.lan-guard.yml).
+# hostname, dns and ports conflict with a shared network namespace, so they
+# are reset here and set on the guard instead.
+#
+# mysterium is left out: it runs a VPN node with its own NET_ADMIN, which could
+# change the guard's rules from inside a shared namespace.
+
+services:
+    repocket:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    proxyrack:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    proxylite:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    earnfm:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    bitping:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    gaga-node:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    bearshare:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    proxybase:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    wizardgain:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    antgain:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true

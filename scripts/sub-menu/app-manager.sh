@@ -6,6 +6,7 @@ __APP_MANAGER_CACHED=1
 . scripts/util/app-import-reader.sh
 . scripts/util/app-credential-validator.sh
 . scripts/core/containers.sh
+. scripts/core/lan-guard.sh
 
 WATCHTOWER="sh $ROOT_DIR/scripts/runtime/watchtower.sh"
 
@@ -20,6 +21,7 @@ APP_COMPOSE_FILES="
 -f $COMPOSE_DIR/compose.local.yml
 -f $COMPOSE_DIR/compose.single.yml
 -f $COMPOSE_DIR/compose.service.yml
+$(CORE_lan_guard_compose_files unlimited hosting local single service)
 "
 
 ALL_COMPOSE_FILES="
@@ -159,11 +161,11 @@ install_applications() {
                 ;;
             3)
                 install_type="Installing only applications supporting VPS/Hosting..."
-                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.unlimited.yml -f $COMPOSE_DIR/compose.hosting.yml $(CORE_lan_guard_compose_files unlimited hosting)"
                 ;;
             4)
                 install_type="Installing all available services application..."
-                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.service.yml"
+                compose_files="-f $COMPOSE_DIR/compose.yml -f $COMPOSE_DIR/compose.service.yml $(CORE_lan_guard_compose_files service)"
                 ;;
             0)
                 break
@@ -875,8 +877,8 @@ install_app_noninteractive() {
     case "$_install_target" in
         *_SERVICE)
             pot_name=$(printf '%s' "${_install_target%_SERVICE}" | tr 'A-Z' 'a-z')-pot
-            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE"                 -f "$COMPOSE_DIR/compose.service.yml" pull "$pot_name" || return 5
-            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE"                 -f "$COMPOSE_DIR/compose.service.yml" up --force-recreate -d "$pot_name" || return 5
+            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE"                 -f "$COMPOSE_DIR/compose.service.yml" $(CORE_lan_guard_compose_files service) pull "$pot_name" || return 5
+            $CONTAINER_COMPOSE $SYSTEM_ENV_FILES --env-file "$ENV_FILE"                 -f "$COMPOSE_DIR/compose.service.yml" $(CORE_lan_guard_compose_files service) up --force-recreate -d "$pot_name" || return 5
             ;;
         *)
             selected_app=$(resolve_app_service "$_install_target")

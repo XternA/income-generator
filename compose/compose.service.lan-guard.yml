@@ -1,0 +1,31 @@
+# Puts the apps of compose.service.yml behind the LAN guard (compose.lan-guard.yml).
+# hostname, dns and ports conflict with a shared network namespace, so they
+# are reset here and set on the guard instead.
+
+services:
+    honeygain-pot:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    bearshare-pot:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
+
+    packetshare-pot:
+        network_mode: "service:lan-guard"
+        hostname: !reset null
+        dns: !reset []
+        depends_on:
+            lan-guard:
+                condition: service_healthy
+                restart: true
